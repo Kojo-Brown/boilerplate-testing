@@ -11,7 +11,7 @@
 ## Phase 2 — Component Testing
 - [x] Testing Library patterns: render helpers, custom `renderWithProviders`
 - [x] MSW 2 handler library: auth, users, pagination
-- [ ] Storybook 9 interaction tests
+- [x] Storybook 9 interaction tests
 - [ ] Accessibility: `@axe-core/react` + automated WCAG checks
 
 ## Phase 3 — E2E Testing (Playwright)
