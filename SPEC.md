@@ -12,7 +12,7 @@
 - [x] Testing Library patterns: render helpers, custom `renderWithProviders`
 - [x] MSW 2 handler library: auth, users, pagination
 - [x] Storybook 9 interaction tests
-- [ ] Accessibility: `@axe-core/react` + automated WCAG checks
+- [x] Accessibility: `@axe-core/react` + automated WCAG checks
 
 ## Phase 3 — E2E Testing (Playwright)
 - [ ] Playwright config: multi-browser, CI mode, trace on failure

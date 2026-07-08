@@ -15,6 +15,8 @@
     "storybook:test": "test-storybook"
   },
   "devDependencies": {
+    "@axe-core/react": "^4.10.0",
+    "axe-core": "^4.10.0",
     "@playwright/test": "^1.52.0",
     "@reduxjs/toolkit": "^2.12.0",
     "@storybook/addon-essentials": "^9.0.0",
