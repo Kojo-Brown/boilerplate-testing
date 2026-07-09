@@ -5,6 +5,8 @@ const BASE_URL = process.env['PLAYWRIGHT_BASE_URL'] ?? 'http://localhost:5173'
 
 export default defineConfig({
   testDir: './playwright',
+  // Exclude setup scripts from the default test run; run them via --project=setup.
+  testIgnore: ['**/setup/**'],
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
@@ -25,6 +27,20 @@ export default defineConfig({
   outputDir: 'playwright-results',
 
   projects: [
+    // -----------------------------------------------------------------------
+    // Auth setup — writes .auth/admin.json and .auth/user.json.
+    // Run once before authenticated test suites:
+    //   pnpm test:e2e --project=setup
+    // -----------------------------------------------------------------------
+    {
+      name: 'setup',
+      testMatch: ['**/setup/*.setup.ts'],
+    },
+
+    // -----------------------------------------------------------------------
+    // Browser projects — standard cross-browser matrix.
+    // Add `dependencies: ['setup']` to make auth setup run automatically.
+    // -----------------------------------------------------------------------
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
