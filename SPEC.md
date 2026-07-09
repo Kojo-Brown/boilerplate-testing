@@ -15,7 +15,7 @@
 - [x] Accessibility: `@axe-core/react` + automated WCAG checks
 
 ## Phase 3 — E2E Testing (Playwright)
-- [ ] Playwright config: multi-browser, CI mode, trace on failure
+- [x] Playwright config: multi-browser, CI mode, trace on failure
 - [ ] Auth fixture: `test.extend` with pre-authenticated `page`
 - [ ] Page Object Model: `LoginPage`, `DashboardPage`, `FormPage`
 - [ ] Visual regression: `expect(page).toHaveScreenshot()`
