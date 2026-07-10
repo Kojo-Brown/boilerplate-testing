@@ -17,7 +17,7 @@
 ## Phase 3 — E2E Testing (Playwright)
 - [x] Playwright config: multi-browser, CI mode, trace on failure
 - [x] Auth fixture: `test.extend` with pre-authenticated `page`
-- [ ] Page Object Model: `LoginPage`, `DashboardPage`, `FormPage`
+- [x] Page Object Model: `LoginPage`, `DashboardPage`, `FormPage`
 - [ ] Visual regression: `expect(page).toHaveScreenshot()`
 
 ## Phase 4 — API Testing
