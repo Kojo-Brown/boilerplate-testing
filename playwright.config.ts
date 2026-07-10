@@ -24,6 +24,26 @@ export default defineConfig({
     navigationTimeout: 30_000,
   },
 
+  // -------------------------------------------------------------------------
+  // Visual regression snapshot configuration
+  //
+  // Snapshots live next to the spec file that created them:
+  //   playwright/visual.spec.ts-snapshots/<name>-<platform>-<browser>.png
+  //
+  // To update stale baselines:
+  //   pnpm test:e2e --update-snapshots --project=visual-chromium
+  //
+  // Pixel diff tolerance — override per-assertion via { threshold, maxDiffPixels }.
+  // -------------------------------------------------------------------------
+  expect: {
+    toHaveScreenshot: {
+      // Maximum per-pixel colour delta (0 = exact, 1 = ignore all colour).
+      threshold: 0.2,
+      // Maximum number of pixels allowed to differ between baseline and capture.
+      maxDiffPixels: 50,
+    },
+  },
+
   outputDir: 'playwright-results',
 
   projects: [
@@ -60,6 +80,29 @@ export default defineConfig({
     {
       name: 'mobile-safari',
       use: { ...devices['iPhone 13'] },
+    },
+
+    // -----------------------------------------------------------------------
+    // Visual regression project — Chromium only.
+    //
+    // Snapshot baselines are keyed to a single browser to eliminate
+    // cross-browser font-rendering divergence from causing spurious diffs.
+    // Run on-demand or as a separate CI job:
+    //   pnpm test:e2e --project=visual-chromium
+    //   pnpm test:e2e --project=visual-chromium --update-snapshots
+    // -----------------------------------------------------------------------
+    {
+      name: 'visual-chromium',
+      testMatch: ['**/visual.spec.ts'],
+      use: {
+        ...devices['Desktop Chrome'],
+        // Disable GPU compositing for deterministic pixel output across machines.
+        launchOptions: {
+          args: ['--disable-gpu', '--font-render-hinting=none'],
+        },
+        // Honour prefers-reduced-motion in CSS to suppress transitions.
+        reducedMotion: 'reduce',
+      },
     },
   ],
 })
