@@ -18,7 +18,7 @@
 - [x] Playwright config: multi-browser, CI mode, trace on failure
 - [x] Auth fixture: `test.extend` with pre-authenticated `page`
 - [x] Page Object Model: `LoginPage`, `DashboardPage`, `FormPage`
-- [ ] Visual regression: `expect(page).toHaveScreenshot()`
+- [x] Visual regression: `expect(page).toHaveScreenshot()`
 
 ## Phase 4 — API Testing
 - [ ] Supertest helpers for Express/NestJS: `createTestApp`, typed request builder
