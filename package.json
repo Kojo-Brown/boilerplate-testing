@@ -41,6 +41,8 @@
     "storybook": "^9.0.0",
     "typescript": "^6.0.3",
     "vite": "^7.0.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "supertest": "^7.0.0",
+    "@types/supertest": "^6.0.0"
   }
 }
