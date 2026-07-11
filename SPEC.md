@@ -23,7 +23,7 @@
 ## Phase 4 — API Testing
 - [x] Supertest helpers for Express/NestJS: `createTestApp`, typed request builder
 - [x] Prisma test isolation: `beforeEach` truncate via `$transaction`
-- [ ] Seed factories with `@faker-js/faker` + `prisma-factory`
+- [x] Seed factories with `@faker-js/faker` + `prisma-factory`
 - [ ] Contract testing example with Pact
 
 ## Phase 5 — Performance & Load
