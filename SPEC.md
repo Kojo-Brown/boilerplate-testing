@@ -21,7 +21,7 @@
 - [x] Visual regression: `expect(page).toHaveScreenshot()`
 
 ## Phase 4 — API Testing
-- [ ] Supertest helpers for Express/NestJS: `createTestApp`, typed request builder
+- [x] Supertest helpers for Express/NestJS: `createTestApp`, typed request builder
 - [ ] Prisma test isolation: `beforeEach` truncate via `$transaction`
 - [ ] Seed factories with `@faker-js/faker` + `prisma-factory`
 - [ ] Contract testing example with Pact
