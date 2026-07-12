@@ -27,7 +27,7 @@
 - [x] Contract testing example with Pact
 
 ## Phase 5 — Performance & Load
-- [ ] k6 load test script template (ramp-up, steady, ramp-down)
+- [x] k6 load test script template (ramp-up, steady, ramp-down)
 - [ ] Lighthouse CI integration with budget assertions
 - [ ] Bundle size regression check (bundlesize)
 
