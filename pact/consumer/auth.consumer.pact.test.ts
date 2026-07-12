@@ -7,10 +7,13 @@ const { integer, string, regex, email } = MatchersV3;
 
 const JSON_CONTENT_TYPE = regex('application/json.*', 'application/json');
 
-// A minimal but structurally valid JWT (header.payload.signature)
+// Synthetic JWT fixture — each segment is the base64url encoding of
+// "test-<section>" and contains no secret material whatsoever.
+// DO NOT replace with a real or jwt.io example token.
+const EXAMPLE_JWT = 'dGVzdC1oZWFkZXI.dGVzdC1wYXlsb2Fk.dGVzdC1zaWduYXR1cmU';
+
+// Three dot-separated base64url segments (the minimal JWT shape).
 const JWT_REGEX = '[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+';
-const EXAMPLE_JWT =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
 const provider = new PactV3({
   consumer: PACT_CONSUMER,

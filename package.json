@@ -11,6 +11,7 @@
     "coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
+    "scan:secrets": "npx gitleaks detect --source . --config .gitleaks.toml --verbose",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
     "storybook:test": "test-storybook"

@@ -1,0 +1,13 @@
+title = "gitleaks config — boilerplate-testing"
+
+[extend]
+# Inherit the full default ruleset; only add project-specific overrides below.
+useDefault = true
+
+[allowlist]
+description = "Synthetic test-fixture tokens used in pact/consumer tests"
+# Only the specific base64url triple that encodes test-header.test-payload.test-signature.
+# Any other JWT-shaped string — including the jwt.io example — will still be caught.
+regexes = [
+  '''dGVzdC1oZWFkZXI\.dGVzdC1wYXlsb2Fk\.dGVzdC1zaWduYXR1cmU''',
+]
