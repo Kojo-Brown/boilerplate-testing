@@ -24,7 +24,7 @@
 - [x] Supertest helpers for Express/NestJS: `createTestApp`, typed request builder
 - [x] Prisma test isolation: `beforeEach` truncate via `$transaction`
 - [x] Seed factories with `@faker-js/faker` + `prisma-factory`
-- [ ] Contract testing example with Pact
+- [x] Contract testing example with Pact
 
 ## Phase 5 — Performance & Load
 - [ ] k6 load test script template (ramp-up, steady, ramp-down)
