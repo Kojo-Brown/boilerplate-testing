@@ -1,0 +1,6 @@
+version: 2
+# GitGuardian configuration.
+# Source files in pact/ are fully scanned.
+# Only the generated pacts/ output directory (runtime artefacts, no source) is excluded.
+ignore-paths:
+  - "pacts/"
