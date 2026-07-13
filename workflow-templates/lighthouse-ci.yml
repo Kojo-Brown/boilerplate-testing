@@ -1,0 +1,63 @@
+# lighthouse-ci.yml — Lighthouse CI with performance budget assertions
+#
+# Copy to .github/workflows/lighthouse-ci.yml in your project.
+# Adjust build_command and the URL list in lighthouse/lighthouserc.cjs.
+#
+# Optional secrets:
+#   LHCI_GITHUB_APP_TOKEN — posts a Lighthouse status check on the PR
+#   LHCI_TOKEN + LHCI_SERVER_URL — if using a self-hosted LHCI server
+
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lighthouse:
+    name: Lighthouse Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+        env:
+          NODE_ENV: production
+
+      - name: Run Lighthouse CI
+        run: pnpm lighthouse:ci
+        env:
+          # Posts a Lighthouse status check directly on the PR.
+          # Install the LHCI GitHub App and add the token as a repo secret.
+          # https://github.com/apps/lighthouse-ci
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          # Uncomment for self-hosted LHCI server:
+          # LHCI_TOKEN: ${{ secrets.LHCI_TOKEN }}
+          # LHCI_SERVER_URL: ${{ vars.LHCI_SERVER_URL }}
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports-${{ github.run_number }}
+          path: .lighthouseci/
+          retention-days: 14
