@@ -29,7 +29,7 @@
 ## Phase 5 — Performance & Load
 - [x] k6 load test script template (ramp-up, steady, ramp-down)
 - [x] Lighthouse CI integration with budget assertions
-- [ ] Bundle size regression check (bundlesize)
+- [x] Bundle size regression check (bundlesize)
 
 ## Phase 6 — CI Patterns
 - [ ] GitHub Actions: parallel matrix for unit / e2e / coverage
