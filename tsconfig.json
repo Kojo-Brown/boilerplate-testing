@@ -15,5 +15,5 @@
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "k6/load-test.ts", "k6/metrics.ts"]
+  "exclude": ["node_modules", "k6/load-test.ts", "k6/metrics.ts", "bundlesize/check.ts"]
 }
