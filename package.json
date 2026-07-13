@@ -14,7 +14,8 @@
     "scan:secrets": "npx gitleaks detect --source . --config .gitleaks.toml --verbose",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
-    "storybook:test": "test-storybook"
+    "storybook:test": "test-storybook",
+    "lighthouse:ci": "lhci autorun --config=lighthouse/lighthouserc.cjs"
   },
   "dependencies": {
     "@faker-js/faker": "^9.8.0"
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@axe-core/react": "^4.10.0",
     "axe-core": "^4.10.0",
+    "@lhci/cli": "^0.14.0",
     "@pact-foundation/pact": "^13.0.0",
     "@playwright/test": "^1.52.0",
     "@reduxjs/toolkit": "^2.12.0",
