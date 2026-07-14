@@ -32,6 +32,6 @@
 - [x] Bundle size regression check (bundlesize)
 
 ## Phase 6 — CI Patterns
-- [ ] GitHub Actions: parallel matrix for unit / e2e / coverage
+- [x] GitHub Actions: parallel matrix for unit / e2e / coverage
 - [ ] Flaky test retry config + quarantine strategy
 - [ ] Codecov integration + coverage badge
