@@ -1,0 +1,193 @@
+# ci.yml — Parallel test matrix: unit, e2e (multi-browser), and coverage
+#
+# Copy to .github/workflows/ci.yml in your project.
+#
+# Jobs run fully in parallel with fail-fast: false so every suite reports
+# even when one fails.  Coverage is uploaded as an artifact so the next
+# workflow (codecov.yml) can pick it up without re-running tests.
+#
+# Required secrets: none (coverage upload via artifact; add CODECOV_TOKEN
+# to the separate codecov.yml workflow once you wire up the Codecov step).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs for the same ref so stale runs don't consume runners.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10"
+
+# ---------------------------------------------------------------------------
+# Shared setup — extracted as a reusable composite action candidate.
+# Replicate these steps across jobs until you have a local action.
+# ---------------------------------------------------------------------------
+
+jobs:
+  # -------------------------------------------------------------------------
+  # Unit tests — Vitest (jsdom environment, globals, path aliases)
+  # -------------------------------------------------------------------------
+  unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests
+        run: pnpm test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-results-${{ github.run_number }}
+          path: |
+            test-results/
+            junit.xml
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # -------------------------------------------------------------------------
+  # Coverage — Vitest with v8 provider; uploads lcov for downstream tooling
+  # -------------------------------------------------------------------------
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run coverage
+        run: pnpm coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ github.run_number }}
+          # lcov.info is consumed by codecov.yml; html/ is for manual review.
+          path: coverage/
+          retention-days: 14
+
+  # -------------------------------------------------------------------------
+  # E2E — Playwright, one job per browser (chromium / firefox / webkit)
+  # -------------------------------------------------------------------------
+  e2e:
+    name: E2E (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      # Keep running other browsers when one fails.
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        # Install only the browser needed for this matrix cell to keep cache tight.
+        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run E2E tests
+        run: pnpm test:e2e --project=${{ matrix.browser }}
+        env:
+          CI: "true"
+          # Point at your deployed preview URL in CI, e.g. via a prior deploy step:
+          # PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.browser }}-${{ github.run_number }}
+          path: playwright-report/
+          retention-days: 14
+
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ matrix.browser }}-${{ github.run_number }}
+          path: playwright-results/
+          retention-days: 7
+
+  # -------------------------------------------------------------------------
+  # Required status check — gates merges on all parallel jobs passing.
+  # Add this job name to your branch protection "required status checks".
+  # -------------------------------------------------------------------------
+  ci-pass:
+    name: CI Pass
+    runs-on: ubuntu-latest
+    needs: [unit, coverage, e2e]
+    if: always()
+
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ needs.unit.result }}" != "success" ]]; then
+            echo "Unit tests failed" && exit 1
+          fi
+          if [[ "${{ needs.coverage.result }}" != "success" ]]; then
+            echo "Coverage failed" && exit 1
+          fi
+          if [[ "${{ needs.e2e.result }}" != "success" ]]; then
+            echo "E2E tests failed" && exit 1
+          fi
+          echo "All CI jobs passed"
