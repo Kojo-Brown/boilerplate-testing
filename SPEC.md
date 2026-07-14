@@ -33,5 +33,5 @@
 
 ## Phase 6 — CI Patterns
 - [x] GitHub Actions: parallel matrix for unit / e2e / coverage
-- [ ] Flaky test retry config + quarantine strategy
+- [x] Flaky test retry config + quarantine strategy
 - [ ] Codecov integration + coverage badge
