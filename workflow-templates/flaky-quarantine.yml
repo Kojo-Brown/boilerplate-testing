@@ -1,0 +1,179 @@
+# flaky-quarantine.yml — Non-blocking quarantine suite runner
+#
+# Copy to .github/workflows/flaky-quarantine.yml in your project.
+#
+# PURPOSE
+# -------
+# Quarantined tests are known-flaky tests that have been deliberately
+# isolated so they cannot block CI.  This workflow runs them on a
+# separate schedule and on PRs (as a non-required check) so their
+# status is always visible without endangering the merge gate.
+#
+# VITEST QUARANTINE
+# -----------------
+# Tests wrapped with `quarantine()` from vitest/flaky.ts are skipped
+# in the main run.  Here they run with QUARANTINE=1 set, which causes
+# the helper to register them as live tests with automatic retry.
+#
+# PLAYWRIGHT QUARANTINE
+# ---------------------
+# Tests whose title contains @flaky are excluded from the main browser
+# projects via `grepInvert: /@flaky/`.  The "quarantine" project in
+# playwright.config.ts uses `grep: /@flaky/` to run only those tests
+# with elevated retries and full trace/video capture.
+#
+# Required secrets: none.
+# Required branch protection: do NOT add these jobs to required checks.
+
+name: Quarantine Tests
+
+on:
+  # Run nightly to surface regressions before they land on PRs.
+  schedule:
+    - cron: '0 3 * * *'
+
+  # Also run on PRs as a non-blocking informational check.
+  pull_request:
+    branches: [main]
+
+  # Allow manual trigger for debugging a specific quarantined test.
+  workflow_dispatch:
+    inputs:
+      grep:
+        description: 'Playwright grep filter (e.g. "user list @flaky")'
+        required: false
+        default: '@flaky'
+
+concurrency:
+  group: quarantine-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  PNPM_VERSION: '10'
+
+jobs:
+  # -------------------------------------------------------------------------
+  # Vitest quarantine — runs tests wrapped with quarantine() from flaky.ts.
+  # QUARANTINE=1 makes the helper register them as live tests with retry.
+  # -------------------------------------------------------------------------
+  vitest-quarantine:
+    name: Vitest Quarantine
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Never fail the workflow — quarantine runs are informational.
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run quarantine suite
+        # QUARANTINE=1 is set inside vitest/quarantine.config.ts via the env
+        # option; this shell variable is a belt-and-suspenders fallback.
+        run: QUARANTINE=1 pnpm test:quarantine
+        continue-on-error: true
+
+      - name: Upload quarantine results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-quarantine-${{ github.run_number }}
+          path: quarantine-results/
+          retention-days: 30
+          if-no-files-found: ignore
+
+  # -------------------------------------------------------------------------
+  # Playwright quarantine — runs tests tagged @flaky in their title.
+  # Uses the "quarantine" project from playwright.config.ts (5 retries,
+  # full trace + video capture, extended timeouts).
+  # -------------------------------------------------------------------------
+  playwright-quarantine:
+    name: Playwright Quarantine
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers (Chromium only)
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run quarantine E2E tests
+        run: |
+          GREP="${{ github.event.inputs.grep || '@flaky' }}"
+          pnpm test:e2e --project=quarantine --grep "$GREP"
+        env:
+          CI: 'true'
+        continue-on-error: true
+
+      - name: Upload Playwright quarantine report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-quarantine-report-${{ github.run_number }}
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload Playwright quarantine traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-quarantine-traces-${{ github.run_number }}
+          path: playwright-results/
+          retention-days: 30
+          if-no-files-found: ignore
+
+  # -------------------------------------------------------------------------
+  # Summary job — always runs and annotates the workflow with pass/fail counts.
+  # Add this job name to your Slack/PagerDuty notifications if desired.
+  # -------------------------------------------------------------------------
+  quarantine-summary:
+    name: Quarantine Summary
+    runs-on: ubuntu-latest
+    needs: [vitest-quarantine, playwright-quarantine]
+    if: always()
+
+    steps:
+      - name: Report quarantine status
+        run: |
+          VITEST="${{ needs.vitest-quarantine.result }}"
+          PW="${{ needs.playwright-quarantine.result }}"
+          echo "## Quarantine Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Suite | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Vitest quarantine | $VITEST |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Playwright quarantine | $PW |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Quarantine failures are informational and do not block CI." >> "$GITHUB_STEP_SUMMARY"
+          echo "Review artifacts and un-quarantine tests that pass consistently." >> "$GITHUB_STEP_SUMMARY"

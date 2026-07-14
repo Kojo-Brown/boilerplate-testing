@@ -59,27 +59,64 @@ export default defineConfig({
 
     // -----------------------------------------------------------------------
     // Browser projects — standard cross-browser matrix.
+    // Tests tagged @flaky in their title are excluded from the main run;
+    // they land in the quarantine project below instead.
     // Add `dependencies: ['setup']` to make auth setup run automatically.
     // -----------------------------------------------------------------------
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      grepInvert: /@flaky/,
     },
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      grepInvert: /@flaky/,
     },
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      grepInvert: /@flaky/,
     },
     {
       name: 'mobile-chrome',
       use: { ...devices['Pixel 5'] },
+      grepInvert: /@flaky/,
     },
     {
       name: 'mobile-safari',
       use: { ...devices['iPhone 13'] },
+      grepInvert: /@flaky/,
+    },
+
+    // -----------------------------------------------------------------------
+    // Quarantine project — runs ONLY tests tagged @flaky in their title.
+    //
+    // Tagging convention:
+    //   test('loads user list @flaky', async ({ page }) => { ... })
+    //
+    // Run in CI via a separate non-blocking job:
+    //   pnpm test:e2e --project=quarantine
+    //
+    // This project uses higher retries and longer timeouts.  Failures do
+    // NOT block the main CI pass — they are reported as warnings and
+    // uploaded as artifacts for trend tracking.
+    //
+    // Un-quarantine a test by removing @flaky from its title once it has
+    // passed consistently across N quarantine runs.
+    // -----------------------------------------------------------------------
+    {
+      name: 'quarantine',
+      grep: /@flaky/,
+      retries: 5,
+      use: {
+        ...devices['Desktop Chrome'],
+        actionTimeout: 20_000,
+        navigationTimeout: 60_000,
+        // Always capture trace + video so flakiness can be diagnosed.
+        trace: 'on',
+        video: 'on',
+      },
     },
 
     // -----------------------------------------------------------------------

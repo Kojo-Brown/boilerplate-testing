@@ -6,6 +6,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:quarantine": "QUARANTINE=1 vitest run --config vitest/quarantine.config.ts",
     "test:e2e": "playwright test",
     "test:pact": "vitest run --config pact/vitest.config.ts",
     "coverage": "vitest run --coverage",
