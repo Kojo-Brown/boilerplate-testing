@@ -1,0 +1,90 @@
+# codecov.yml — Upload coverage reports to Codecov and display a badge
+#
+# Copy to .github/workflows/codecov.yml in your project.
+#
+# Prerequisites:
+#   1. Enable your repo at app.codecov.io
+#   2. Add CODECOV_TOKEN to Settings → Secrets → Actions
+#   3. A ci.yml workflow that runs "pnpm coverage" and uploads the coverage/
+#      directory as an artifact named "coverage-${{ github.run_number }}"
+#
+# Badge Markdown (copy into README.md after enabling the repo on Codecov):
+#   [![codecov](https://codecov.io/gh/<org>/<repo>/graph/badge.svg?token=XXXXXXXX)](https://codecov.io/gh/<org>/<repo>)
+#
+# This workflow triggers on the same events as ci.yml and runs AFTER coverage
+# is uploaded as an artifact so tests are not re-executed here.
+
+name: Codecov
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: codecov-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # upload-coverage
+  # Downloads the coverage artifact produced by ci.yml and ships the lcov
+  # report to Codecov.  Runs after the coverage job completes.
+  # ---------------------------------------------------------------------------
+  upload-coverage:
+    name: Upload Coverage to Codecov
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Download the coverage artifact written by the coverage job in ci.yml.
+      # The artifact name includes the run number so parallel runs don't clash.
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-${{ github.run_number }}
+          path: coverage/
+
+      # codecov/codecov-action handles token auth, retry, and slug detection.
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          # lcov.info is the standard format; html/ is ignored by the uploader.
+          files: coverage/lcov.info
+          flags: unit
+          name: boilerplate-testing
+          fail_ci_if_error: true
+          verbose: true
+
+  # ---------------------------------------------------------------------------
+  # Alternative: run coverage inline (when ci.yml is not in use)
+  # Uncomment this job and comment out upload-coverage above.
+  # ---------------------------------------------------------------------------
+  # coverage-inline:
+  #   name: Coverage (inline)
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 15
+  #
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: pnpm/action-setup@v4
+  #       with: { version: "${{ env.PNPM_VERSION }}" }
+  #     - uses: actions/setup-node@v4
+  #       with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
+  #     - run: pnpm install --frozen-lockfile
+  #     - run: pnpm coverage
+  #     - uses: codecov/codecov-action@v5
+  #       with:
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         files: coverage/lcov.info
+  #         flags: unit
+  #         fail_ci_if_error: true

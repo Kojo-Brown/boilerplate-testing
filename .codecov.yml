@@ -1,0 +1,80 @@
+# Codecov configuration
+# https://docs.codecov.com/docs/codecov-yaml
+#
+# Add CODECOV_TOKEN to your repository secrets (Settings → Secrets → Actions).
+# The token is obtained from app.codecov.io after enabling your repository.
+
+codecov:
+  # Notify after all CI builds report; avoids redundant partial-coverage pings.
+  require_ci_to_pass: true
+  # Wait up to 10 minutes for all CI builds before posting the final status.
+  notify:
+    wait_for_ci: true
+    after_n_builds: 1
+
+coverage:
+  # Minimum overall coverage that must be met for the status check to pass.
+  precision: 2
+  round: down
+  range: "70...100"
+
+  status:
+    # Project-level gate: overall coverage must not drop below 80 %.
+    project:
+      default:
+        target: 80%
+        threshold: 1%
+        if_ci_failed: error
+
+    # Patch-level gate: new code introduced in a PR must be at least 80 % covered.
+    patch:
+      default:
+        target: 80%
+        threshold: 5%
+        if_ci_failed: error
+
+# Pull-request comment behaviour.
+comment:
+  layout: "reach,diff,flags,tree,betaprofiling"
+  behavior: default
+  require_changes: true
+  require_base: false
+  require_head: true
+  # Show a coverage delta line even when coverage did not change.
+  hide_project_coverage: false
+
+# Paths to ignore (mirrors vitest.config.ts coverage.exclude).
+ignore:
+  - "**/*.config.*"
+  - "**/*.test.*"
+  - "**/node_modules/**"
+  - "pact/**"
+  - "k6/**"
+  - "lighthouse/**"
+  - "workflow-templates/**"
+  - "bundlesize/**"
+
+# Flags let you report coverage per-suite in the Codecov UI.
+# Each suite uploads its own lcov.info with --flag <name>.
+flag_management:
+  default_rules:
+    carryforward: true
+    statuses:
+      - type: project
+        target: 80%
+      - type: patch
+        target: 80%
+  individual_flags:
+    - name: unit
+      paths:
+        - "vitest/"
+        - "msw/"
+        - "react/"
+        - "supertest/"
+        - "factories/"
+        - "prisma/"
+      carryforward: true
+    - name: e2e
+      paths:
+        - "playwright/"
+      carryforward: true
