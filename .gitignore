@@ -6,3 +6,6 @@ playwright-results/
 .playwright/
 .auth/
 *.tgz
+
+# macOS
+.DS_Store
