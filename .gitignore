@@ -9,3 +9,6 @@ playwright-results/
 
 # macOS
 .DS_Store
+
+# Storybook build output
+storybook-static/

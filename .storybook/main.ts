@@ -2,10 +2,10 @@ import type { StorybookConfig } from '@storybook/react-vite'
 
 const config: StorybookConfig = {
   stories: ['../storybook/**/*.stories.@(ts|tsx)'],
-  addons: [
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-  ],
+  // Storybook 9 folded the former `addon-essentials` bundle (controls, actions,
+  // viewport, backgrounds, toolbars, measure, outline) and `addon-interactions`
+  // into the core `storybook` package, so neither is installed or listed here.
+  addons: [],
   framework: {
     name: '@storybook/react-vite',
     options: {},
