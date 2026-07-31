@@ -13,7 +13,7 @@ function makeMockPrisma(tables: string[]): MockPrisma {
   const executed: string[] = []
 
   const tx: PrismaTransactionLike = {
-    async $queryRawUnsafe<T>(query: string, ...values: unknown[]): Promise<T> {
+    async $queryRawUnsafe<T>(query: string, ..._values: unknown[]): Promise<T> {
       executed.push(`query: ${query}`)
       if (query.startsWith('SELECT tablename')) {
         return tables.map((tablename) => ({ tablename })) as T

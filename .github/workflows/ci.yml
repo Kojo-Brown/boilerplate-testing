@@ -1,0 +1,77 @@
+# CI — the Phase 0 green baseline for this repository.
+#
+# This is the promoted, repo-specific counterpart to the reusable template in
+# `workflow-templates/ci.yml`. The template stays generic (it demonstrates a
+# unit / coverage / multi-browser-e2e fan-out for consumers to copy); this file
+# runs the gates *this* repo can actually satisfy, in the order CLAUDE.md
+# prescribes: install → typecheck → lint → test → build.
+#
+# Deliberately not included: the template's Playwright e2e matrix. The specs in
+# `playwright/` navigate to a running application at PLAYWRIGHT_BASE_URL
+# (default http://localhost:5173) and this repository ships no such app, so
+# those jobs cannot go green here. Wiring them up needs a demo app or a
+# `webServer` block and is tracked separately — see SPEC.md.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs for the same ref so stale runs don't hold runners.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10"
+
+jobs:
+  gates:
+    name: Gates (typecheck, lint, test, build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # --frozen-lockfile makes the committed pnpm-lock.yaml authoritative:
+      # the job fails if package.json and the lockfile have drifted apart.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Upload Storybook build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-static-${{ github.run_number }}
+          path: storybook-static/
+          retention-days: 7
+          if-no-files-found: ignore

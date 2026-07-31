@@ -2,15 +2,14 @@
  * Button.stories.tsx — Storybook 9 interaction test patterns.
  *
  * Demonstrates:
- *   - `play` functions with `@storybook/test` (userEvent, expect, within)
+ *   - `play` functions with `storybook/test` (userEvent, expect, within)
  *   - Spy functions via `fn()` to assert callbacks were called
  *   - Variant / args composition across stories
  *   - Disabled / loading state guards (no interactions fired)
  */
 
-import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { expect, fn, userEvent, within } from '@storybook/test'
+import { expect, fn, userEvent, within } from 'storybook/test'
 import { Button } from './components/Button'
 
 const meta = {

@@ -24,7 +24,8 @@
  *   await authed.delete('/users/1').expect(204)
  */
 
-import type { SuperAgentTest, Test } from 'supertest'
+import type { Test } from 'supertest'
+import type { SupertestAgent } from './createTestApp'
 import type { Response } from 'superagent'
 
 // ---------------------------------------------------------------------------
@@ -57,7 +58,12 @@ export class TypedTest<T = unknown> {
 
   /** Asserts a response header field matches the given string or pattern. */
   expectHeader(field: string, value: string | RegExp): this {
-    this.req = this.req.expect(field, value)
+    // `Test.expect` is overloaded as (field, string) and (field, RegExp); a
+    // `string | RegExp` union matches neither overload, so narrow first.
+    this.req =
+      typeof value === 'string'
+        ? this.req.expect(field, value)
+        : this.req.expect(field, value)
     return this
   }
 
@@ -98,7 +104,7 @@ export class TypedTest<T = unknown> {
 
 export class RequestBuilder {
   constructor(
-    private readonly agent: SuperAgentTest,
+    private readonly agent: SupertestAgent,
     private readonly defaultHeaders: ReadonlyMap<string, string> = new Map(),
   ) {}
 
@@ -162,7 +168,7 @@ export class RequestBuilder {
  *   const admin = createRequestBuilder(agent, { 'X-Internal-Key': secret })
  */
 export function createRequestBuilder(
-  agent: SuperAgentTest,
+  agent: SupertestAgent,
   defaultHeaders: Record<string, string> = {},
 ): RequestBuilder {
   return new RequestBuilder(agent, new Map(Object.entries(defaultHeaders)))

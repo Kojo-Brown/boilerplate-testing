@@ -9,9 +9,8 @@
  *   - Checking `aria-invalid` and `role="alert"` for a11y correctness
  */
 
-import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { expect, fn, userEvent, within } from '@storybook/test'
+import { expect, fn, userEvent, within } from 'storybook/test'
 import { LoginForm } from './components/LoginForm'
 
 const meta = {

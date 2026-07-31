@@ -24,10 +24,16 @@ asserting the outcome. The same tests run in two contexts:
 | Browser (dev) | Storybook Interactions panel | While developing |
 | Headless CI | `@storybook/test-runner` (Playwright) | `pnpm storybook:test` |
 
-## API (`@storybook/test`)
+## API (`storybook/test`)
+
+> Storybook 9 removed the standalone `@storybook/test` package — the same
+> helpers are now a subpath export of the core `storybook` package. Likewise
+> `@storybook/addon-essentials` and `@storybook/addon-interactions` no longer
+> exist; their features ship in core, and only docs remains a separate addon
+> (`@storybook/addon-docs`).
 
 ```ts
-import { expect, fn, userEvent, within } from '@storybook/test'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
 // userEvent — simulates real browser events (type, click, tab, keyboard)
 await userEvent.type(input, 'hello@example.com')

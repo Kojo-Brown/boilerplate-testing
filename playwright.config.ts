@@ -10,7 +10,10 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  workers: isCI ? 2 : undefined,
+  // Spread rather than `workers: undefined`: under exactOptionalPropertyTypes
+  // an explicit `undefined` is not assignable to `workers?: string | number`.
+  // Omitting the key entirely is what "let Playwright decide" actually means.
+  ...(isCI ? { workers: 2 } : {}),
   reporter: isCI
     ? [['github'], ['html', { open: 'never', outputFolder: 'playwright-report' }]]
     : [['list'], ['html', { open: 'on-failure', outputFolder: 'playwright-report' }]],
@@ -138,7 +141,9 @@ export default defineConfig({
           args: ['--disable-gpu', '--font-render-hinting=none'],
         },
         // Honour prefers-reduced-motion in CSS to suppress transitions.
-        reducedMotion: 'reduce',
+        // Lives under `contextOptions`, not directly in `use` — it is a
+        // browser-context option, not a Playwright test option.
+        contextOptions: { reducedMotion: 'reduce' },
       },
     },
   ],

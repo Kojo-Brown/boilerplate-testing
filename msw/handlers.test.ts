@@ -18,7 +18,11 @@ afterEach(() => {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const BASE = 'http://localhost'
+// The handlers are registered with document-relative paths ('/api/auth/login'),
+// which MSW resolves against the current origin. Under jsdom that origin is
+// http://localhost:3000, so requests must be issued to the same origin or MSW
+// treats them as unhandled and `onUnhandledRequest: 'error'` rejects them.
+const BASE = window.location.origin
 
 async function loginAs(
   email = 'admin@example.com',

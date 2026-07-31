@@ -33,13 +33,12 @@ test.describe('LoginPage POM', () => {
   test('goto() navigates to /login', async ({ page }) => {
     const login = new LoginPage(page)
     await page.route('**/*', (route) => route.fulfill({ body: '<html><head></head><body>Login</body></html>', status: 200, headers: { 'Content-Type': 'text/html' } }))
-    await page.goto('/login')
+    await login.goto()
     expect(page.url()).toContain('/login')
   })
 
   test('login() fills both fields and submits', async ({ page }) => {
     const login = new LoginPage(page)
-    const filled: Record<string, string> = {}
 
     await page.route('**/*', (route) =>
       route.fulfill({

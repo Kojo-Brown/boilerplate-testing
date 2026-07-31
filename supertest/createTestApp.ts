@@ -20,11 +20,16 @@
  */
 
 import type { Server } from 'node:http'
-import supertest, { type SuperAgentTest } from 'supertest'
+import supertest from 'supertest'
+
+// `SuperAgentTest` is a legacy alias in @types/supertest 6 and is no longer
+// what `supertest.agent()` returns (it now yields `TestAgent<Test>`). Deriving
+// the type from the factory keeps this correct across future type releases.
+export type SupertestAgent = ReturnType<typeof supertest.agent>
 
 export interface TestApp {
   /** Persistent supertest agent with cookie jar — reuse across requests. */
-  agent: SuperAgentTest
+  agent: SupertestAgent
   /** Gracefully closes the underlying HTTP server (no-op if already closed). */
   close(): Promise<void>
 }

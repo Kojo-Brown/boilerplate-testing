@@ -8,10 +8,6 @@ const preview: Preview = {
         date: /date$/i,
       },
     },
-    interactions: {
-      // Halt story execution on interaction failure so errors are visible
-      disable: false,
-    },
   },
 }
 

@@ -93,11 +93,14 @@ export const test = base.extend<VisualFixtures>({
       const maskSelectors = [...DEFAULT_DYNAMIC_SELECTORS, ...extraMask]
       const maskLocators = maskSelectors.map((sel) => page.locator(sel))
 
+      // `clip` is spread conditionally rather than passed as `clip: undefined`:
+      // under `exactOptionalPropertyTypes` an explicit `undefined` is not
+      // assignable to an optional property typed without `| undefined`.
       await expect(page).toHaveScreenshot(`${name}.png`, {
         threshold,
         maxDiffPixels,
         fullPage,
-        clip,
+        ...(clip ? { clip } : {}),
         animations,
         mask: maskLocators,
       })
@@ -105,7 +108,7 @@ export const test = base.extend<VisualFixtures>({
     await use(snapshot)
   },
 
-  takeElementSnapshot: async ({ page, freezePage }, use) => {
+  takeElementSnapshot: async ({ page: _page, freezePage }, use) => {
     const snapshot = async (
       locator: Locator,
       name: string,

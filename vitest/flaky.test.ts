@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { withRetry, FLAKY_RETRY, SLOW_RETRY, quarantine } from '@/vitest/flaky'
+import { withRetry, FLAKY_RETRY, SLOW_RETRY } from '@/vitest/flaky'
 
 // ---------------------------------------------------------------------------
 // withRetry
