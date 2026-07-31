@@ -8,10 +8,9 @@ const preview: Preview = {
         date: /date$/i,
       },
     },
-    interactions: {
-      // Halt story execution on interaction failure so errors are visible
-      disable: false,
-    },
+    // The interactions panel is part of Storybook 9 core and enabled by default
+    // (`features.interactions`), so the old `parameters.interactions` knob from
+    // addon-interactions is gone — it would be a silent no-op here.
   },
 }
 
