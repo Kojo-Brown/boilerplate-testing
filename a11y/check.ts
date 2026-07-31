@@ -124,8 +124,12 @@ export const a11yMatchers = {
 // ---------------------------------------------------------------------------
 
 declare module 'vitest' {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface Matchers<R = void> {
-    toHaveNoViolations(): R
+  // The type parameter list must be character-for-character identical to
+  // Vitest's own `interface Matchers<T = any>` or TS raises TS2428
+  // ("All declarations of 'Matchers' must have identical type parameters").
+  // `T` is unused here — it names the received type for other extensions.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+  interface Matchers<T = any> {
+    toHaveNoViolations(): void
   }
 }

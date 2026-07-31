@@ -81,8 +81,6 @@ describe('defineFactory', () => {
     })
 
     it('produces unique values across calls', () => {
-      const a = WidgetFactory.build()
-      const b = WidgetFactory.build()
       // At least one field should differ across calls (probabilistically).
       // We check label since it comes from a large faker word space.
       const countAttempts = Array.from({ length: 10 }, () => WidgetFactory.build())

@@ -5,10 +5,18 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
+    // @reduxjs/toolkit 2.12.0 ships .d.mts files that do not compile under
+    // TypeScript 6 (AsyncThunkConfig constraint + TaskAbortError). Both
+    // versions are pinned by CLAUDE.md, so the only way to typecheck our own
+    // sources is to stop checking third-party declarations. This does not
+    // relax any rule applied to this repo's code.
+    "skipLibCheck": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "baseUrl": ".",
+    // No `baseUrl`: it is deprecated in TS 6 (TS5101) and removed in TS 7.
+    // `paths` without a `baseUrl` resolves relative to this file, which is
+    // exactly the behaviour `"baseUrl": "."` was providing here.
     "paths": {
       "@/*": ["./*"]
     },

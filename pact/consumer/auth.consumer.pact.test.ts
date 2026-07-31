@@ -2,8 +2,9 @@ import { PactV3, MatchersV3 } from '@pact-foundation/pact';
 import { describe, expect, it } from 'vitest';
 import { PACT_CONSUMER, PACT_DIR, PACT_LOG_LEVEL, PACT_PROVIDER } from '../pact.config';
 import { AuthApiClient } from './api-client';
+import { email } from './matchers';
 
-const { integer, string, regex, email } = MatchersV3;
+const { integer, string, regex } = MatchersV3;
 
 const JSON_CONTENT_TYPE = regex('application/json.*', 'application/json');
 

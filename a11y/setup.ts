@@ -23,10 +23,9 @@ import axe from '@axe-core/react'
 const DEBOUNCE_MS = 1000
 
 export async function initA11yDev(): Promise<void> {
+  // @axe-core/react takes an `axe.Spec` widened with `runOnly?: string[]` —
+  // a flat list of tags, not axe-core's `{ type, values }` RunOnly object.
   await axe(React, ReactDOM, DEBOUNCE_MS, {
-    runOnly: {
-      type: 'tag',
-      values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'],
-    },
+    runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'],
   })
 }

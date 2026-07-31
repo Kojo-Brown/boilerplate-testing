@@ -54,14 +54,18 @@ function AccessibleNav(): React.JSX.Element {
 // ---------------------------------------------------------------------------
 
 function MissingAltImage(): React.JSX.Element {
-  // eslint-disable-next-line jsx-a11y/alt-text
+  // Intentionally missing `alt` — this is the violation under test.
   return <img src="/logo.svg" />
 }
 
 function UnlabelledInput(): React.JSX.Element {
+  // Deliberately no placeholder: axe-core accepts `placeholder` as an
+  // accessible-name fallback, so a placeholder-only input passes the `label`
+  // rule. To exercise a real `label` violation the input must have no
+  // accessible name at all.
   return (
     <div>
-      <input type="text" placeholder="Enter your name" />
+      <input type="text" />
     </div>
   )
 }

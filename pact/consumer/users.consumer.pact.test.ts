@@ -2,8 +2,9 @@ import { PactV3, MatchersV3 } from '@pact-foundation/pact';
 import { describe, expect, it } from 'vitest';
 import { PACT_CONSUMER, PACT_DIR, PACT_LOG_LEVEL, PACT_PROVIDER } from '../pact.config';
 import { UsersApiClient } from './api-client';
+import { email, iso8601DateTime } from './matchers';
 
-const { integer, string, email, iso8601DateTime, regex, eachLike } = MatchersV3;
+const { integer, string, regex, eachLike } = MatchersV3;
 
 // Shared provider instance — each `it` block creates an isolated interaction
 // and writes the resulting pact to `pacts/boilerplate-consumer-boilerplate-api.json`.
