@@ -3,10 +3,26 @@
 > Patterns and utilities for testing TypeScript full-stack apps. Spec-driven.
 
 ## Phase 0 — Green Baseline (blocks all feature work)
-- [ ] Verify every dependency version actually exists on the registry and fix the ones that do not, then commit a lockfile
-- [ ] Get `install`, `typecheck`, `lint`, `test`, and `build` all passing locally from a clean clone
-- [ ] Promote `workflow-templates/ci.yml` to `.github/workflows/ci.yml` and confirm it runs green on a PR
+- [x] Verify every dependency version actually exists on the registry and fix the ones that do not, then commit a lockfile — 31 of 34 ranges resolved; `@storybook/addon-essentials`, `@storybook/addon-interactions` and `@storybook/test` were all removed in Storybook 9 and had no stable 9.x, so `pnpm install` failed outright (PR #22)
+- [x] Get `install`, `typecheck`, `lint`, `test`, and `build` all passing locally from a clean clone — typecheck had 15 errors behind a `baseUrl` abort, 23 of 276 tests failed, `eslint` was neither installed nor configured, and no `build` script existed (PR #22)
+- [x] Promote `workflow-templates/ci.yml` to `.github/workflows/ci.yml` and confirm it runs green on a PR — green on run #1 (PR #22)
 - [ ] Add a CI job matrix covering the supported Node version and fail the build on any warning
+
+Phase 0 items 1-3 complete as of PR #22 (2026-07-31): install (frozen lockfile),
+typecheck, lint (0 errors, 0 warnings), 292 unit tests across 11 files, and
+build all green in CI on Node 22.
+
+Items 1-3 landed as one PR because they are circularly dependent — CI cannot be
+green before the gates pass, the gates cannot be observed before install works,
+and nothing may merge before CI exists. Three earlier runs each did item 1 alone
+and correctly stopped at the unmergeable draft stage (PRs #20, #21, #22).
+
+Known gaps carried into item 4: `pnpm install` still warns about ignored build
+scripts (`@swc/core`, `esbuild`, `msw`), which must be resolved before "fail on
+any warning" can hold. Playwright E2E is still not wired into CI — the specs
+target a running app at `PLAYWRIGHT_BASE_URL` and this repo ships none, so the
+template's e2e matrix was deliberately left out of the promoted workflow.
+Prettier is not gated; there is no `format:check` script.
 
 ## Phase 1 — Unit Testing (Jest + Vitest)
 - [x] Vitest config with coverage (v8), jsdom environment, path aliases
