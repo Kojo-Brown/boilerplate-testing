@@ -8,7 +8,7 @@
 - [x] Promote `workflow-templates/ci.yml` to `.github/workflows/ci.yml` and confirm it runs green on a PR — green on run #1 (PR #22)
 - [x] Add a CI job matrix covering the supported Node version and fail the build on any warning — `engines.node` is `^22.13.0 || ^24.0.0` (eslint 10's floor, stricter than vite's `>=22.12.0`) and the matrix mirrors it; `engine-strict`, `strict-dep-builds`, `--strict-peer-dependencies`, `--frozen-lockfile`, `--max-warnings 0` and per-step `--throw-deprecation` all make warnings fatal; green on run #1 on both legs (PR #23)
 - [x] Bump the pinned Actions to their Node 24 majors — the runner emits `##[warning] Node.js 20 is deprecated` for `actions/checkout@v4`, `actions/setup-node@v4`, `actions/upload-artifact@v4` and `pnpm/action-setup@v4`, the one warning the item-4 gates cannot reach — checkout/setup-node/upload-artifact → v7, download-artifact → v8, `pnpm/action-setup` → v6, `gitleaks/gitleaks-action` → v3, each target picked by reading `runs.using` in that action's own `action.yml` at the tagged major; `codecov/codecov-action` stays at v5 (composite, no Node runtime). `workflow-templates/actionPins.{ts,test.ts}` now audits every `uses:` line in `.github/workflows/` and `workflow-templates/` against a floor table, so the drift fails `pnpm test` instead of only showing up in a runner log. Zero `##[warning]` lines in the merged run (PR #24)
-- [ ] Support Node 26: `supertest/createTestApp.test.ts` "builder chaining preserves immutability across multiple calls" fails with `read ECONNRESET` on Node 26.5.1 and passes on 22 and 24
+- [x] Support Node 26: `supertest/createTestApp.test.ts` "builder chaining preserves immutability across multiple calls" fails with `read ECONNRESET` on Node 26.5.1 and passes on 22 and 24 — the race was supertest's, not Node's: it binds the server itself on the first request that finds it unbound and closes it again when *that* request ends, resetting siblings still in flight. `createTestApp` (and `createNestTestApp`) now bind up front so supertest never takes ownership. `engines.node` is `^22.13.0 || ^24.0.0 || ^26.0.0` and the matrix mirrors it (PR #25)
 - [ ] Run the `Build` CI step under `NODE_OPTIONS=--throw-deprecation` like the other gates — blocked on Storybook 9.1.20 throwing DEP0190 from `extractStorybookMetadata`
 
 Phase 0 items 1-3 complete as of PR #22 (2026-07-31): install (frozen lockfile),
@@ -38,16 +38,25 @@ action absent from that floor table fails rather than passes, so adding one
 forces its runtime to be classified. The merged run emitted no `##[warning]`
 lines at all.
 
-Node 26 is the reason item 6 exists rather than being folded into the item 4
-matrix. The failure reproduces in five lines with no code from this repo — two
+Node 26 is the reason item 6 existed rather than being folded into the item 4
+matrix. The failure reproduced in five lines with no code from this repo — two
 concurrent requests through one `supertest.agent(server)` against a
-non-listening `http.Server` — so it is upstream server-lifecycle behaviour that
-changed between 24 and 26, not a flaky assertion. The likely fix is for
-`createTestApp` to bind its own listening server (`server.listen(0)`) so
-supertest stops managing an ephemeral one per request and closing it out from
-under an in-flight sibling. That changes `createTestApp`'s documented contract
-("the server does **not** need to be listening"), which is a deliberate design
-decision and not something to smuggle into a CI change.
+non-listening `http.Server` — and the predicted fix was the right one, though
+the diagnosis was not: it is not Node server-lifecycle behaviour that changed
+between 24 and 26. `supertest@7.2.2` binds the server itself on the first
+request that finds it unbound (`lib/test.js#serverAddress`) and closes that
+same server when *that* request ends (`#end`), so the first response tears the
+listener down under a sibling's open socket. Node 26 only changed the timing
+that used to hide the reset.
+
+`createTestApp` and `createNestTestApp` therefore bind to an ephemeral port up
+front, so `address()` is never null and supertest never assigns `this._server`.
+Lifetime moved to `TestApp.close()` — one listener per TestApp instead of one
+per request. `listen()` takes no host argument on purpose: passing one routes
+through `dns.lookup()`, which would make `createTestApp` async. As predicted,
+this changes the documented contract ("the server does **not** need to be
+listening"); a caller-bound server is reused as-is. Node 26 is now in
+`engines.node` and in the CI matrix, so the regression is caught by the gates.
 
 Item 7 exists because `--throw-deprecation` is enforced on typecheck, lint and
 test but not on build. Storybook 9.1.20 counts portable-stories files by
