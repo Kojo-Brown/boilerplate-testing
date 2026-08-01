@@ -7,7 +7,7 @@
 - [x] Get `install`, `typecheck`, `lint`, `test`, and `build` all passing locally from a clean clone — typecheck had 15 errors behind a `baseUrl` abort, 23 of 276 tests failed, `eslint` was neither installed nor configured, and no `build` script existed (PR #22)
 - [x] Promote `workflow-templates/ci.yml` to `.github/workflows/ci.yml` and confirm it runs green on a PR — green on run #1 (PR #22)
 - [x] Add a CI job matrix covering the supported Node version and fail the build on any warning — `engines.node` is `^22.13.0 || ^24.0.0` (eslint 10's floor, stricter than vite's `>=22.12.0`) and the matrix mirrors it; `engine-strict`, `strict-dep-builds`, `--strict-peer-dependencies`, `--frozen-lockfile`, `--max-warnings 0` and per-step `--throw-deprecation` all make warnings fatal; green on run #1 on both legs (PR #23)
-- [ ] Bump the pinned Actions to their Node 24 majors — the runner emits `##[warning] Node.js 20 is deprecated` for `actions/checkout@v4`, `actions/setup-node@v4`, `actions/upload-artifact@v4` and `pnpm/action-setup@v4`, the one warning the item-4 gates cannot reach
+- [x] Bump the pinned Actions to their Node 24 majors — the runner emits `##[warning] Node.js 20 is deprecated` for `actions/checkout@v4`, `actions/setup-node@v4`, `actions/upload-artifact@v4` and `pnpm/action-setup@v4`, the one warning the item-4 gates cannot reach — checkout/setup-node/upload-artifact → v7, download-artifact → v8, `pnpm/action-setup` → v6, `gitleaks/gitleaks-action` → v3, each target picked by reading `runs.using` in that action's own `action.yml` at the tagged major; `codecov/codecov-action` stays at v5 (composite, no Node runtime). `workflow-templates/actionPins.{ts,test.ts}` now audits every `uses:` line in `.github/workflows/` and `workflow-templates/` against a floor table, so the drift fails `pnpm test` instead of only showing up in a runner log. Zero `##[warning]` lines in the merged run (PR #24)
 - [ ] Support Node 26: `supertest/createTestApp.test.ts` "builder chaining preserves immutability across multiple calls" fails with `read ECONNRESET` on Node 26.5.1 and passes on 22 and 24
 - [ ] Run the `Build` CI step under `NODE_OPTIONS=--throw-deprecation` like the other gates — blocked on Storybook 9.1.20 throwing DEP0190 from `extractStorybookMetadata`
 
@@ -26,7 +26,19 @@ The ignored-build-scripts warning flagged against item 4 (`@swc/core`,
 next dependency that ships a postinstall fails the install instead of adding a
 line to the warning list.
 
-Node 26 is the reason item 5 exists rather than being folded into the item 4
+Item 5 closed the last warning class the item-4 gates could not reach. The
+`Node.js 20 is deprecated` notice is emitted by the *runner*, about the
+workflow, before any step of ours executes, so no gate running inside the job
+can observe it — which is why it survived item 4 despite that item making every
+other warning fatal. The pins now sit on majors whose `action.yml` declares
+`runs.using: node24`, and `workflow-templates/actionPins.ts` turns the audit
+into a unit test: it parses every `uses:` line under `.github/workflows/` and
+`workflow-templates/` and checks the pinned major against a recorded floor. An
+action absent from that floor table fails rather than passes, so adding one
+forces its runtime to be classified. The merged run emitted no `##[warning]`
+lines at all.
+
+Node 26 is the reason item 6 exists rather than being folded into the item 4
 matrix. The failure reproduces in five lines with no code from this repo — two
 concurrent requests through one `supertest.agent(server)` against a
 non-listening `http.Server` — so it is upstream server-lifecycle behaviour that
@@ -37,7 +49,7 @@ under an in-flight sibling. That changes `createTestApp`'s documented contract
 ("the server does **not** need to be listening"), which is a deliberate design
 decision and not something to smuggle into a CI change.
 
-Item 6 exists because `--throw-deprecation` is enforced on typecheck, lint and
+Item 7 exists because `--throw-deprecation` is enforced on typecheck, lint and
 test but not on build. Storybook 9.1.20 counts portable-stories files by
 shelling out through execa with `shell: true` plus an argument array, which is
 DEP0190 on Node 24+; it runs during post-build metadata extraction, so
