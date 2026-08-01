@@ -16,17 +16,19 @@
 # Node support matrix
 # ---------------------------------------------------------------------------
 # `matrix.node-version` must stay in lockstep with `engines.node` in
-# package.json. Both cover the two Node LTS lines — 22 (Jod) and 24 (Krypton).
+# package.json. Both cover the two Node LTS lines — 22 (Jod) and 24 (Krypton) —
+# plus 26, the Current line, so the next LTS promotion is not a surprise.
 # `.npmrc` sets `engine-strict=true`, so a matrix leg outside that declared
 # range fails at install rather than drifting silently out of support.
 #
-# Node 26 is deliberately excluded. It is the Current line, not LTS, and the
-# supertest suite genuinely fails there: two concurrent requests through one
-# `supertest.agent()` bound to a non-listening `http.Server` die with
-# ECONNRESET on 26.5.1 and pass on 22 and 24. That reproduces in a five-line
-# script with no code from this repo, so it is upstream server-lifecycle
-# behaviour, not a flaky assertion. Adding 26 here is tracked as its own
-# Phase 0 item — see SPEC.md.
+# Node 26 was previously excluded because the supertest suite failed there:
+# two concurrent requests through one `supertest.agent()` wrapping a
+# non-listening `http.Server` died with ECONNRESET on 26.5.1 and passed on 22
+# and 24. The cause was supertest's, not Node's — it binds the server itself on
+# the first request that finds it unbound (`lib/test.js#serverAddress`) and
+# closes it again when *that* request ends (`#end`), resetting siblings still
+# in flight. `supertest/createTestApp.ts` now binds the server up front so
+# supertest never takes ownership, and the race is gone on all three majors.
 #
 # ---------------------------------------------------------------------------
 # Warnings are failures
@@ -92,7 +94,7 @@ jobs:
       # first — knowing a break is 22-only vs. both majors is the whole point.
       fail-fast: false
       matrix:
-        node-version: [22, 24]
+        node-version: [22, 24, 26]
 
     steps:
       - name: Checkout
