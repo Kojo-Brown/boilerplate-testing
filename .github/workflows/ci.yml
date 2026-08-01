@@ -48,6 +48,13 @@
 # `--pending-deprecation` is deliberately not set: it flags APIs that are not
 # deprecated yet, which would fail the build on advisory notices.
 #
+# One warning class is *not* reachable from inside the job: the runner prints
+# `##[warning] Node.js 20 is deprecated` about an action whose `action.yml`
+# still declares `runs.using: node20`, before any step of ours executes. Every
+# `uses:` below is therefore pinned to a major that declares `node24`, and
+# `workflow-templates/actionPins.test.ts` audits those pins as text so a
+# regression fails `pnpm test` instead of scrolling past in a runner log.
+#
 # `--throw-deprecation` is set per step rather than job-wide because the Build
 # step cannot currently satisfy it. Storybook 9.1.20 computes build metadata
 # (`extractStorybookMetadata`) after emitting output, and its portable-stories
@@ -89,15 +96,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # No `version:` input — the action reads the pinned `packageManager`
       # field from package.json, so CI and local installs cannot disagree.
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
@@ -127,7 +134,7 @@ jobs:
 
       - name: Upload Storybook build
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: storybook-static-node${{ matrix.node-version }}-${{ github.run_number }}
           path: storybook-static/
