@@ -7,6 +7,8 @@
 - [x] Get `install`, `typecheck`, `lint`, `test`, and `build` all passing locally from a clean clone — typecheck had 15 errors behind a `baseUrl` abort, 23 of 276 tests failed, `eslint` was neither installed nor configured, and no `build` script existed (PR #22)
 - [x] Promote `workflow-templates/ci.yml` to `.github/workflows/ci.yml` and confirm it runs green on a PR — green on run #1 (PR #22)
 - [ ] Add a CI job matrix covering the supported Node version and fail the build on any warning
+- [ ] Support Node 26: `supertest/createTestApp.test.ts` "builder chaining preserves immutability across multiple calls" fails with `read ECONNRESET` on Node 26.5.1 and passes on 22 and 24
+- [ ] Run the `Build` CI step under `NODE_OPTIONS=--throw-deprecation` like the other gates — blocked on Storybook 9.1.20 throwing DEP0190 from `extractStorybookMetadata`
 
 Phase 0 items 1-3 complete as of PR #22 (2026-07-31): install (frozen lockfile),
 typecheck, lint (0 errors, 0 warnings), 292 unit tests across 11 files, and
@@ -17,11 +19,38 @@ green before the gates pass, the gates cannot be observed before install works,
 and nothing may merge before CI exists. Three earlier runs each did item 1 alone
 and correctly stopped at the unmergeable draft stage (PRs #20, #21, #22).
 
-Known gaps carried into item 4: `pnpm install` still warns about ignored build
-scripts (`@swc/core`, `esbuild`, `msw`), which must be resolved before "fail on
-any warning" can hold. Playwright E2E is still not wired into CI — the specs
-target a running app at `PLAYWRIGHT_BASE_URL` and this repo ships none, so the
-template's e2e matrix was deliberately left out of the promoted workflow.
+The ignored-build-scripts warning flagged against item 4 (`@swc/core`,
+`esbuild`, `msw`) is resolved: all three are triaged into
+`pnpm.onlyBuiltDependencies`, and `.npmrc` sets `strict-dep-builds=true` so the
+next dependency that ships a postinstall fails the install instead of adding a
+line to the warning list.
+
+Node 26 is the reason item 5 exists rather than being folded into the item 4
+matrix. The failure reproduces in five lines with no code from this repo — two
+concurrent requests through one `supertest.agent(server)` against a
+non-listening `http.Server` — so it is upstream server-lifecycle behaviour that
+changed between 24 and 26, not a flaky assertion. The likely fix is for
+`createTestApp` to bind its own listening server (`server.listen(0)`) so
+supertest stops managing an ephemeral one per request and closing it out from
+under an in-flight sibling. That changes `createTestApp`'s documented contract
+("the server does **not** need to be listening"), which is a deliberate design
+decision and not something to smuggle into a CI change.
+
+Item 6 exists because `--throw-deprecation` is enforced on typecheck, lint and
+test but not on build. Storybook 9.1.20 counts portable-stories files by
+shelling out through execa with `shell: true` plus an argument array, which is
+DEP0190 on Node 24+; it runs during post-build metadata extraction, so
+`storybook build` exits 7 with `storybook-static/` already complete. It is not
+reachable from first-party code, `--disable-telemetry` does not skip it (the
+metadata is computed for the build, not only for telemetry), and Storybook's
+own cache hides it on a warm `node_modules` — which is why it shows up only on
+a clean install, i.e. only in CI. Options are a Storybook upgrade once upstream
+stops passing an args array with `shell: true`, or dropping the portable-stories
+count. Both are larger than a CI change.
+
+Known gaps still carried forward: Playwright E2E is not wired into CI — the
+specs target a running app at `PLAYWRIGHT_BASE_URL` and this repo ships none, so
+the template's e2e matrix was deliberately left out of the promoted workflow.
 Prettier is not gated; there is no `format:check` script.
 
 ## Phase 1 — Unit Testing (Jest + Vitest)
