@@ -104,9 +104,68 @@ describe('createTestApp', () => {
     await app.agent.get('/health').expect(200)
   })
 
-  it('close() resolves without throwing when server is not yet listening', async () => {
+  it('close() resolves and releases the listener', async () => {
+    const server = makeServer()
+    app = createTestApp(server)
+    await expect(app.close()).resolves.toBeUndefined()
+    expect(server.listening).toBe(false)
+  })
+
+  it('close() is idempotent', async () => {
     app = createTestApp(makeServer())
     await expect(app.close()).resolves.toBeUndefined()
+    await expect(app.close()).resolves.toBeUndefined()
+  })
+
+  // ---------------------------------------------------------------------
+  // Server ownership. createTestApp binds the server itself so supertest
+  // never does — supertest closes any server *it* bound as soon as the first
+  // request finishes, which resets sibling requests still in flight. See the
+  // comment on listenOnEphemeralPort in createTestApp.ts.
+  // ---------------------------------------------------------------------
+
+  // Synchronously, on return from createTestApp — not after an await. If
+  // address() were still null here, supertest would bind (and close) its own
+  // server on the first request and the race would be back.
+  it('binds the server synchronously so the caller does not have to', () => {
+    const server = makeServer()
+    expect(server.listening).toBe(false)
+
+    app = createTestApp(server)
+
+    expect(server.listening).toBe(true)
+    const addr = server.address()
+    expect(addr).not.toBeNull()
+    expect(typeof addr === 'object' ? addr?.port : undefined).toBeGreaterThan(0)
+  })
+
+  it('reuses a server the caller already bound instead of opening a second port', async () => {
+    const server = makeServer()
+    await new Promise<void>((resolve) => server.listen(0, resolve))
+    const addr = server.address()
+    const portBefore = typeof addr === 'object' ? addr?.port : undefined
+
+    app = createTestApp(server)
+
+    const addrAfter = server.address()
+    expect(typeof addrAfter === 'object' ? addrAfter?.port : undefined).toBe(portBefore)
+    await app.agent.get('/health').expect(200)
+  })
+
+  it('survives concurrent requests through a single agent', async () => {
+    app = createTestApp(makeServer())
+    const responses = await Promise.all([
+      app.agent.get('/health').expect(200),
+      app.agent.get('/health').expect(200),
+      app.agent.get('/health').expect(200),
+    ])
+    for (const res of responses) {
+      expect(res.body).toEqual({ status: 'ok' })
+    }
+  })
+
+  it('rejects a handler with no listen() method', () => {
+    expect(() => createTestApp({ notAServer: true })).toThrow(TypeError)
   })
 })
 
@@ -127,19 +186,25 @@ describe('createNestTestApp', () => {
       getHttpServer() {
         return server
       },
+      // A real INestApplication.close() tears the HTTP server down; the mock
+      // does the same so this test does not leak a bound port.
       async close() {
         closeCalled = true
+        await new Promise<void>((resolve) => server.close(() => resolve()))
       },
     }
 
     const nestApp = await createNestTestApp(mockNest)
     expect(initCalled).toBe(true)
+    // init() does not bind, so createNestTestApp must have.
+    expect(server.listening).toBe(true)
 
     const res = await nestApp.agent.get('/health').expect(200)
     expect(res.body).toEqual({ status: 'ok' })
 
     await nestApp.close()
     expect(closeCalled).toBe(true)
+    expect(server.listening).toBe(false)
   })
 })
 
