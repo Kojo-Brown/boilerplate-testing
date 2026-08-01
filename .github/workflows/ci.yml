@@ -11,6 +11,55 @@
 # (default http://localhost:5173) and this repository ships no such app, so
 # those jobs cannot go green here. Wiring them up needs a demo app or a
 # `webServer` block and is tracked separately — see SPEC.md.
+#
+# ---------------------------------------------------------------------------
+# Node support matrix
+# ---------------------------------------------------------------------------
+# `matrix.node-version` must stay in lockstep with `engines.node` in
+# package.json. Both cover the two Node LTS lines — 22 (Jod) and 24 (Krypton).
+# `.npmrc` sets `engine-strict=true`, so a matrix leg outside that declared
+# range fails at install rather than drifting silently out of support.
+#
+# Node 26 is deliberately excluded. It is the Current line, not LTS, and the
+# supertest suite genuinely fails there: two concurrent requests through one
+# `supertest.agent()` bound to a non-listening `http.Server` die with
+# ECONNRESET on 26.5.1 and pass on 22 and 24. That reproduces in a five-line
+# script with no code from this repo, so it is upstream server-lifecycle
+# behaviour, not a flaky assertion. Adding 26 here is tracked as its own
+# Phase 0 item — see SPEC.md.
+#
+# ---------------------------------------------------------------------------
+# Warnings are failures
+# ---------------------------------------------------------------------------
+#   - `--frozen-lockfile` fails the job if package.json and pnpm-lock.yaml have
+#     drifted apart.
+#   - `--strict-peer-dependencies` turns an unmet peer range from a log warning
+#     into a non-zero exit.
+#   - `strict-dep-builds=true` (.npmrc) turns pnpm's "ignored build scripts"
+#     notice into ERR_PNPM_IGNORED_BUILDS, so a new dependency with a
+#     postinstall has to be triaged into `pnpm.onlyBuiltDependencies` rather
+#     than silently skipped.
+#   - `pnpm lint` passes `--max-warnings 0`, so a rule set to "warn" fails the
+#     job instead of scrolling past in the log.
+#   - `NODE_OPTIONS: --throw-deprecation` promotes Node runtime deprecation
+#     warnings to thrown errors, so a deprecated API — ours or a dependency's —
+#     surfaces on the oldest and the newest supported runtime rather than at
+#     the point where that API is finally removed.
+# `--pending-deprecation` is deliberately not set: it flags APIs that are not
+# deprecated yet, which would fail the build on advisory notices.
+#
+# `--throw-deprecation` is set per step rather than job-wide because the Build
+# step cannot currently satisfy it. Storybook 9.1.20 computes build metadata
+# (`extractStorybookMetadata`) after emitting output, and its portable-stories
+# file count shells out through execa with `shell: true` plus an argument
+# array — DEP0190 on Node 24+. It throws under --throw-deprecation and exits 7
+# even though storybook-static/ is already complete. It is third-party, it is
+# not reachable from any first-party code path, and it is not silenced by
+# `--disable-telemetry` (the metadata is computed for the build itself, not
+# only for telemetry). Storybook's own cache masks it on a warm node_modules,
+# which is why it only appears on a clean install — i.e. only in CI. Lifting
+# this exclusion is tracked as its own item in SPEC.md; until then the step
+# stays honest about what it does and does not enforce.
 
 name: CI
 
@@ -25,45 +74,54 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  NODE_VERSION: "22"
-  PNPM_VERSION: "10"
-
 jobs:
   gates:
-    name: Gates (typecheck, lint, test, build)
+    name: Gates (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    strategy:
+      # Report every unsupported runtime in one run instead of stopping at the
+      # first — knowing a break is 22-only vs. both majors is the whole point.
+      fail-fast: false
+      matrix:
+        node-version: [22, 24]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # No `version:` input — the action reads the pinned `packageManager`
+      # field from package.json, so CI and local installs cannot disagree.
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: pnpm
 
-      # --frozen-lockfile makes the committed pnpm-lock.yaml authoritative:
-      # the job fails if package.json and the lockfile have drifted apart.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
 
       - name: Typecheck
         run: pnpm typecheck
+        env:
+          NODE_OPTIONS: --throw-deprecation
 
       - name: Lint
         run: pnpm lint
+        env:
+          NODE_OPTIONS: --throw-deprecation
 
       - name: Unit tests
         run: pnpm test
+        env:
+          NODE_OPTIONS: --throw-deprecation
 
+      # No --throw-deprecation here — see the header comment on DEP0190 in
+      # Storybook's metadata extraction.
       - name: Build
         run: pnpm build
 
@@ -71,7 +129,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: storybook-static-${{ github.run_number }}
+          name: storybook-static-node${{ matrix.node-version }}-${{ github.run_number }}
           path: storybook-static/
           retention-days: 7
           if-no-files-found: ignore
