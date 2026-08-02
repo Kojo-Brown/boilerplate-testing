@@ -9,7 +9,7 @@
 - [x] Add a CI job matrix covering the supported Node version and fail the build on any warning — `engines.node` is `^22.13.0 || ^24.0.0` (eslint 10's floor, stricter than vite's `>=22.12.0`) and the matrix mirrors it; `engine-strict`, `strict-dep-builds`, `--strict-peer-dependencies`, `--frozen-lockfile`, `--max-warnings 0` and per-step `--throw-deprecation` all make warnings fatal; green on run #1 on both legs (PR #23)
 - [x] Bump the pinned Actions to their Node 24 majors — the runner emits `##[warning] Node.js 20 is deprecated` for `actions/checkout@v4`, `actions/setup-node@v4`, `actions/upload-artifact@v4` and `pnpm/action-setup@v4`, the one warning the item-4 gates cannot reach — checkout/setup-node/upload-artifact → v7, download-artifact → v8, `pnpm/action-setup` → v6, `gitleaks/gitleaks-action` → v3, each target picked by reading `runs.using` in that action's own `action.yml` at the tagged major; `codecov/codecov-action` stays at v5 (composite, no Node runtime). `workflow-templates/actionPins.{ts,test.ts}` now audits every `uses:` line in `.github/workflows/` and `workflow-templates/` against a floor table, so the drift fails `pnpm test` instead of only showing up in a runner log. Zero `##[warning]` lines in the merged run (PR #24)
 - [x] Support Node 26: `supertest/createTestApp.test.ts` "builder chaining preserves immutability across multiple calls" fails with `read ECONNRESET` on Node 26.5.1 and passes on 22 and 24 — the race was supertest's, not Node's: it binds the server itself on the first request that finds it unbound and closes it again when *that* request ends, resetting siblings still in flight. `createTestApp` (and `createNestTestApp`) now bind up front so supertest never takes ownership. `engines.node` is `^22.13.0 || ^24.0.0 || ^26.0.0` and the matrix mirrors it (PR #25)
-- [ ] Run the `Build` CI step under `NODE_OPTIONS=--throw-deprecation` like the other gates — blocked on Storybook 9.1.20 throwing DEP0190 from `extractStorybookMetadata`
+- [x] Run the `Build` CI step under `NODE_OPTIONS=--throw-deprecation` like the other gates — two deprecations were in the way. DEP0190 (Storybook 9.1.20 shelling out through execa with `shell: true` plus an argument array in `extractStorybookMetadata`) is gone with the upgrade to Storybook 10.5.5; DEP0205 (`importModule` registering the TypeScript config loader through `module.register()`), which only surfaced underneath it on Node 26, is cleared by `patches/storybook@10.5.5.patch` forward-porting the unmerged upstream fix storybookjs/storybook#35337. Dropping Node 26 from the matrix would also have made this green and was rejected. `workflow-templates/gateSteps.ts` audits that every gate keeps its `NODE_OPTIONS` block and `workflow-templates/patchedDeps.ts` audits the patch pin, so neither can go missing quietly. Green on all three legs (PR #26)
 
 Phase 0 items 1-3 complete as of PR #22 (2026-07-31): install (frozen lockfile),
 typecheck, lint (0 errors, 0 warnings), 292 unit tests across 11 files, and
@@ -78,9 +78,9 @@ on both, with `node_modules/.cache/storybook` cleared first so the 24h
 with `{"key":"portableStories"}`, so its presence afterwards proves the path
 ran).
 
-Item 7 nevertheless stays open, because the Node 26 leg of the matrix hits a
-second, unrelated deprecation that the flag now correctly surfaces: DEP0205,
-`module.register()` is deprecated, use `module.registerHooks()`. Storybook
+Clearing DEP0190 exposed a second, unrelated deprecation on the Node 26 leg,
+which the flag then correctly surfaced: DEP0205, `module.register()` is
+deprecated, use `module.registerHooks()`. Storybook
 raises it in `importModule` (`src/shared/utils/module.ts`), which registers a
 TypeScript loader hook unconditionally on the first config import — before any
 config is read, so it is not avoidable by writing `.storybook/main` as
