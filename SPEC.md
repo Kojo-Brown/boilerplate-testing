@@ -70,6 +70,30 @@ a clean install, i.e. only in CI. Options are a Storybook upgrade once upstream
 stops passing an args array with `shell: true`, or dropping the portable-stories
 count. Both are larger than a CI change.
 
+The upgrade option is now available and DEP0190 is gone: Storybook 10.5.5 calls
+`execCommandCountLines('git', ['grep', …])` with no `shell` option at all, and
+the build satisfies `--throw-deprecation` on Node 22 and 24 — verified locally
+on both, with `node_modules/.cache/storybook` cleared first so the 24h
+`runTelemetryOperation` cache could not mask the call (the cache is written
+with `{"key":"portableStories"}`, so its presence afterwards proves the path
+ran).
+
+Item 7 nevertheless stays open, because the Node 26 leg of the matrix hits a
+second, unrelated deprecation that the flag now correctly surfaces: DEP0205,
+`module.register()` is deprecated, use `module.registerHooks()`. Storybook
+raises it in `importModule` (`src/shared/utils/module.ts`), which registers a
+TypeScript loader hook unconditionally on the first config import — before any
+config is read, so it is not avoidable by writing `.storybook/main` as
+JavaScript, and it is not first-party. It is still present in `storybook@next`
+(10.6.0-alpha.3), so there is no released or prereleased version to move to.
+DEP0205 does not exist on Node 22 or 24, which is why the upgrade looks clean
+on two of the three legs.
+
+The two ways to close item 7 from here are an upstream fix (`register` →
+`registerHooks`) or dropping Node 26 from the matrix — and the second is not
+acceptable: `engines.node` declares 26 as supported, so excluding the leg would
+weaken the gate rather than satisfy it.
+
 Known gaps still carried forward: Playwright E2E is not wired into CI — the
 specs target a running app at `PLAYWRIGHT_BASE_URL` and this repo ships none, so
 the template's e2e matrix was deliberately left out of the promoted workflow.

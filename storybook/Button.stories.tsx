@@ -1,5 +1,5 @@
 /**
- * Button.stories.tsx — Storybook 9 interaction test patterns.
+ * Button.stories.tsx — Storybook interaction test patterns.
  *
  * Demonstrates:
  *   - `play` functions with `storybook/test` (userEvent, expect, within)

@@ -46,7 +46,10 @@
 #   - `NODE_OPTIONS: --throw-deprecation` promotes Node runtime deprecation
 #     warnings to thrown errors, so a deprecated API — ours or a dependency's —
 #     surfaces on the oldest and the newest supported runtime rather than at
-#     the point where that API is finally removed.
+#     the point where that API is finally removed. Every gate step sets it,
+#     and `workflow-templates/gateSteps.test.ts` audits this file to keep that
+#     true: a gate that loses its `env:` block fails `pnpm test` instead of
+#     quietly stopping to enforce anything.
 # `--pending-deprecation` is deliberately not set: it flags APIs that are not
 # deprecated yet, which would fail the build on advisory notices.
 #
@@ -57,18 +60,18 @@
 # `workflow-templates/actionPins.test.ts` audits those pins as text so a
 # regression fails `pnpm test` instead of scrolling past in a runner log.
 #
-# `--throw-deprecation` is set per step rather than job-wide because the Build
-# step cannot currently satisfy it. Storybook 9.1.20 computes build metadata
-# (`extractStorybookMetadata`) after emitting output, and its portable-stories
-# file count shells out through execa with `shell: true` plus an argument
-# array — DEP0190 on Node 24+. It throws under --throw-deprecation and exits 7
-# even though storybook-static/ is already complete. It is third-party, it is
-# not reachable from any first-party code path, and it is not silenced by
-# `--disable-telemetry` (the metadata is computed for the build itself, not
-# only for telemetry). Storybook's own cache masks it on a warm node_modules,
-# which is why it only appears on a clean install — i.e. only in CI. Lifting
-# this exclusion is tracked as its own item in SPEC.md; until then the step
-# stays honest about what it does and does not enforce.
+# `--throw-deprecation` is set per step rather than job-wide so that the
+# `env:` block reads as a claim about that step — the audit above checks the
+# gates, and pnpm's own install runs under its own runtime where the flag
+# would police the package manager rather than this repository's build.
+#
+# The Build step was the last gate to get the flag. Under Storybook 9.1.20 it
+# could not satisfy it: `extractStorybookMetadata` runs after the output is
+# emitted and counts portable-stories files by shelling out through execa with
+# `shell: true` plus an argument array, which is DEP0190 on Node 24+, so
+# `storybook build` threw and exited 7 with storybook-static/ already
+# complete. Storybook 10.5.5 calls `execCommandCountLines('git', ['grep', …])`
+# with no shell at all, so there is nothing left to throw.
 
 name: CI
 
@@ -129,10 +132,10 @@ jobs:
         env:
           NODE_OPTIONS: --throw-deprecation
 
-      # No --throw-deprecation here — see the header comment on DEP0190 in
-      # Storybook's metadata extraction.
       - name: Build
         run: pnpm build
+        env:
+          NODE_OPTIONS: --throw-deprecation
 
       - name: Upload Storybook build
         if: always()
