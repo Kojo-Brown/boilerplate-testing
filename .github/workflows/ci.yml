@@ -65,13 +65,29 @@
 # gates, and pnpm's own install runs under its own runtime where the flag
 # would police the package manager rather than this repository's build.
 #
-# The Build step was the last gate to get the flag. Under Storybook 9.1.20 it
-# could not satisfy it: `extractStorybookMetadata` runs after the output is
-# emitted and counts portable-stories files by shelling out through execa with
-# `shell: true` plus an argument array, which is DEP0190 on Node 24+, so
-# `storybook build` threw and exited 7 with storybook-static/ already
-# complete. Storybook 10.5.5 calls `execCommandCountLines('git', ['grep', …])`
-# with no shell at all, so there is nothing left to throw.
+# The Build step was the last gate to get the flag, and it took two fixes.
+#
+# Under Storybook 9.1.20 it could not satisfy it: `extractStorybookMetadata`
+# runs after the output is emitted and counts portable-stories files by
+# shelling out through execa with `shell: true` plus an argument array, which
+# is DEP0190 on Node 24+, so `storybook build` threw and exited 7 with
+# storybook-static/ already complete. Storybook 10.5.5 calls
+# `execCommandCountLines('git', ['grep', …])` with no shell at all, so there is
+# nothing left to throw.
+#
+# Clearing DEP0190 exposed DEP0205 underneath it, on the Node 26 leg only:
+# Storybook's `importModule` registers its TypeScript loader through
+# `module.register()` before reading any config, and Node 26 deprecates that in
+# favour of `module.registerHooks()`. It is third-party and unreachable from
+# first-party code — writing `.storybook/main` as JavaScript would not avoid it
+# — and it is still present on `storybook@next`. `patches/storybook@10.5.5.patch`
+# forward-ports the upstream fix (storybookjs/storybook#35337): prefer
+# `registerHooks` with a synchronous loader where it exists, fall back to
+# `register` on runtimes without it. Dropping Node 26 from the matrix would
+# have been the other way to make this green, and would have weakened the gate
+# rather than satisfied it — `engines.node` declares ^26.0.0 supported.
+# `workflow-templates/patchedDeps.test.ts` audits that patch pin so it cannot
+# go missing quietly; delete the patch when the upstream fix ships.
 
 name: CI
 

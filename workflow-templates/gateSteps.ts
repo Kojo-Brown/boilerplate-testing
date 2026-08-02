@@ -56,6 +56,11 @@ export const THROW_DEPRECATION = '--throw-deprecation'
  * exited 7 with `storybook-static/` already complete. Storybook 10 calls
  * `execCommandCountLines('git', ['grep', ...])` with no shell, so the warning
  * is gone at the source.
+ *
+ * It also needs `patches/storybook@10.5.5.patch`, which clears the DEP0205
+ * `module.register()` call that surfaced underneath DEP0190 on Node 26. That
+ * patch is audited by `patchedDeps.ts` for the same reason this file exists:
+ * losing it changes nothing observable until a gate quietly stops enforcing.
  */
 export const GATED_SCRIPTS: readonly string[] = ['typecheck', 'lint', 'test', 'build']
 

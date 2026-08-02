@@ -71,6 +71,9 @@
       "esbuild",
       "msw",
       "unrs-resolver"
-    ]
+    ],
+    "patchedDependencies": {
+      "storybook@10.5.5": "patches/storybook@10.5.5.patch"
+    }
   }
 }

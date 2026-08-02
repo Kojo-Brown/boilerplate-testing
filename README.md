@@ -27,5 +27,16 @@ pnpm test          # run all unit tests
 pnpm test:e2e      # run Playwright
 ```
 
+## Patched dependencies
+
+`pnpm install` applies `patches/storybook@10.5.5.patch`. Storybook registers its
+TypeScript config loader with `module.register()`, which Node 26 deprecates
+(DEP0205), so `pnpm build` throws under the `--throw-deprecation` flag every CI
+gate runs with. The patch forward-ports the upstream fix
+([storybookjs/storybook#35337](https://github.com/storybookjs/storybook/pull/35337))
+and should be deleted once that ships. `workflow-templates/patchedDeps.ts`
+audits the pin as a unit test, so the patch cannot go missing or drift off its
+version unnoticed.
+
 ## Spec Progress
 See [SPEC.md](./SPEC.md).
