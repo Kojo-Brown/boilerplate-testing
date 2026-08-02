@@ -1,4 +1,4 @@
-# Storybook 9 Interaction Tests
+# Storybook Interaction Tests
 
 ## Running
 

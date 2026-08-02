@@ -70,6 +70,45 @@ a clean install, i.e. only in CI. Options are a Storybook upgrade once upstream
 stops passing an args array with `shell: true`, or dropping the portable-stories
 count. Both are larger than a CI change.
 
+The upgrade option is now available and DEP0190 is gone: Storybook 10.5.5 calls
+`execCommandCountLines('git', ['grep', …])` with no `shell` option at all, and
+the build satisfies `--throw-deprecation` on Node 22 and 24 — verified locally
+on both, with `node_modules/.cache/storybook` cleared first so the 24h
+`runTelemetryOperation` cache could not mask the call (the cache is written
+with `{"key":"portableStories"}`, so its presence afterwards proves the path
+ran).
+
+Item 7 nevertheless stays open, because the Node 26 leg of the matrix hits a
+second, unrelated deprecation that the flag now correctly surfaces: DEP0205,
+`module.register()` is deprecated, use `module.registerHooks()`. Storybook
+raises it in `importModule` (`src/shared/utils/module.ts`), which registers a
+TypeScript loader hook unconditionally on the first config import — before any
+config is read, so it is not avoidable by writing `.storybook/main` as
+JavaScript, and it is not first-party. It is still present in `storybook@next`
+(10.6.0-alpha.3), so there is no released or prereleased version to move to.
+DEP0205 does not exist on Node 22 or 24, which is why the upgrade looks clean
+on two of the three legs.
+
+Dropping Node 26 from the matrix would have closed item 7 and was rejected:
+`engines.node` declares 26 as supported, so excluding the leg would weaken the
+gate rather than satisfy it. The upstream fix exists but is unmerged —
+storybookjs/storybook#35337, open since 2026-07-01 against `next` — so item 7
+is closed by forward-porting it as `patches/storybook@10.5.5.patch`: prefer
+`module.registerHooks()` with a synchronous esbuild loader (`loadSync`) where
+that API exists, fall back to `module.register()` on runtimes without it
+(Node 22.13–22.14, still inside `engines.node`). Every leg of the matrix takes
+the `registerHooks` path, so a break in it fails all three rather than only the
+newest.
+
+The patch is pinned to an exact version in `pnpm.patchedDependencies`, which
+makes a Storybook bump fail the install instead of resolving a version the
+patch was never written against, and `workflow-templates/patchedDeps.ts` audits
+the pin as a unit test — a patch that is undocumented, unpinned, missing from
+disk, or drifted off the installed version fails `pnpm test` in a second rather
+than failing one CI leg three minutes later inside `node_modules`. Delete the
+patch, its pin, its `PATCH_REASONS` entry and the README note together when the
+upstream fix ships; the audit fails on any of them left behind.
+
 Known gaps still carried forward: Playwright E2E is not wired into CI — the
 specs target a running app at `PLAYWRIGHT_BASE_URL` and this repo ships none, so
 the template's e2e matrix was deliberately left out of the promoted workflow.
