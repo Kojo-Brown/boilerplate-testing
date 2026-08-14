@@ -13,12 +13,16 @@ export class BowlingGame {
     let roll = 0
 
     for (let frame = 0; frame < FRAMES_PER_GAME; frame += 1) {
-      if (this.#at(roll) + this.#at(roll + 1) === PINS_PER_FRAME) {
+      if (this.#at(roll) === PINS_PER_FRAME) {
+        total += PINS_PER_FRAME + this.#at(roll + 1) + this.#at(roll + 2)
+        roll += 1
+      } else if (this.#at(roll) + this.#at(roll + 1) === PINS_PER_FRAME) {
         total += PINS_PER_FRAME + this.#at(roll + 2)
+        roll += 2
       } else {
         total += this.#at(roll) + this.#at(roll + 1)
+        roll += 2
       }
-      roll += 2
     }
 
     return total
