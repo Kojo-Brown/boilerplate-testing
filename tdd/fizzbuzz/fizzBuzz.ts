@@ -25,3 +25,8 @@ export function fizzBuzz(n: number): string {
 
   return word === '' ? String(n) : word
 }
+
+/** The answers for 1..last, in order. */
+export function fizzBuzzUpTo(last: number): readonly string[] {
+  return Array.from({ length: last }, (_, index) => fizzBuzz(index + 1))
+}
