@@ -1,3 +1,3 @@
-export function fizzBuzz(_n: number): string {
-  return '1'
+export function fizzBuzz(n: number): string {
+  return String(n)
 }
