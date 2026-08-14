@@ -37,4 +37,21 @@ describe('BowlingGame', () => {
 
     expect(game.score()).toBe(16)
   })
+
+  it('a strike adds the next two rolls as a bonus', () => {
+    const game = new BowlingGame()
+    game.roll(10) // strike: frame one scores 10 + the next two rolls
+    game.roll(3)
+    game.roll(4)
+    rollMany(game, 16, 0)
+
+    expect(game.score()).toBe(24)
+  })
+
+  it('a perfect game scores 300', () => {
+    const game = new BowlingGame()
+    rollMany(game, 12, 10)
+
+    expect(game.score()).toBe(300)
+  })
 })
