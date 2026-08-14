@@ -1,7 +1,11 @@
 export class BowlingGame {
-  roll(_pins: number): void {}
+  readonly #rolls: number[] = []
+
+  roll(pins: number): void {
+    this.#rolls.push(pins)
+  }
 
   score(): number {
-    return 0
+    return this.#rolls.reduce((total, pins) => total + pins, 0)
   }
 }
