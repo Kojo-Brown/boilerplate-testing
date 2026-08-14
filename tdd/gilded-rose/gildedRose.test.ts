@@ -65,3 +65,9 @@ describe('the legacy rules (characterised, not designed)', () => {
     expect(afterOneDay(item(BACKSTAGE, 0, 20))).toEqual(item(BACKSTAGE, -1, 0))
   })
 })
+
+describe('conjured items', () => {
+  it('a conjured item degrades twice as fast', () => {
+    expect(afterOneDay(item(CONJURED, 10, 20))).toEqual(item(CONJURED, 9, 18))
+  })
+})
