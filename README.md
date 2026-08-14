@@ -16,6 +16,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | k6 load test template | `k6/load-test.js` |
 | Custom matchers | `matchers/` |
 | Seed factories | `factories/` |
+| TDD katas (worked step by step) | `tdd/` |
 
 ## Quick Start
 
