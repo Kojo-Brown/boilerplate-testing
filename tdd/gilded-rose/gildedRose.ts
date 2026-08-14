@@ -17,6 +17,12 @@ export type Item = {
 
 export function updateQuality(items: Item[]): Item[] {
   for (const item of items) {
+    if (item.name === 'Conjured Mana Cake') {
+      item.quality = Math.max(0, item.quality - 2)
+      item.sellIn = item.sellIn - 1
+      continue
+    }
+
     if (
       item.name !== 'Aged Brie' &&
       item.name !== 'Backstage passes to a TAFKAL80ETC concert'
