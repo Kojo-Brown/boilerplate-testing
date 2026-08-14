@@ -52,7 +52,7 @@ const updateBackstagePass: Updater = (item) => {
 
 const updateConjured: Updater = (item) => {
   item.sellIn -= 1
-  adjustQuality(item, -2)
+  adjustQuality(item, item.sellIn < 0 ? -4 : -2)
 }
 
 /** Legendary: never ages, never degrades, and sits above the quality cap. */
