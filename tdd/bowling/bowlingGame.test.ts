@@ -20,4 +20,11 @@ describe('BowlingGame', () => {
 
     expect(game.score()).toBe(0)
   })
+
+  it('a game of all ones scores 20', () => {
+    const game = new BowlingGame()
+    rollMany(game, 20, 1)
+
+    expect(game.score()).toBe(20)
+  })
 })
