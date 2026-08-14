@@ -28,16 +28,29 @@ function adjustQuality(item: Item, delta: number): void {
   item.quality = Math.min(MAX_QUALITY, Math.max(MIN_QUALITY, item.quality + delta))
 }
 
-const updateNormal: Updater = (item) => {
-  item.sellIn -= 1
-  adjustQuality(item, item.sellIn < 0 ? -2 : -1)
+/**
+ * Most of the shop follows one rule: age a day, then move quality by `rate`,
+ * at double rate once the sell-by date has passed. Normal stock, Aged Brie and
+ * conjured items differ only in that number — including its sign, which is
+ * why Brie ripening and a vest rotting are the same function.
+ */
+function perishable(rate: number): Updater {
+  return (item) => {
+    item.sellIn -= 1
+    adjustQuality(item, item.sellIn < 0 ? rate * 2 : rate)
+  }
 }
 
-const updateAgedBrie: Updater = (item) => {
-  item.sellIn -= 1
-  adjustQuality(item, item.sellIn < 0 ? 2 : 1)
-}
+const updateNormal = perishable(-1)
+const updateAgedBrie = perishable(1)
+const updateConjured = perishable(-2)
 
+/**
+ * Backstage passes are the exception: quality accelerates as the concert
+ * approaches and collapses to nothing the moment it is over. The thresholds
+ * read the sell-by date *before* it is decremented, which is why they are 11
+ * and 6 rather than the 10 and 5 the requirements describe.
+ */
 const updateBackstagePass: Updater = (item) => {
   const gain = item.sellIn < 6 ? 3 : item.sellIn < 11 ? 2 : 1
 
@@ -48,11 +61,6 @@ const updateBackstagePass: Updater = (item) => {
   } else {
     adjustQuality(item, gain)
   }
-}
-
-const updateConjured: Updater = (item) => {
-  item.sellIn -= 1
-  adjustQuality(item, item.sellIn < 0 ? -4 : -2)
 }
 
 /** Legendary: never ages, never degrades, and sits above the quality cap. */
