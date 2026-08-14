@@ -70,4 +70,8 @@ describe('conjured items', () => {
   it('a conjured item degrades twice as fast', () => {
     expect(afterOneDay(item(CONJURED, 10, 20))).toEqual(item(CONJURED, 9, 18))
   })
+
+  it('a conjured item degrades by four once the sell-by date has passed', () => {
+    expect(afterOneDay(item(CONJURED, 0, 20))).toEqual(item(CONJURED, -1, 16))
+  })
 })
