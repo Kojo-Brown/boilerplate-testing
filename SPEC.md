@@ -149,7 +149,7 @@ Prettier is not gated; there is no `format:check` script.
 - [x] Codecov integration + coverage badge
 
 ## Phase 7 — TDD Discipline
-- [ ] TDD kata series: FizzBuzz, Bowling, Gilded Rose — one commit per red/green/refactor step
+- [x] TDD kata series: FizzBuzz, Bowling, Gilded Rose — one commit per red/green/refactor step — 29 step commits, each verified to be the colour it claims by running the suite before committing. A fourth phase, `pin`, was needed: the Gilded Rose starts from inherited code, and a characterisation test cannot be red without lying, so `pin` steps are allowed only before the first `red`. Because the repo squash-merges, the history is also stored as data in `tdd/katas.ts` and audited by `tdd/steps.ts` + `tdd/katas.test.ts` — every claimed test must exist on disk, every test on disk must be claimed by one step, and the phase sequence must be a legal cycle, so the record fails `pnpm test` rather than rotting (PR #27)
 - [ ] Outside-in (London school) vs classicist TDD compared on the same feature
 - [ ] Test-double taxonomy: dummy, stub, spy, mock, fake — with a when-to-use guide
 - [ ] Arrange-Act-Assert and Given-When-Then conventions with a lint-enforced naming scheme
