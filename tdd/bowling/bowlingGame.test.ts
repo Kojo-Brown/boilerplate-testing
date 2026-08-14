@@ -27,4 +27,14 @@ describe('BowlingGame', () => {
 
     expect(game.score()).toBe(20)
   })
+
+  it('a spare adds the next roll as a bonus', () => {
+    const game = new BowlingGame()
+    game.roll(5)
+    game.roll(5) // spare: frame one scores 10 + the next roll
+    game.roll(3)
+    rollMany(game, 17, 0)
+
+    expect(game.score()).toBe(16)
+  })
 })
