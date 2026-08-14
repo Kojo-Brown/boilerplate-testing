@@ -3,5 +3,9 @@ export function fizzBuzz(n: number): string {
     return 'Fizz'
   }
 
+  if (n % 5 === 0) {
+    return 'Buzz'
+  }
+
   return String(n)
 }
