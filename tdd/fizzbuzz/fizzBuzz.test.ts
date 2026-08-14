@@ -4,7 +4,7 @@
 // the PR branch is one red, green or refactor move.
 
 import { describe, it, expect } from 'vitest'
-import { fizzBuzz } from './fizzBuzz'
+import { fizzBuzz, fizzBuzzUpTo } from './fizzBuzz'
 
 describe('fizzBuzz', () => {
   it('returns "1" for 1', () => {
@@ -25,5 +25,27 @@ describe('fizzBuzz', () => {
 
   it('returns "FizzBuzz" for 15', () => {
     expect(fizzBuzz(15)).toBe('FizzBuzz')
+  })
+})
+
+describe('fizzBuzzUpTo', () => {
+  it('lists the first fifteen answers in order', () => {
+    expect(fizzBuzzUpTo(15)).toEqual([
+      '1',
+      '2',
+      'Fizz',
+      '4',
+      'Buzz',
+      'Fizz',
+      '7',
+      '8',
+      'Fizz',
+      'Buzz',
+      '11',
+      'Fizz',
+      '13',
+      '14',
+      'FizzBuzz',
+    ])
   })
 })
