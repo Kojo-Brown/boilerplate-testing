@@ -17,6 +17,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | Custom matchers | `matchers/` |
 | Seed factories | `factories/` |
 | TDD katas (worked step by step) | `tdd/` |
+| Outside-in vs classicist TDD | `tdd/schools/` |
 
 ## Quick Start
 
