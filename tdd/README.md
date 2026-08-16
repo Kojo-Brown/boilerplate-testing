@@ -4,8 +4,13 @@ Three worked katas, each built one red/green/refactor step at a time, with the
 step log recorded as checked data rather than prose.
 
 ```bash
-pnpm test tdd            # the katas plus the audit of their step logs
+pnpm test tdd/katas tdd/steps   # the katas plus the audit of their step logs
+pnpm test tdd                   # the above, and everything else under tdd/
 ```
+
+For the other half of the discipline — *which* tests to write, rather than in
+what order — see [`schools/`](./schools), which builds one feature twice,
+outside-in and classicist, and holds both to a shared contract.
 
 ## When to use this
 
