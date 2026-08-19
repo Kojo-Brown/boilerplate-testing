@@ -10,7 +10,9 @@ pnpm test tdd                   # the above, and everything else under tdd/
 
 For the other half of the discipline — *which* tests to write, rather than in
 what order — see [`schools/`](./schools), which builds one feature twice,
-outside-in and classicist, and holds both to a shared contract.
+outside-in and classicist, and holds both to a shared contract, and
+[`doubles/`](./doubles), which compares the five kinds of test double on one
+feature and measures what each kind can actually catch.
 
 ## When to use this
 
