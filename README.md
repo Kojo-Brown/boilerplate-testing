@@ -18,6 +18,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | Seed factories | `factories/` |
 | TDD katas (worked step by step) | `tdd/` |
 | Outside-in vs classicist TDD | `tdd/schools/` |
+| Test doubles: dummy, stub, spy, mock, fake | `tdd/doubles/` |
 
 ## Quick Start
 
