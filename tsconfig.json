@@ -11,6 +11,15 @@
     // sources is to stop checking third-party declarations. This does not
     // relax any rule applied to this repo's code.
     "skipLibCheck": true,
+    // Nothing here is compiled: Vitest and Vite transpile at run time, and this
+    // config exists to typecheck. Stating it in the file rather than relying on
+    // `tsc --noEmit` is what lets `allowImportingTsExtensions` be set below.
+    "noEmit": true,
+    // `tdd/conventions/eslint-plugin/` is imported by `eslint.config.js`, which
+    // Node loads directly — so its intra-package imports have to carry the
+    // `.ts` extension Node's resolver requires. Everything else in the repo is
+    // loaded through Vite and keeps the extensionless form.
+    "allowImportingTsExtensions": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,

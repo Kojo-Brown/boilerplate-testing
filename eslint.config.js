@@ -10,6 +10,15 @@ import js from '@eslint/js'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
+// A local plugin, not a package: the test-naming convention below is this
+// repository's house style, and the point of the pattern is that the style is
+// enforced rather than merely written down. See tdd/conventions/README.md.
+//
+// The `.ts` extension is required — Node resolves this import itself and
+// strips the types on the way in, which is why `engines.node` starts at
+// ^22.18.0.
+import testConventions from './tdd/conventions/eslint-plugin/index.ts'
+
 export default tseslint.config(
   {
     // Build output and vendored directories. Must be a top-level `ignores`-only
@@ -59,6 +68,45 @@ export default tseslint.config(
     files: ['k6/**/*.ts'],
     languageOptions: {
       globals: { __ENV: 'readonly', __VU: 'readonly', __ITER: 'readonly' },
+    },
+  },
+
+  {
+    // ---------------------------------------------------------------------
+    // Test-title convention, enforced everywhere
+    // ---------------------------------------------------------------------
+    // Every test file in the repository, unit and Playwright alike. The rule
+    // bans a short list of openers (`should`, `verify`, `it`, …) rather than
+    // prescribing a grammar, which is why turning it on cost zero renames: all
+    // 580 titles here already state what the system does. That is the argument
+    // for adding it now — a convention nothing checks is one commit away from
+    // no longer being true, and this one was already true.
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    plugins: { 'test-conventions': testConventions },
+    rules: {
+      'test-conventions/title-scheme': ['error', { scheme: 'behaviour' }],
+    },
+  },
+
+  {
+    // The Given/When/Then demonstration opts into the other scheme. Later
+    // config objects win, so this replaces the options above for this file
+    // rather than adding to them.
+    files: ['tdd/conventions/gwt.test.ts'],
+    rules: {
+      'test-conventions/title-scheme': ['error', { scheme: 'given-when-then' }],
+    },
+  },
+
+  {
+    // Arrange-Act-Assert marker comments are checked where they are the
+    // documented convention, which is this folder and not the other 40 test
+    // files. Retrofitting them repo-wide would rewrite every test body in the
+    // repository to prove a point about comments; the rule is here, working,
+    // with the snippet to switch it on in README.md.
+    files: ['tdd/conventions/aaa.test.ts'],
+    rules: {
+      'test-conventions/aaa-structure': 'error',
     },
   },
 

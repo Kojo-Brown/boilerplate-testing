@@ -21,6 +21,14 @@
 # `.npmrc` sets `engine-strict=true`, so a matrix leg outside that declared
 # range fails at install rather than drifting silently out of support.
 #
+# The 22 floor is `^22.18.0` rather than `^22.13.0` because `eslint.config.js`
+# imports a TypeScript module directly — `tdd/conventions/eslint-plugin/`, the
+# repository's own lint rules — and Node loads that import itself. 22.18.0 is
+# the release where type stripping stopped needing `--experimental-strip-types`.
+# `setup-node` with `node-version: 22` resolves the latest 22.x, so this leg
+# satisfies the floor; the declaration exists so a consumer pinning an older
+# 22 is told at install time rather than by an unreadable resolver error.
+#
 # Node 26 was previously excluded because the supertest suite failed there:
 # two concurrent requests through one `supertest.agent()` wrapping a
 # non-listening `http.Server` died with ECONNRESET on 26.5.1 and passed on 22
