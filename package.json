@@ -14,6 +14,7 @@
     "test:e2e": "playwright test",
     "test:pact": "vitest run --config pact/vitest.config.ts",
     "coverage": "vitest run --coverage",
+    "characterise:record": "node tdd/characterisation/record.ts",
     "typecheck": "tsc --noEmit",
     "build": "storybook build",
     "lint": "eslint . --max-warnings 0",
