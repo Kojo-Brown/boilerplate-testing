@@ -14,6 +14,12 @@ outside-in and classicist, and holds both to a shared contract, and
 [`doubles/`](./doubles), which compares the five kinds of test double on one
 feature and measures what each kind can actually catch.
 
+For the case where the code got there first, see
+[`characterisation/`](./characterisation): pinning inherited behaviour before
+refactoring it, at the scale the Gilded Rose is too small to need — a generated
+corpus, a recorded golden master, and a mutation matrix putting a number on
+what the pins would have caught.
+
 ## When to use this
 
 Reach for these when you want to **practise or demonstrate the cycle itself**,
@@ -43,6 +49,13 @@ be a lie; calling them `green` would imply production code was written to
 satisfy them. They are a survey. A `pin` step may only appear *before* the
 first `red` — you pin behaviour before you change it, never after, because a
 characterisation test written after a change pins the change.
+
+The Gilded Rose pins by hand: ten examples chosen by eye, which is the right
+size for fifty lines of inherited code you can hold in your head.
+[`characterisation/`](./characterisation) is the same move when you cannot —
+the corpus is generated, the expectations are recorded rather than written, and
+the question of whether the pins are any good is answered by measurement rather
+than by reading them.
 
 ## The rules the audit enforces
 

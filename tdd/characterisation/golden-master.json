@@ -1,0 +1,4538 @@
+{
+  "recordedFrom": "legacy/renewal.ts",
+  "fingerprint": "4db0b41b",
+  "caseCount": 128,
+  "cases": {
+    "base": {
+      "invoice": {
+        "customerId": "C-000",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 25.22,
+        "total": 373.22,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-000",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:plan=basic": {
+      "invoice": {
+        "customerId": "C-001",
+        "currency": "USD",
+        "subtotal": 108,
+        "discounted": 108,
+        "credit": 0,
+        "payable": 108,
+        "tax": 7.82,
+        "total": 115.82,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-001",
+        "createdAt": "2021-03-04",
+        "plan": "basic",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:plan=enterprise": {
+      "invoice": {
+        "customerId": "C-002",
+        "currency": "USD",
+        "subtotal": 1188,
+        "discounted": 1188,
+        "credit": 0,
+        "payable": 1188,
+        "tax": 86.13,
+        "total": 1274.13,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-002",
+        "createdAt": "2021-03-04",
+        "plan": "enterprise",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:plan=starter": {
+      "invoice": {
+        "customerId": "C-003",
+        "currency": "USD",
+        "subtotal": 108,
+        "discounted": 108,
+        "credit": 0,
+        "payable": 108,
+        "tax": 7.82,
+        "total": 115.82,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-003",
+        "createdAt": "2021-03-04",
+        "plan": "starter",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:seats=0": {
+      "invoice": {
+        "customerId": "C-004",
+        "currency": "USD",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": true
+      },
+      "customerAfter": {
+        "id": "C-004",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 0,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:seats=1": {
+      "invoice": {
+        "customerId": "C-005",
+        "currency": "USD",
+        "subtotal": 29,
+        "discounted": 29,
+        "credit": 0,
+        "payable": 29,
+        "tax": 2.1,
+        "total": 31.1,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-005",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 1,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:seats=25": {
+      "invoice": {
+        "customerId": "C-006",
+        "currency": "USD",
+        "subtotal": 725,
+        "discounted": 725,
+        "credit": 0,
+        "payable": 725,
+        "tax": 52.56,
+        "total": 777.56,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-006",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 25,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:seats=26": {
+      "invoice": {
+        "customerId": "C-007",
+        "currency": "USD",
+        "subtotal": 754,
+        "discounted": 701.22,
+        "credit": 0,
+        "payable": 701.22,
+        "tax": 50.83,
+        "total": 752.05,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-007",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 26,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:seats=100": {
+      "invoice": {
+        "customerId": "C-008",
+        "currency": "USD",
+        "subtotal": 2900,
+        "discounted": 2697,
+        "credit": 0,
+        "payable": 2697,
+        "tax": 195.53,
+        "total": 2892.53,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-008",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 100,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:seats=101": {
+      "invoice": {
+        "customerId": "C-009",
+        "currency": "USD",
+        "subtotal": 2929,
+        "discounted": 2489.65,
+        "credit": 0,
+        "payable": 2489.65,
+        "tax": 180.49,
+        "total": 2670.14,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-009",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 101,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:seats=500": {
+      "invoice": {
+        "customerId": "C-010",
+        "currency": "USD",
+        "subtotal": 14500,
+        "discounted": 12325,
+        "credit": 0,
+        "payable": 12325,
+        "tax": 893.56,
+        "total": 13218.56,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-010",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 500,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:createdAt=2018-06-30": {
+      "invoice": {
+        "customerId": "C-011",
+        "currency": "USD",
+        "subtotal": 228,
+        "discounted": 228,
+        "credit": 0,
+        "payable": 228,
+        "tax": 16.52,
+        "total": 244.52,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-011",
+        "createdAt": "2018-06-30",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:createdAt=2019-01-01": {
+      "invoice": {
+        "customerId": "C-012",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 25.22,
+        "total": 373.22,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-012",
+        "createdAt": "2019-01-01",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:createdAt=01/02/2019": {
+      "invoice": {
+        "customerId": "C-013",
+        "currency": "USD",
+        "subtotal": 228,
+        "discounted": 228,
+        "credit": 0,
+        "payable": 228,
+        "tax": 16.52,
+        "total": 244.52,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-013",
+        "createdAt": "01/02/2019",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:createdAt=not-a-date": {
+      "invoice": {
+        "customerId": "C-014",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 25.22,
+        "total": 373.22,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-014",
+        "createdAt": "not-a-date",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:currency=EUR": {
+      "invoice": {
+        "customerId": "C-015",
+        "currency": "EUR",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 69.6,
+        "total": 417.6,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-015",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "EUR",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:currency=JPY": {
+      "invoice": {
+        "customerId": "C-016",
+        "currency": "JPY",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 34.8,
+        "total": 382.8,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-016",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "JPY",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:currency=GBP": {
+      "invoice": {
+        "customerId": "C-017",
+        "currency": "GBP",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 0,
+        "total": 348,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-017",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:unknown-currency"
+      ]
+    },
+    "ofat:loyaltyYears=1": {
+      "invoice": {
+        "customerId": "C-018",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 344.52,
+        "credit": 0,
+        "payable": 344.52,
+        "tax": 24.97,
+        "total": 369.49,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-018",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 1,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:loyaltyYears=5": {
+      "invoice": {
+        "customerId": "C-019",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 330.6,
+        "credit": 0,
+        "payable": 330.6,
+        "tax": 23.96,
+        "total": 354.56,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-019",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 5,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:loyaltyYears=7": {
+      "invoice": {
+        "customerId": "C-020",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 330.6,
+        "credit": 0,
+        "payable": 330.6,
+        "tax": 23.96,
+        "total": 354.56,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-020",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 7,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:coupon=empty": {
+      "invoice": {
+        "customerId": "C-021",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 25.22,
+        "total": 373.22,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-021",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "coupon": "",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:coupon=SAVE10": {
+      "invoice": {
+        "customerId": "C-022",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 313.2,
+        "tax": 22.7,
+        "total": 335.9,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-022",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "coupon": "SAVE10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "ofat:coupon=WELCOME": {
+      "invoice": {
+        "customerId": "C-023",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 328,
+        "tax": 23.77,
+        "total": 351.77,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-023",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "coupon": "WELCOME",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "ofat:coupon=save10": {
+      "invoice": {
+        "customerId": "C-024",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 25.22,
+        "total": 373.22,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-024",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "coupon": "save10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "ofat:coupon=FREESTUFF": {
+      "invoice": {
+        "customerId": "C-025",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 25.22,
+        "total": 373.22,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-025",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "coupon": "FREESTUFF",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "ofat:creditCents=0": {
+      "invoice": {
+        "customerId": "C-026",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 25.22,
+        "total": 373.22,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-026",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:creditCents=1250": {
+      "invoice": {
+        "customerId": "C-027",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 12.5,
+        "payable": 335.5,
+        "tax": 24.32,
+        "total": 359.82,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-027",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:creditCents=50000": {
+      "invoice": {
+        "customerId": "C-028",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 500,
+        "payable": -152,
+        "tax": -11.02,
+        "total": -163.02,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-028",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:lastInvoicedAt=2024-01-01": {
+      "invoice": {
+        "customerId": "C-029",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 25.22,
+        "total": 373.22,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-029",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:lastInvoicedAt=2024-06-05": {
+      "invoice": {
+        "customerId": "C-030",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 116,
+        "credit": 0,
+        "payable": 116,
+        "tax": 8.41,
+        "total": 124.41,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-030",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:lastInvoicedAt=2024-06-20": {
+      "invoice": {
+        "customerId": "C-031",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": -58,
+        "credit": 0,
+        "payable": -58,
+        "tax": -4.2,
+        "total": -62.2,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-031",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:lastInvoicedAt=nope": {
+      "invoice": {
+        "customerId": "C-032",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 25.22,
+        "total": 373.22,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-032",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "ofat:tax=overridden": {
+      "invoice": {
+        "customerId": "C-033",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 348,
+        "credit": 0,
+        "payable": 348,
+        "tax": 31.32,
+        "total": 379.32,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-033",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:000": {
+      "invoice": {
+        "customerId": "C-034",
+        "currency": "EUR",
+        "subtotal": 1900,
+        "discounted": -291.55,
+        "credit": 12.5,
+        "payable": -273.65,
+        "tax": -54.73,
+        "total": -328.38,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-034",
+        "createdAt": "2018-06-30",
+        "plan": "pro",
+        "seats": 100,
+        "currency": "EUR",
+        "loyaltyYears": 1,
+        "coupon": "SAVE10",
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:applied",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "random:001": {
+      "invoice": {
+        "customerId": "C-035",
+        "currency": "GBP",
+        "subtotal": 9,
+        "discounted": 8.91,
+        "credit": 0,
+        "payable": -11.09,
+        "tax": 0,
+        "total": -11.09,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-035",
+        "createdAt": "2021-03-04",
+        "plan": "basic",
+        "seats": 1,
+        "currency": "GBP",
+        "loyaltyYears": 1,
+        "coupon": "WELCOME",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:flat",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:002": {
+      "invoice": {
+        "customerId": "C-036",
+        "currency": "GBP",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-036",
+        "createdAt": "01/02/2019",
+        "plan": "starter",
+        "seats": 0,
+        "currency": "GBP",
+        "loyaltyYears": 5,
+        "coupon": "FREESTUFF",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate",
+        "unknown coupon FREESTUFF",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:unknown",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:003": {
+      "invoice": {
+        "customerId": "C-037",
+        "currency": "EUR",
+        "subtotal": 494,
+        "discounted": 459.42,
+        "credit": 0,
+        "payable": 459.42,
+        "tax": 91.88,
+        "total": 551.3,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-037",
+        "createdAt": "2018-06-30",
+        "plan": "pro",
+        "seats": 26,
+        "currency": "EUR",
+        "loyaltyYears": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:medium",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:004": {
+      "invoice": {
+        "customerId": "C-038",
+        "currency": "JPY",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-038",
+        "createdAt": "01/02/2019",
+        "plan": "enterprise",
+        "seats": 0,
+        "currency": "JPY",
+        "loyaltyYears": 0,
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:none",
+        "loyalty:none",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:005": {
+      "invoice": {
+        "customerId": "C-039",
+        "currency": "EUR",
+        "subtotal": 225,
+        "discounted": 213.75,
+        "credit": 500,
+        "payable": -286.25,
+        "tax": -57.25,
+        "total": -343.5,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-039",
+        "createdAt": "2019-01-01",
+        "plan": "basic",
+        "seats": 25,
+        "currency": "EUR",
+        "loyaltyYears": 5,
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:006": {
+      "invoice": {
+        "customerId": "C-040",
+        "currency": "GBP",
+        "subtotal": 2475,
+        "discounted": 2475,
+        "credit": 500,
+        "payable": 1777.5,
+        "tax": 0,
+        "total": 1777.5,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-040",
+        "createdAt": "2021-03-04",
+        "plan": "enterprise",
+        "seats": 25,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "coupon": "SAVE10",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:none",
+        "credit:applied",
+        "coupon:percent",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:007": {
+      "invoice": {
+        "customerId": "C-041",
+        "currency": "JPY",
+        "subtotal": 234,
+        "discounted": 68.91,
+        "credit": 0,
+        "payable": 68.91,
+        "tax": 6.89,
+        "total": 75.8,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-041",
+        "createdAt": "2019-01-01",
+        "plan": "starter",
+        "seats": 26,
+        "currency": "JPY",
+        "loyaltyYears": 5,
+        "coupon": "FREESTUFF",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate",
+        "unknown coupon FREESTUFF"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:008": {
+      "invoice": {
+        "customerId": "C-042",
+        "currency": "USD",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 500,
+        "payable": -500,
+        "tax": -36.25,
+        "total": -536.25,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-042",
+        "createdAt": "2021-03-04",
+        "plan": "enterprise",
+        "seats": 0,
+        "currency": "USD",
+        "loyaltyYears": 1,
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:009": {
+      "invoice": {
+        "customerId": "C-043",
+        "currency": "GBP",
+        "subtotal": 29,
+        "discounted": 29,
+        "credit": 0,
+        "payable": 9,
+        "tax": 0,
+        "total": 9,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-043",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 1,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "coupon": "WELCOME",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:flat",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:010": {
+      "invoice": {
+        "customerId": "C-044",
+        "currency": "GBP",
+        "subtotal": 2574,
+        "discounted": 789.96,
+        "credit": 0,
+        "payable": 769.96,
+        "tax": 0,
+        "total": 769.96,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-044",
+        "createdAt": "2018-06-30",
+        "plan": "enterprise",
+        "seats": 26,
+        "currency": "GBP",
+        "loyaltyYears": 1,
+        "coupon": "WELCOME",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:flat",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:011": {
+      "invoice": {
+        "customerId": "C-045",
+        "currency": "USD",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 12.5,
+        "payable": -12.5,
+        "tax": -0.9,
+        "total": -13.4,
+        "auditSample": true
+      },
+      "customerAfter": {
+        "id": "C-045",
+        "createdAt": "2018-06-30",
+        "plan": "basic",
+        "seats": 0,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "coupon": "save10",
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:none",
+        "loyalty:none",
+        "proration:partial",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:012": {
+      "invoice": {
+        "customerId": "C-046",
+        "currency": "JPY",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-046",
+        "createdAt": "01/02/2019",
+        "plan": "enterprise",
+        "seats": 0,
+        "currency": "JPY",
+        "loyaltyYears": 7,
+        "coupon": "save10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:013": {
+      "invoice": {
+        "customerId": "C-047",
+        "currency": "USD",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-047",
+        "createdAt": "2019-01-01",
+        "plan": "enterprise",
+        "seats": 0,
+        "currency": "USD",
+        "loyaltyYears": 7,
+        "coupon": "SAVE10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "random:014": {
+      "invoice": {
+        "customerId": "C-048",
+        "currency": "GBP",
+        "subtotal": 725,
+        "discounted": 239.25,
+        "credit": 0,
+        "payable": 239.25,
+        "tax": 0,
+        "total": 239.25,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-048",
+        "createdAt": "not-a-date",
+        "plan": "pro",
+        "seats": 25,
+        "currency": "GBP",
+        "loyaltyYears": 1,
+        "coupon": "",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:015": {
+      "invoice": {
+        "customerId": "C-049",
+        "currency": "USD",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-049",
+        "createdAt": "01/02/2019",
+        "plan": "enterprise",
+        "seats": 0,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "coupon": "SAVE10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:none",
+        "loyalty:none",
+        "proration:partial",
+        "credit:none",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "random:016": {
+      "invoice": {
+        "customerId": "C-050",
+        "currency": "JPY",
+        "subtotal": 234,
+        "discounted": 215.44,
+        "credit": 12.5,
+        "payable": 182.65,
+        "tax": 18.26,
+        "total": 200.91,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-050",
+        "createdAt": "2021-03-04",
+        "plan": "basic",
+        "seats": 26,
+        "currency": "JPY",
+        "loyaltyYears": 1,
+        "coupon": "SAVE10",
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:none",
+        "credit:applied",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "random:017": {
+      "invoice": {
+        "customerId": "C-051",
+        "currency": "USD",
+        "subtotal": 225,
+        "discounted": -37.12,
+        "credit": 0,
+        "payable": -57.12,
+        "tax": -5.14,
+        "total": -62.26,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-051",
+        "createdAt": "2021-03-04",
+        "plan": "starter",
+        "seats": 25,
+        "currency": "USD",
+        "loyaltyYears": 1,
+        "coupon": "WELCOME",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:018": {
+      "invoice": {
+        "customerId": "C-052",
+        "currency": "JPY",
+        "subtotal": 9999,
+        "discounted": -1402.36,
+        "credit": 0,
+        "payable": -1402.36,
+        "tax": -140.23,
+        "total": -1542.59,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-052",
+        "createdAt": "2018-06-30",
+        "plan": "enterprise",
+        "seats": 101,
+        "currency": "JPY",
+        "loyaltyYears": 1,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:019": {
+      "invoice": {
+        "customerId": "C-053",
+        "currency": "USD",
+        "subtotal": 909,
+        "discounted": 764.92,
+        "credit": 500,
+        "payable": 244.92,
+        "tax": 22.04,
+        "total": 266.96,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-053",
+        "createdAt": "2021-03-04",
+        "plan": "starter",
+        "seats": 101,
+        "currency": "USD",
+        "loyaltyYears": 1,
+        "coupon": "WELCOME",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:large",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:020": {
+      "invoice": {
+        "customerId": "C-054",
+        "currency": "GBP",
+        "subtotal": 4500,
+        "discounted": 3825,
+        "credit": 0,
+        "payable": 3825,
+        "tax": 0,
+        "total": 3825,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-054",
+        "createdAt": "2019-01-01",
+        "plan": "basic",
+        "seats": 500,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "coupon": "",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:none",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:021": {
+      "invoice": {
+        "customerId": "C-055",
+        "currency": "GBP",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-055",
+        "createdAt": "2018-06-30",
+        "plan": "enterprise",
+        "seats": 0,
+        "currency": "GBP",
+        "loyaltyYears": 1,
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:none",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:022": {
+      "invoice": {
+        "customerId": "C-056",
+        "currency": "EUR",
+        "subtotal": 234,
+        "discounted": 217.62,
+        "credit": 0,
+        "payable": 217.62,
+        "tax": 43.52,
+        "total": 261.14,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-056",
+        "createdAt": "2018-06-30",
+        "plan": "starter",
+        "seats": 26,
+        "currency": "EUR",
+        "loyaltyYears": 0,
+        "coupon": "save10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate",
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:medium",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:023": {
+      "invoice": {
+        "customerId": "C-057",
+        "currency": "EUR",
+        "subtotal": 225,
+        "discounted": 222.75,
+        "credit": 0,
+        "payable": 202.75,
+        "tax": 40.55,
+        "total": 243.3,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-057",
+        "createdAt": "not-a-date",
+        "plan": "starter",
+        "seats": 25,
+        "currency": "EUR",
+        "loyaltyYears": 1,
+        "coupon": "WELCOME",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:024": {
+      "invoice": {
+        "customerId": "C-058",
+        "currency": "GBP",
+        "subtotal": 1900,
+        "discounted": 1678.65,
+        "credit": 12.5,
+        "payable": 1666.15,
+        "tax": 0,
+        "total": 1666.15,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-058",
+        "createdAt": "2018-06-30",
+        "plan": "pro",
+        "seats": 100,
+        "currency": "GBP",
+        "loyaltyYears": 7,
+        "coupon": "save10",
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:025": {
+      "invoice": {
+        "customerId": "C-059",
+        "currency": "USD",
+        "subtotal": 14500,
+        "discounted": 3902.92,
+        "credit": 0,
+        "payable": 3902.92,
+        "tax": 351.26,
+        "total": 4254.18,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-059",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 500,
+        "currency": "USD",
+        "loyaltyYears": 7,
+        "coupon": "save10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:026": {
+      "invoice": {
+        "customerId": "C-060",
+        "currency": "GBP",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-060",
+        "createdAt": "2021-03-04",
+        "plan": "enterprise",
+        "seats": 0,
+        "currency": "GBP",
+        "loyaltyYears": 5,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:027": {
+      "invoice": {
+        "customerId": "C-061",
+        "currency": "JPY",
+        "subtotal": 900,
+        "discounted": 828.63,
+        "credit": 12.5,
+        "payable": 816.13,
+        "tax": 81.61,
+        "total": 897.74,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-061",
+        "createdAt": "2021-03-04",
+        "plan": "basic",
+        "seats": 100,
+        "currency": "JPY",
+        "loyaltyYears": 1,
+        "coupon": "",
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:028": {
+      "invoice": {
+        "customerId": "C-062",
+        "currency": "GBP",
+        "subtotal": 348,
+        "discounted": 110.2,
+        "credit": 12.5,
+        "payable": 77.7,
+        "tax": 0,
+        "total": 77.7,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-062",
+        "createdAt": "2019-01-01",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "GBP",
+        "loyaltyYears": 5,
+        "coupon": "WELCOME",
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:applied",
+        "coupon:flat",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:029": {
+      "invoice": {
+        "customerId": "C-063",
+        "currency": "USD",
+        "subtotal": 14500,
+        "discounted": 12201.75,
+        "credit": 500,
+        "payable": 11701.75,
+        "tax": 848.37,
+        "total": 12550.12,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-063",
+        "createdAt": "2019-01-01",
+        "plan": "pro",
+        "seats": 500,
+        "currency": "USD",
+        "loyaltyYears": 1,
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:030": {
+      "invoice": {
+        "customerId": "C-064",
+        "currency": "USD",
+        "subtotal": 9900,
+        "discounted": 9114.93,
+        "credit": 0,
+        "payable": 9114.93,
+        "tax": 820.34,
+        "total": 9935.27,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-064",
+        "createdAt": "01/02/2019",
+        "plan": "enterprise",
+        "seats": 100,
+        "currency": "USD",
+        "loyaltyYears": 1,
+        "coupon": "",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:031": {
+      "invoice": {
+        "customerId": "C-065",
+        "currency": "JPY",
+        "subtotal": 494,
+        "discounted": 153.14,
+        "credit": 500,
+        "payable": -346.86,
+        "tax": -34.68,
+        "total": -381.54,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-065",
+        "createdAt": "2018-06-30",
+        "plan": "pro",
+        "seats": 26,
+        "currency": "JPY",
+        "loyaltyYears": 0,
+        "coupon": "FREESTUFF",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:medium",
+        "loyalty:none",
+        "proration:partial",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:032": {
+      "invoice": {
+        "customerId": "C-066",
+        "currency": "EUR",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": true
+      },
+      "customerAfter": {
+        "id": "C-066",
+        "createdAt": "not-a-date",
+        "plan": "enterprise",
+        "seats": 0,
+        "currency": "EUR",
+        "loyaltyYears": 5,
+        "coupon": "FREESTUFF",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:033": {
+      "invoice": {
+        "customerId": "C-067",
+        "currency": "GBP",
+        "subtotal": 1188,
+        "discounted": 1176.12,
+        "credit": 0,
+        "payable": 1156.12,
+        "tax": 0,
+        "total": 1156.12,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-067",
+        "createdAt": "01/02/2019",
+        "plan": "enterprise",
+        "seats": 12,
+        "currency": "GBP",
+        "loyaltyYears": 1,
+        "coupon": "WELCOME",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:flat",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:034": {
+      "invoice": {
+        "customerId": "C-068",
+        "currency": "GBP",
+        "subtotal": 900,
+        "discounted": 279,
+        "credit": 0,
+        "payable": 279,
+        "tax": 0,
+        "total": 279,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-068",
+        "createdAt": "2018-06-30",
+        "plan": "starter",
+        "seats": 100,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "coupon": "",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:medium",
+        "loyalty:none",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:035": {
+      "invoice": {
+        "customerId": "C-069",
+        "currency": "EUR",
+        "subtotal": 2475,
+        "discounted": -408.37,
+        "credit": 0,
+        "payable": -408.37,
+        "tax": -81.67,
+        "total": -490.04,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-069",
+        "createdAt": "not-a-date",
+        "plan": "enterprise",
+        "seats": 25,
+        "currency": "EUR",
+        "loyaltyYears": 1,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:036": {
+      "invoice": {
+        "customerId": "C-070",
+        "currency": "GBP",
+        "subtotal": 2900,
+        "discounted": 2670.03,
+        "credit": 0,
+        "payable": 2670.03,
+        "tax": 0,
+        "total": 2670.03,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-070",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 100,
+        "currency": "GBP",
+        "loyaltyYears": 1,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:none",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:037": {
+      "invoice": {
+        "customerId": "C-071",
+        "currency": "USD",
+        "subtotal": 108,
+        "discounted": 106.92,
+        "credit": 500,
+        "payable": -393.08,
+        "tax": -28.49,
+        "total": -421.57,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-071",
+        "createdAt": "2018-06-30",
+        "plan": "starter",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 1,
+        "coupon": "",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:038": {
+      "invoice": {
+        "customerId": "C-072",
+        "currency": "GBP",
+        "subtotal": 234,
+        "discounted": 68.91,
+        "credit": 0,
+        "payable": 62.02,
+        "tax": 0,
+        "total": 62.02,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-072",
+        "createdAt": "01/02/2019",
+        "plan": "starter",
+        "seats": 26,
+        "currency": "GBP",
+        "loyaltyYears": 7,
+        "coupon": "SAVE10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:percent",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:039": {
+      "invoice": {
+        "customerId": "C-073",
+        "currency": "EUR",
+        "subtotal": 909,
+        "discounted": -122.34,
+        "credit": 0,
+        "payable": -122.34,
+        "tax": -24.46,
+        "total": -146.8,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-073",
+        "createdAt": "2019-01-01",
+        "plan": "basic",
+        "seats": 101,
+        "currency": "EUR",
+        "loyaltyYears": 5,
+        "coupon": "save10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:040": {
+      "invoice": {
+        "customerId": "C-074",
+        "currency": "USD",
+        "subtotal": 175,
+        "discounted": 175,
+        "credit": 0,
+        "payable": 155,
+        "tax": 11.23,
+        "total": 166.23,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-074",
+        "createdAt": "01/02/2019",
+        "plan": "basic",
+        "seats": 25,
+        "currency": "USD",
+        "loyaltyYears": 0,
+        "coupon": "WELCOME",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:none",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:041": {
+      "invoice": {
+        "customerId": "C-075",
+        "currency": "USD",
+        "subtotal": 49500,
+        "discounted": -6661.87,
+        "credit": 0,
+        "payable": -6661.87,
+        "tax": -599.56,
+        "total": -7261.43,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-075",
+        "createdAt": "01/02/2019",
+        "plan": "enterprise",
+        "seats": 500,
+        "currency": "USD",
+        "loyaltyYears": 7,
+        "coupon": "save10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:042": {
+      "invoice": {
+        "customerId": "C-076",
+        "currency": "EUR",
+        "subtotal": 19,
+        "discounted": 18.81,
+        "credit": 500,
+        "payable": -501.19,
+        "tax": -100.23,
+        "total": -601.42,
+        "auditSample": true
+      },
+      "customerAfter": {
+        "id": "C-076",
+        "createdAt": "2018-06-30",
+        "plan": "pro",
+        "seats": 1,
+        "currency": "EUR",
+        "loyaltyYears": 1,
+        "coupon": "WELCOME",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:043": {
+      "invoice": {
+        "customerId": "C-077",
+        "currency": "JPY",
+        "subtotal": 707,
+        "discounted": 570.9,
+        "credit": 0,
+        "payable": 513.81,
+        "tax": 51.38,
+        "total": 565.19,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-077",
+        "createdAt": "01/02/2019",
+        "plan": "basic",
+        "seats": 101,
+        "currency": "JPY",
+        "loyaltyYears": 5,
+        "coupon": "SAVE10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:large",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "random:044": {
+      "invoice": {
+        "customerId": "C-078",
+        "currency": "USD",
+        "subtotal": 9,
+        "discounted": 8.91,
+        "credit": 500,
+        "payable": -511.09,
+        "tax": -37.05,
+        "total": -548.14,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-078",
+        "createdAt": "not-a-date",
+        "plan": "basic",
+        "seats": 1,
+        "currency": "USD",
+        "loyaltyYears": 1,
+        "coupon": "WELCOME",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:none",
+        "credit:applied",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:045": {
+      "invoice": {
+        "customerId": "C-079",
+        "currency": "GBP",
+        "subtotal": 99,
+        "discounted": 99,
+        "credit": 0,
+        "payable": 89.1,
+        "tax": 0,
+        "total": 89.1,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-079",
+        "createdAt": "01/02/2019",
+        "plan": "enterprise",
+        "seats": 1,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "coupon": "SAVE10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:none",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:percent",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:046": {
+      "invoice": {
+        "customerId": "C-080",
+        "currency": "USD",
+        "subtotal": 108,
+        "discounted": 106.92,
+        "credit": 500,
+        "payable": -393.08,
+        "tax": -35.37,
+        "total": -428.45,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-080",
+        "createdAt": "2021-03-04",
+        "plan": "basic",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 1,
+        "coupon": "",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:none",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:047": {
+      "invoice": {
+        "customerId": "C-081",
+        "currency": "EUR",
+        "subtotal": 9999,
+        "discounted": -1402.36,
+        "credit": 0,
+        "payable": -1262.12,
+        "tax": -252.42,
+        "total": -1514.54,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-081",
+        "createdAt": "2019-01-01",
+        "plan": "enterprise",
+        "seats": 101,
+        "currency": "EUR",
+        "loyaltyYears": 1,
+        "coupon": "SAVE10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "random:048": {
+      "invoice": {
+        "customerId": "C-082",
+        "currency": "EUR",
+        "subtotal": 108,
+        "discounted": 34.2,
+        "credit": 0,
+        "payable": 34.2,
+        "tax": 6.84,
+        "total": 41.04,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-082",
+        "createdAt": "not-a-date",
+        "plan": "starter",
+        "seats": 12,
+        "currency": "EUR",
+        "loyaltyYears": 5,
+        "coupon": "",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:049": {
+      "invoice": {
+        "customerId": "C-083",
+        "currency": "USD",
+        "subtotal": 348,
+        "discounted": 110.2,
+        "credit": 0,
+        "payable": 99.18,
+        "tax": 7.19,
+        "total": 106.37,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-083",
+        "createdAt": "2019-01-01",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 7,
+        "coupon": "SAVE10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "random:050": {
+      "invoice": {
+        "customerId": "C-084",
+        "currency": "USD",
+        "subtotal": 225,
+        "discounted": -35.62,
+        "credit": 500,
+        "payable": -555.62,
+        "tax": -40.28,
+        "total": -595.9,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-084",
+        "createdAt": "2021-03-04",
+        "plan": "starter",
+        "seats": 25,
+        "currency": "USD",
+        "loyaltyYears": 5,
+        "coupon": "WELCOME",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:applied",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:051": {
+      "invoice": {
+        "customerId": "C-085",
+        "currency": "USD",
+        "subtotal": 228,
+        "discounted": 216.6,
+        "credit": 500,
+        "payable": -283.4,
+        "tax": -25.5,
+        "total": -308.9,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-085",
+        "createdAt": "2018-06-30",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "USD",
+        "loyaltyYears": 5,
+        "coupon": "",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:052": {
+      "invoice": {
+        "customerId": "C-086",
+        "currency": "EUR",
+        "subtotal": 234,
+        "discounted": 215.44,
+        "credit": 12.5,
+        "payable": 202.94,
+        "tax": 40.58,
+        "total": 243.52,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-086",
+        "createdAt": "not-a-date",
+        "plan": "basic",
+        "seats": 26,
+        "currency": "EUR",
+        "loyaltyYears": 1,
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:none",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:053": {
+      "invoice": {
+        "customerId": "C-087",
+        "currency": "JPY",
+        "subtotal": 225,
+        "discounted": 213.75,
+        "credit": 0,
+        "payable": 193.75,
+        "tax": 19.37,
+        "total": 213.12,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-087",
+        "createdAt": "not-a-date",
+        "plan": "starter",
+        "seats": 25,
+        "currency": "JPY",
+        "loyaltyYears": 5,
+        "coupon": "WELCOME",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:054": {
+      "invoice": {
+        "customerId": "C-088",
+        "currency": "GBP",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": -20,
+        "tax": 0,
+        "total": -20,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-088",
+        "createdAt": "not-a-date",
+        "plan": "enterprise",
+        "seats": 0,
+        "currency": "GBP",
+        "loyaltyYears": 5,
+        "coupon": "WELCOME",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:flat",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:055": {
+      "invoice": {
+        "customerId": "C-089",
+        "currency": "GBP",
+        "subtotal": 19,
+        "discounted": 18.81,
+        "credit": 0,
+        "payable": 18.81,
+        "tax": 0,
+        "total": 18.81,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-089",
+        "createdAt": "2018-06-30",
+        "plan": "pro",
+        "seats": 1,
+        "currency": "GBP",
+        "loyaltyYears": 1,
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:none",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:none",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:056": {
+      "invoice": {
+        "customerId": "C-090",
+        "currency": "USD",
+        "subtotal": 707,
+        "discounted": -95.15,
+        "credit": 500,
+        "payable": -595.15,
+        "tax": -43.14,
+        "total": -638.29,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-090",
+        "createdAt": "2018-06-30",
+        "plan": "basic",
+        "seats": 101,
+        "currency": "USD",
+        "loyaltyYears": 5,
+        "coupon": "save10",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:057": {
+      "invoice": {
+        "customerId": "C-091",
+        "currency": "JPY",
+        "subtotal": 9999,
+        "discounted": 2691.4,
+        "credit": 0,
+        "payable": 2691.4,
+        "tax": 269.14,
+        "total": 2960.54,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-091",
+        "createdAt": "not-a-date",
+        "plan": "enterprise",
+        "seats": 101,
+        "currency": "JPY",
+        "loyaltyYears": 5,
+        "coupon": "",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:058": {
+      "invoice": {
+        "customerId": "C-092",
+        "currency": "JPY",
+        "subtotal": 494,
+        "discounted": 145.48,
+        "credit": 0,
+        "payable": 130.93,
+        "tax": 13.09,
+        "total": 144.02,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-092",
+        "createdAt": "01/02/2019",
+        "plan": "pro",
+        "seats": 26,
+        "currency": "JPY",
+        "loyaltyYears": 7,
+        "coupon": "SAVE10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "random:059": {
+      "invoice": {
+        "customerId": "C-093",
+        "currency": "GBP",
+        "subtotal": 2929,
+        "discounted": 829.88,
+        "credit": 0,
+        "payable": 809.88,
+        "tax": 0,
+        "total": 809.88,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-093",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 101,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "coupon": "WELCOME",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:none",
+        "proration:partial",
+        "credit:none",
+        "coupon:flat",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:060": {
+      "invoice": {
+        "customerId": "C-094",
+        "currency": "JPY",
+        "subtotal": 900,
+        "discounted": 828.63,
+        "credit": 0,
+        "payable": 828.63,
+        "tax": 82.86,
+        "total": 911.49,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-094",
+        "createdAt": "01/02/2019",
+        "plan": "starter",
+        "seats": 100,
+        "currency": "JPY",
+        "loyaltyYears": 1,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:061": {
+      "invoice": {
+        "customerId": "C-095",
+        "currency": "GBP",
+        "subtotal": 234,
+        "discounted": 217.62,
+        "credit": 0,
+        "payable": 217.62,
+        "tax": 0,
+        "total": 217.62,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-095",
+        "createdAt": "01/02/2019",
+        "plan": "starter",
+        "seats": 26,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "coupon": "save10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate",
+        "unknown coupon save10",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:medium",
+        "loyalty:none",
+        "proration:none",
+        "credit:none",
+        "coupon:unknown",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:062": {
+      "invoice": {
+        "customerId": "C-096",
+        "currency": "GBP",
+        "subtotal": 9900,
+        "discounted": 8746.65,
+        "credit": 0,
+        "payable": 7871.99,
+        "tax": 0,
+        "total": 7871.99,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-096",
+        "createdAt": "2018-06-30",
+        "plan": "enterprise",
+        "seats": 100,
+        "currency": "GBP",
+        "loyaltyYears": 5,
+        "coupon": "SAVE10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:percent",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:063": {
+      "invoice": {
+        "customerId": "C-097",
+        "currency": "EUR",
+        "subtotal": 9900,
+        "discounted": -1457.77,
+        "credit": 12.5,
+        "payable": -1470.27,
+        "tax": -294.05,
+        "total": -1764.32,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-097",
+        "createdAt": "2018-06-30",
+        "plan": "enterprise",
+        "seats": 100,
+        "currency": "EUR",
+        "loyaltyYears": 7,
+        "coupon": "save10",
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:064": {
+      "invoice": {
+        "customerId": "C-098",
+        "currency": "EUR",
+        "subtotal": 1919,
+        "discounted": 1614.84,
+        "credit": 0,
+        "payable": 1614.84,
+        "tax": 322.96,
+        "total": 1937.8,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-098",
+        "createdAt": "01/02/2019",
+        "plan": "pro",
+        "seats": 101,
+        "currency": "EUR",
+        "loyaltyYears": 1,
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:large",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:065": {
+      "invoice": {
+        "customerId": "C-099",
+        "currency": "EUR",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-099",
+        "createdAt": "2018-06-30",
+        "plan": "basic",
+        "seats": 0,
+        "currency": "EUR",
+        "loyaltyYears": 0,
+        "coupon": "FREESTUFF",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:none",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:066": {
+      "invoice": {
+        "customerId": "C-100",
+        "currency": "JPY",
+        "subtotal": 234,
+        "discounted": 206.74,
+        "credit": 0,
+        "payable": 186.07,
+        "tax": 18.6,
+        "total": 204.67,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-100",
+        "createdAt": "2019-01-01",
+        "plan": "basic",
+        "seats": 26,
+        "currency": "JPY",
+        "loyaltyYears": 5,
+        "coupon": "SAVE10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "random:067": {
+      "invoice": {
+        "customerId": "C-101",
+        "currency": "JPY",
+        "subtotal": 4500,
+        "discounted": 3633.75,
+        "credit": 500,
+        "payable": 3113.75,
+        "tax": 311.37,
+        "total": 3425.12,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-101",
+        "createdAt": "2019-01-01",
+        "plan": "starter",
+        "seats": 500,
+        "currency": "JPY",
+        "loyaltyYears": 7,
+        "coupon": "WELCOME",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:large",
+        "loyalty:applied",
+        "proration:none",
+        "credit:applied",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:068": {
+      "invoice": {
+        "customerId": "C-102",
+        "currency": "GBP",
+        "subtotal": 9900,
+        "discounted": 9207,
+        "credit": 500,
+        "payable": 8707,
+        "tax": 0,
+        "total": 8707,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-102",
+        "createdAt": "not-a-date",
+        "plan": "enterprise",
+        "seats": 100,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "coupon": "FREESTUFF",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:none",
+        "proration:full",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:069": {
+      "invoice": {
+        "customerId": "C-103",
+        "currency": "GBP",
+        "subtotal": 900,
+        "discounted": 795.15,
+        "credit": 500,
+        "payable": 275.15,
+        "tax": 0,
+        "total": 275.15,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-103",
+        "createdAt": "2021-03-04",
+        "plan": "starter",
+        "seats": 100,
+        "currency": "GBP",
+        "loyaltyYears": 7,
+        "coupon": "WELCOME",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:flat",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:070": {
+      "invoice": {
+        "customerId": "C-104",
+        "currency": "JPY",
+        "subtotal": 909,
+        "discounted": 764.92,
+        "credit": 0,
+        "payable": 688.43,
+        "tax": 68.84,
+        "total": 757.27,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-104",
+        "createdAt": "2018-06-30",
+        "plan": "starter",
+        "seats": 101,
+        "currency": "JPY",
+        "loyaltyYears": 1,
+        "coupon": "SAVE10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:large",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:percent",
+        "tax:applied"
+      ]
+    },
+    "random:071": {
+      "invoice": {
+        "customerId": "C-105",
+        "currency": "GBP",
+        "subtotal": 2574,
+        "discounted": 2369.88,
+        "credit": 0,
+        "payable": 2369.88,
+        "tax": 0,
+        "total": 2369.88,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-105",
+        "createdAt": "not-a-date",
+        "plan": "enterprise",
+        "seats": 26,
+        "currency": "GBP",
+        "loyaltyYears": 1,
+        "coupon": "FREESTUFF",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:none",
+        "credit:none",
+        "coupon:unknown",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:072": {
+      "invoice": {
+        "customerId": "C-106",
+        "currency": "GBP",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-106",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 0,
+        "currency": "GBP",
+        "loyaltyYears": 7,
+        "coupon": "FREESTUFF",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:unknown",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:073": {
+      "invoice": {
+        "customerId": "C-107",
+        "currency": "GBP",
+        "subtotal": 225,
+        "discounted": 74.25,
+        "credit": 12.5,
+        "payable": 55.58,
+        "tax": 0,
+        "total": 55.58,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-107",
+        "createdAt": "2018-06-30",
+        "plan": "starter",
+        "seats": 25,
+        "currency": "GBP",
+        "loyaltyYears": 1,
+        "coupon": "SAVE10",
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:applied",
+        "coupon:percent",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:074": {
+      "invoice": {
+        "customerId": "C-108",
+        "currency": "USD",
+        "subtotal": 909,
+        "discounted": 254.97,
+        "credit": 0,
+        "payable": 234.97,
+        "tax": 17.03,
+        "total": 252,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-108",
+        "createdAt": "2018-06-30",
+        "plan": "starter",
+        "seats": 101,
+        "currency": "USD",
+        "loyaltyYears": 1,
+        "coupon": "WELCOME",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:075": {
+      "invoice": {
+        "customerId": "C-109",
+        "currency": "JPY",
+        "subtotal": 9900,
+        "discounted": 9207,
+        "credit": 0,
+        "payable": 9207,
+        "tax": 920.7,
+        "total": 10127.7,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-109",
+        "createdAt": "2021-03-04",
+        "plan": "enterprise",
+        "seats": 100,
+        "currency": "JPY",
+        "loyaltyYears": 0,
+        "coupon": "FREESTUFF",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:076": {
+      "invoice": {
+        "customerId": "C-110",
+        "currency": "GBP",
+        "subtotal": 348,
+        "discounted": 330.6,
+        "credit": 0,
+        "payable": 330.6,
+        "tax": 0,
+        "total": 330.6,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-110",
+        "createdAt": "2019-01-01",
+        "plan": "pro",
+        "seats": 12,
+        "currency": "GBP",
+        "loyaltyYears": 5,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:none",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:077": {
+      "invoice": {
+        "customerId": "C-111",
+        "currency": "EUR",
+        "subtotal": 9900,
+        "discounted": 8746.65,
+        "credit": 500,
+        "payable": 8246.65,
+        "tax": 1649.33,
+        "total": 9895.98,
+        "auditSample": true
+      },
+      "customerAfter": {
+        "id": "C-111",
+        "createdAt": "2021-03-04",
+        "plan": "enterprise",
+        "seats": 100,
+        "currency": "EUR",
+        "loyaltyYears": 5,
+        "coupon": "save10",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:none",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:078": {
+      "invoice": {
+        "customerId": "C-112",
+        "currency": "EUR",
+        "subtotal": 49500,
+        "discounted": -6942.37,
+        "credit": 0,
+        "payable": -6942.37,
+        "tax": -1388.47,
+        "total": -8330.84,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-112",
+        "createdAt": "2021-03-04",
+        "plan": "enterprise",
+        "seats": 500,
+        "currency": "EUR",
+        "loyaltyYears": 1,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:079": {
+      "invoice": {
+        "customerId": "C-113",
+        "currency": "JPY",
+        "subtotal": 475,
+        "discounted": -78.37,
+        "credit": 500,
+        "payable": -578.37,
+        "tax": -57.83,
+        "total": -636.2,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-113",
+        "createdAt": "01/02/2019",
+        "plan": "pro",
+        "seats": 25,
+        "currency": "JPY",
+        "loyaltyYears": 1,
+        "coupon": "FREESTUFF",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:080": {
+      "invoice": {
+        "customerId": "C-114",
+        "currency": "EUR",
+        "subtotal": 700,
+        "discounted": 618.45,
+        "credit": 0,
+        "payable": 618.45,
+        "tax": 123.69,
+        "total": 742.14,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-114",
+        "createdAt": "2018-06-30",
+        "plan": "basic",
+        "seats": 100,
+        "currency": "EUR",
+        "loyaltyYears": 7,
+        "coupon": "FREESTUFF",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:081": {
+      "invoice": {
+        "customerId": "C-115",
+        "currency": "JPY",
+        "subtotal": 1188,
+        "discounted": 1128.6,
+        "credit": 0,
+        "payable": 1128.6,
+        "tax": 112.86,
+        "total": 1241.46,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-115",
+        "createdAt": "not-a-date",
+        "plan": "enterprise",
+        "seats": 12,
+        "currency": "JPY",
+        "loyaltyYears": 7,
+        "coupon": "",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:082": {
+      "invoice": {
+        "customerId": "C-116",
+        "currency": "GBP",
+        "subtotal": 14500,
+        "discounted": 4108.33,
+        "credit": 500,
+        "payable": 3608.33,
+        "tax": 0,
+        "total": 3608.33,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-116",
+        "createdAt": "2019-01-01",
+        "plan": "pro",
+        "seats": 500,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "coupon": "save10",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:none",
+        "proration:partial",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:083": {
+      "invoice": {
+        "customerId": "C-117",
+        "currency": "GBP",
+        "subtotal": 9999,
+        "discounted": 8074.19,
+        "credit": 0,
+        "payable": 7266.77,
+        "tax": 0,
+        "total": 7266.77,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-117",
+        "createdAt": "2021-03-04",
+        "plan": "enterprise",
+        "seats": 101,
+        "currency": "GBP",
+        "loyaltyYears": 5,
+        "coupon": "SAVE10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:percent",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:084": {
+      "invoice": {
+        "customerId": "C-118",
+        "currency": "EUR",
+        "subtotal": 9900,
+        "discounted": 8746.65,
+        "credit": 0,
+        "payable": 8726.65,
+        "tax": 1745.33,
+        "total": 10471.98,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-118",
+        "createdAt": "2018-06-30",
+        "plan": "enterprise",
+        "seats": 100,
+        "currency": "EUR",
+        "loyaltyYears": 7,
+        "coupon": "WELCOME",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:flat",
+        "tax:applied"
+      ]
+    },
+    "random:085": {
+      "invoice": {
+        "customerId": "C-119",
+        "currency": "GBP",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": -20,
+        "tax": 0,
+        "total": -20,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-119",
+        "createdAt": "not-a-date",
+        "plan": "enterprise",
+        "seats": 0,
+        "currency": "GBP",
+        "loyaltyYears": 1,
+        "coupon": "WELCOME",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:none",
+        "coupon:flat",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:086": {
+      "invoice": {
+        "customerId": "C-120",
+        "currency": "EUR",
+        "subtotal": 900,
+        "discounted": 265.05,
+        "credit": 12.5,
+        "payable": 252.55,
+        "tax": 50.51,
+        "total": 303.06,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-120",
+        "createdAt": "2021-03-04",
+        "plan": "starter",
+        "seats": 100,
+        "currency": "EUR",
+        "loyaltyYears": 7,
+        "coupon": "save10",
+        "creditCents": 1250,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate",
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:unknown",
+        "price:current",
+        "volume:medium",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:087": {
+      "invoice": {
+        "customerId": "C-121",
+        "currency": "EUR",
+        "subtotal": 0,
+        "discounted": 0,
+        "credit": 0,
+        "payable": 0,
+        "tax": 0,
+        "total": 0,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-121",
+        "createdAt": "2021-03-04",
+        "plan": "pro",
+        "seats": 0,
+        "currency": "EUR",
+        "loyaltyYears": 0,
+        "coupon": "save10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon save10"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:none",
+        "proration:full",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:088": {
+      "invoice": {
+        "customerId": "C-122",
+        "currency": "GBP",
+        "subtotal": 2574,
+        "discounted": 797.94,
+        "credit": 0,
+        "payable": 797.94,
+        "tax": 0,
+        "total": 797.94,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-122",
+        "createdAt": "2021-03-04",
+        "plan": "enterprise",
+        "seats": 26,
+        "currency": "GBP",
+        "loyaltyYears": 0,
+        "coupon": "FREESTUFF",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:medium",
+        "loyalty:none",
+        "proration:partial",
+        "credit:none",
+        "coupon:unknown",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:089": {
+      "invoice": {
+        "customerId": "C-123",
+        "currency": "GBP",
+        "subtotal": 49500,
+        "discounted": 13323.75,
+        "credit": 0,
+        "payable": 11991.38,
+        "tax": 0,
+        "total": 11991.38,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-123",
+        "createdAt": "not-a-date",
+        "plan": "enterprise",
+        "seats": 500,
+        "currency": "GBP",
+        "loyaltyYears": 5,
+        "coupon": "SAVE10",
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:percent",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:090": {
+      "invoice": {
+        "customerId": "C-124",
+        "currency": "JPY",
+        "subtotal": 99,
+        "discounted": -15.67,
+        "credit": 0,
+        "payable": -15.67,
+        "tax": -1.56,
+        "total": -17.23,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-124",
+        "createdAt": "01/02/2019",
+        "plan": "enterprise",
+        "seats": 1,
+        "currency": "JPY",
+        "loyaltyYears": 7,
+        "coupon": "FREESTUFF",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered:no-legacy-price",
+        "volume:none",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    },
+    "random:091": {
+      "invoice": {
+        "customerId": "C-125",
+        "currency": "GBP",
+        "subtotal": 4500,
+        "discounted": -605.62,
+        "credit": 0,
+        "payable": -545.06,
+        "tax": 0,
+        "total": -545.06,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-125",
+        "createdAt": "01/02/2019",
+        "plan": "starter",
+        "seats": 500,
+        "currency": "GBP",
+        "loyaltyYears": 5,
+        "coupon": "SAVE10",
+        "creditCents": 0,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown plan starter, billing at the basic rate",
+        "no tax rate for GBP"
+      ],
+      "branches": [
+        "plan:unknown",
+        "grandfathered:no-legacy-price",
+        "volume:large",
+        "loyalty:applied",
+        "proration:partial",
+        "credit:none",
+        "coupon:percent",
+        "tax:unknown-currency"
+      ]
+    },
+    "random:092": {
+      "invoice": {
+        "customerId": "C-126",
+        "currency": "JPY",
+        "subtotal": 1188,
+        "discounted": 1128.6,
+        "credit": 500,
+        "payable": 628.6,
+        "tax": 62.86,
+        "total": 691.46,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-126",
+        "createdAt": "not-a-date",
+        "plan": "enterprise",
+        "seats": 12,
+        "currency": "JPY",
+        "loyaltyYears": 5,
+        "coupon": "",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [],
+      "branches": [
+        "plan:known",
+        "price:current",
+        "volume:none",
+        "loyalty:applied",
+        "proration:full",
+        "credit:applied",
+        "coupon:none",
+        "tax:applied"
+      ]
+    },
+    "random:093": {
+      "invoice": {
+        "customerId": "C-127",
+        "currency": "USD",
+        "subtotal": 475,
+        "discounted": 451.25,
+        "credit": 500,
+        "payable": -48.75,
+        "tax": -4.38,
+        "total": -53.13,
+        "auditSample": false
+      },
+      "customerAfter": {
+        "id": "C-127",
+        "createdAt": "01/02/2019",
+        "plan": "pro",
+        "seats": 25,
+        "currency": "USD",
+        "loyaltyYears": 5,
+        "coupon": "FREESTUFF",
+        "creditCents": 50000,
+        "lastInvoicedAt": "2024-06-15"
+      },
+      "warnings": [
+        "unknown coupon FREESTUFF"
+      ],
+      "branches": [
+        "plan:known",
+        "grandfathered",
+        "volume:none",
+        "loyalty:applied",
+        "proration:none",
+        "credit:applied",
+        "coupon:unknown",
+        "tax:applied"
+      ]
+    }
+  }
+}
