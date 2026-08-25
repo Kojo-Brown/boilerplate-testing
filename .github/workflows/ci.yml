@@ -156,6 +156,16 @@ jobs:
         env:
           NODE_OPTIONS: --throw-deprecation
 
+      # The test-suite shape gate. Runs after the unit tests because it asks
+      # both runners to *collect* (`vitest list`, `playwright test --list`) —
+      # if collection is broken, the tests above have already said so more
+      # clearly. It needs no browser: Playwright lists specs without launching
+      # one. See shape/README.md.
+      - name: Test shape
+        run: pnpm shape:check
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
       - name: Build
         run: pnpm build
         env:

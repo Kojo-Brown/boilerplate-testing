@@ -61,8 +61,20 @@ export const THROW_DEPRECATION = '--throw-deprecation'
  * `module.register()` call that surfaced underneath DEP0190 on Node 26. That
  * patch is audited by `patchedDeps.ts` for the same reason this file exists:
  * losing it changes nothing observable until a gate quietly stops enforcing.
+ *
+ * `shape:check` joined the list with the test-suite shape gate. It spawns
+ * `vitest list` and `playwright test --list` as child processes to count tests
+ * exactly, so it is the one gate whose own work happens in a subprocess — the
+ * flag still applies to the parent, which is where the census, the join and the
+ * policy evaluation run.
  */
-export const GATED_SCRIPTS: readonly string[] = ['typecheck', 'lint', 'test', 'build']
+export const GATED_SCRIPTS: readonly string[] = [
+  'typecheck',
+  'lint',
+  'test',
+  'shape:check',
+  'build',
+]
 
 // A step begins with a `- ` at the start of a list item; the key that follows
 // may be any of `name`, `run` or `uses` depending on how the step is written.

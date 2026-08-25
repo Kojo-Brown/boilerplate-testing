@@ -19,6 +19,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | TDD katas (worked step by step) | `tdd/` |
 | Outside-in vs classicist TDD | `tdd/schools/` |
 | Test doubles: dummy, stub, spy, mock, fake | `tdd/doubles/` |
+| Suite shape: pyramid vs honeycomb, with a CI-enforced ratio | `shape/` |
 
 ## Quick Start
 
