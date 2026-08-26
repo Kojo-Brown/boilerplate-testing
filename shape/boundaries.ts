@@ -232,6 +232,11 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
   // Data
   // -------------------------------------------------------------------------
   '@faker-js/faker': pure('Seeded pseudo-random generation.'),
+  'fast-check': pure(
+    'Generates values from a written-down seed and runs a predicate over them. ' +
+      'Everything it touches is in this process\u2019s heap \u2014 `property/` pins the seed ' +
+      'precisely so the generation is a pure function of a constant.',
+  ),
   '@prisma/client': boundary(
     'integration',
     'database',
