@@ -59,6 +59,14 @@ const SKIP_DIRS = new Set([
   'storybook-static',
   'playwright-report',
   'playwright-results',
+  // Stryker copies the whole repository into `.stryker-tmp/sandbox-*` and
+  // deletes it again when the run succeeds. A crashed or interrupted run
+  // leaves it behind, and every test file in this repository is then in the
+  // tree twice — which would silently double the census and, because the copy
+  // has the same imports, leave the ratio looking unchanged while every count
+  // in the report is wrong.
+  '.stryker-tmp',
+  'reports',
 ])
 
 /** What the census counts as a test file: the two runners' own conventions. */

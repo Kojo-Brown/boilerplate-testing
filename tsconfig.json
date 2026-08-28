@@ -32,5 +32,15 @@
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "k6/load-test.ts", "k6/metrics.ts", "bundlesize/check.ts"]
+  // `.stryker-tmp` and `reports` are Stryker's. The sandbox is a full copy of
+  // this repository, so a crashed run would otherwise have `tsc` checking every
+  // file twice and reporting each error from a path nobody edits.
+  "exclude": [
+    "node_modules",
+    ".stryker-tmp",
+    "reports",
+    "k6/load-test.ts",
+    "k6/metrics.ts",
+    "bundlesize/check.ts"
+  ]
 }
