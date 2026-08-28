@@ -67,6 +67,15 @@ export const THROW_DEPRECATION = '--throw-deprecation'
  * exactly, so it is the one gate whose own work happens in a subprocess — the
  * flag still applies to the parent, which is where the census, the join and the
  * policy evaluation run.
+ *
+ * `mutation:check` joined it with the mutation-score gate, and it is the one
+ * entry that lives in a different job from the rest — the mutation run is a
+ * property of the tests rather than of the runtime, so it runs once instead of
+ * once per Node major. That makes no difference to this audit, which reads
+ * every `run:` step in the file regardless of the job it sits in, and it is
+ * the reason the flag matters more there than anywhere else: it is the only
+ * gate whose Node version is not covered by the matrix, so a deprecation it
+ * would have caught has exactly one chance to be seen.
  */
 export const GATED_SCRIPTS: readonly string[] = [
   'typecheck',
@@ -74,6 +83,7 @@ export const GATED_SCRIPTS: readonly string[] = [
   'test',
   'shape:check',
   'build',
+  'mutation:check',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows

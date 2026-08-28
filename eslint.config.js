@@ -31,6 +31,13 @@ export default tseslint.config(
       'playwright-report/**',
       'playwright-results/**',
       'pact/pacts/**',
+      // Stryker's sandbox is a full copy of the repository, tsconfig.json
+      // included. A run that crashes leaves it behind, and the next `pnpm lint`
+      // fails every file in the project with "multiple candidate
+      // TSConfigRootDirs are present" rather than reporting a lint problem —
+      // a failure whose message names neither Stryker nor the copy.
+      '.stryker-tmp/**',
+      'reports/**',
     ],
   },
 

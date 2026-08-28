@@ -12,6 +12,11 @@
 # those jobs cannot go green here. Wiring them up needs a demo app or a
 # `webServer` block and is tracked separately — see SPEC.md.
 #
+# There are two jobs. `gates` runs the five gates on every supported Node
+# major; `mutation` runs the mutation-score gate once, in parallel, for the
+# reasons stated above it. Both are required — nothing here treats the
+# mutation score as advisory.
+#
 # ---------------------------------------------------------------------------
 # Node support matrix
 # ---------------------------------------------------------------------------
@@ -177,5 +182,66 @@ jobs:
         with:
           name: storybook-static-node${{ matrix.node-version }}-${{ github.run_number }}
           path: storybook-static/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # Mutation score
+  # ---------------------------------------------------------------------------
+  # Its own job, on one Node major, and both halves of that are deliberate.
+  #
+  # Its own job because it is minutes rather than seconds: Stryker re-runs the
+  # covering tests once per mutant, and `mutation/scope.ts` currently declares
+  # four modules worth several hundred mutants between them. Sequenced behind
+  # the gates it would add that to every pull request's critical path; run in
+  # parallel it costs a runner and no wall clock, because `gates` is slower.
+  #
+  # One Node major because a mutation score is a property of the tests, not of
+  # the runtime. Three legs would re-derive the same percentage three times for
+  # three times the minutes, and a leg that disagreed would be reporting a Node
+  # bug the matrix above is already the right place to find. 24 is the current
+  # LTS and the middle of the supported range.
+  #
+  # `needs:` is deliberately absent. A mutation score computed while a test is
+  # failing is meaningless, but so is waiting fifteen minutes to be told that —
+  # `pnpm mutation:check` runs the same suites and fails on its own if they are
+  # broken, and both jobs must be green for the pull request to merge either
+  # way.
+  mutation:
+    name: Mutation score
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Mutation score
+        run: pnpm mutation:check
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # The JSON report, whether or not the gate passed — especially when it
+      # did not. The log prints every survivor, but the report is what a
+      # mutation-testing-elements viewer renders, and it is the artefact
+      # somebody arguing about a floor actually wants.
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation-report-${{ github.run_number }}
+          path: reports/mutation/
           retention-days: 7
           if-no-files-found: ignore
