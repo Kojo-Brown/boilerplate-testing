@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the order summary markup > renders a paid order in full 1`] = `
+"<section class="order" aria-label="Order ORD-1042">
+  <header class="order__header">
+    <h2 class="order__reference"><span data-field="reference">ORD-1042</span></h2>
+    <p class="order__customer">Order for <b><span data-field="customer">Ada Lovelace</span></b></p>
+    <p class="order__placed">Placed <span data-field="placedOn">2024-03-11</span></p>
+    <span class="badge badge--paid" role="status"><span data-field="status">Paid</span></span>
+  </header>
+  <table class="order__items">
+    <caption>
+      <span data-field="itemCount">3 items</span>
+    </caption>
+    <tbody>
+      <tr class="item">
+        <td class="item__sku"><code>DESK-01</code></td>
+        <td class="item__name">Standing desk</td>
+        <td class="item__quantity"><span data-field="item.DESK-01.quantity">1</span></td>
+        <td class="item__unit"><span data-field="item.DESK-01.unit">£420.00</span></td>
+        <td class="item__line"><span data-field="item.DESK-01.line">£420.00</span></td>
+      </tr>
+      <tr class="item">
+        <td class="item__sku"><code>MAT-07</code></td>
+        <td class="item__name">Anti-fatigue mat</td>
+        <td class="item__quantity"><span data-field="item.MAT-07.quantity">2</span></td>
+        <td class="item__unit"><span data-field="item.MAT-07.unit">£34.50</span></td>
+        <td class="item__line"><span data-field="item.MAT-07.line">£69.00</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <dl class="order__totals">
+    <dt>Subtotal</dt>
+    <dd><span data-field="subtotal">£489.00</span></dd>
+    <dt>Delivery</dt>
+    <dd><span data-field="delivery">£9.95</span></dd>
+    <dt>Tax (20%)</dt>
+    <dd><span data-field="tax">£99.79</span></dd>
+    <dt class="order__total-label">Total</dt>
+    <dd class="order__total"><span data-field="total">£598.74</span></dd>
+  </dl>
+</section>"
+`;
