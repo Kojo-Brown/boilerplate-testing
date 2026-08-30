@@ -82,6 +82,7 @@ export const GATED_SCRIPTS: readonly string[] = [
   'lint',
   'test',
   'shape:check',
+  'snapshot:check',
   'build',
   'mutation:check',
 ]

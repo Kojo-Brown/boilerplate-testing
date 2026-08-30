@@ -171,6 +171,17 @@ jobs:
         env:
           NODE_OPTIONS: --throw-deprecation
 
+      # The snapshot policy gate. Like the shape gate it asks Vitest to
+      # *collect* rather than run — one rule, obsolescence, needs the list of
+      # test names and cannot be decided from the filesystem. Only the test
+      # files that own a `.snap` are listed, so this is a second or two rather
+      # than a second collection of the whole suite. Everything the policy can
+      # decide statically is already in `pnpm test`. See snapshot/README.md.
+      - name: Snapshot policy
+        run: pnpm snapshot:check
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
       - name: Build
         run: pnpm build
         env:
