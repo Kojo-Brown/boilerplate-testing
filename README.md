@@ -21,6 +21,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | Test doubles: dummy, stub, spy, mock, fake | `tdd/doubles/` |
 | Suite shape: pyramid vs honeycomb, with a CI-enforced ratio | `shape/` |
 | Snapshot policy: what deserves one, with a registry gate | `snapshot/` |
+| Fuzzing parsers and validators: oracles, generators, and a replayable corpus | `fuzz/` |
 
 ## Quick Start
 
