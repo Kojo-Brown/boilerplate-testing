@@ -7,7 +7,13 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import { BAND_DRAWS } from './probes.ts'
 import { FAULT_IDS } from './faults.ts'
-import { MAX_REFRESH_DELAY_MS, MIN_REFRESH_DELAY_MS } from './session.ts'
+import {
+  JITTER_SPAN_MS,
+  MAX_REFRESH_DELAY_MS,
+  MIN_REFRESH_DELAY_MS,
+  REFRESH_FRACTION,
+  TTL_MS,
+} from './session.ts'
 import {
   chanceOfSeeing,
   GRID_POINTS,
@@ -51,8 +57,14 @@ describe('the draw grid', () => {
   // assumed from "the grid is fine enough".
   it('straddles both clamp thresholds with adjacent samples', () => {
     const draws = grid()
+    // Invert the jitter formula: uncorrected delay = base + (draw - 0.5) * SPAN,
+    // so the draw at which the uncorrected delay hits a threshold is
+    // (threshold - base) / SPAN + 0.5. Both clamp thresholds have to sit
+    // between adjacent grid samples, or a fault only visible in a single grid
+    // cell would be recorded as 0.0% invisibility.
+    const base = TTL_MS * REFRESH_FRACTION
     const thresholds = [MIN_REFRESH_DELAY_MS, MAX_REFRESH_DELAY_MS].map(
-      (delay) => (delay - 32) / 80 + 0.5,
+      (delay) => (delay - base) / JITTER_SPAN_MS + 0.5,
     )
 
     for (const threshold of thresholds) {

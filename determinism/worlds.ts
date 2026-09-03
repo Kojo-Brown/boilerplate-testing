@@ -74,8 +74,20 @@ export type ProbeId = (typeof PROBE_IDS)[number]
  */
 export const REAL_GRACE_MS = 200
 
-/** Tolerance on the earliness assertion, for timer-resolution rounding. */
-export const EARLY_TOLERANCE_MS = 2
+/**
+ * How much earlier than the reported delay a callback is allowed to run.
+ *
+ * Serves two things at once: fractional-delay rounding (a jittered delay of
+ * 87.6ms fires at 87ms on both Node and Vitest's fake clock), and a small
+ * amount of downward slack in the check that catches the two scheduler faults.
+ * `SCHEDULE_AT_ABSOLUTE_TIME` and `SCHEDULE_DELAY_IN_SECONDS` both cause a
+ * callback to fire ~1ms after schedule instead of at `delayMs`, and the check
+ * catches them when `firedAt - startedAt < delayMs - EARLY_TOLERANCE_MS`. With
+ * `MIN_REFRESH_DELAY_MS` at 64ms and a tolerance of 20ms, the gap is 44ms —
+ * comfortably above the ~30ms of noise a loaded CI runner introduces, so the
+ * check reports the fault rather than the runner's load.
+ */
+export const EARLY_TOLERANCE_MS = 20
 
 /** One world, instantiated for one behaviour check. */
 export interface Instance {

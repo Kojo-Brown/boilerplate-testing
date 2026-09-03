@@ -221,15 +221,15 @@ README is wrong.
 ## Two things measured along the way
 
 **A jittered delay is a float and no scheduler honours one.** The delay here is
-typically something like 20.0527ms, and both Vitest's fake clock and Node's real
+typically something like 249.6ms, and both Vitest's fake clock and Node's real
 one quantise to whole milliseconds. That is where `EARLY_TOLERANCE_MS` comes
 from: a probe asserting a callback did not fire early has to allow the
 millisecond the scheduler rounded away, or it reports a fault every time the
 draw is fractional — which is most of the time.
 
 **A real-clock test may only assert lower bounds.** Late is indistinguishable
-from busy, so "the callback ran within 30ms" is a claim about the runner's load.
-"The callback did not run before 30ms" is a claim about the code, because
+from busy, so "the callback ran within 250ms" is a claim about the runner's load.
+"The callback did not run before 250ms" is a claim about the code, because
 nothing makes a timer fire early. Every timing assertion in `probes.ts` is
 one-sided for that reason, and the real-clock strategies wait a deliberately
 generous 200ms past a deadline before calling a callback missing.
@@ -240,6 +240,17 @@ delay to 1ms and prints `TimeoutOverflowWarning` — which is where the handful 
 those in a `pnpm test` run come from. The fault is caught by every strategy, but
 for opposite reasons: under a hand-drained queue the callback never comes due,
 and under Node it fires almost immediately.
+
+**Why the subject's constants are eight times what a first pass would use.**
+`MIN_REFRESH_DELAY_MS` is 64ms rather than 8ms and `TTL_MS` is 512ms rather
+than 64. A smaller minimum leaves too little room between "fault fires ~1ms
+after schedule" and "correct fires at ~32ms" for a loaded CI event loop to
+sit clearly on one side of — and both `SCHEDULE_AT_ABSOLUTE_TIME` and
+`SCHEDULE_DELAY_IN_SECONDS` are only observable by that timing check in the
+real-clock worlds. The first pass flaked on Node 22 and Node 24 in CI for
+exactly that reason. Every constant is scaled by 8× rather than only the
+minimum bumped, so the ratio of jitter span to base is unchanged and every
+visibility number above holds by construction.
 
 ## When to reach for which
 

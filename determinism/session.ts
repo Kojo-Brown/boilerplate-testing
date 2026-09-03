@@ -23,9 +23,9 @@
  * precisely so the measurements apply to code that never had a seam.
  *
  * ---------------------------------------------------------------------------
- * Why the numbers are milliseconds and tiny
+ * Why the numbers are milliseconds and small
  * ---------------------------------------------------------------------------
- * A real TTL is fifteen minutes. This one is 64 milliseconds because the whole
+ * A real TTL is fifteen minutes. This one is 512 milliseconds because the whole
  * point of the ambient probe is that it waits for real time to pass, and a
  * suite that waits fifteen real minutes is a suite nobody runs. The constants
  * are scaled, not faked: the relationships between them — the refresh sits at
@@ -33,12 +33,30 @@
  * has something to do — are the ones a real configuration has, and every
  * result in `README.md` is a property of these values, which is why they are
  * exported and quoted rather than inlined.
+ *
+ * ---------------------------------------------------------------------------
+ * Why the minimum delay is 64ms rather than something smaller
+ * ---------------------------------------------------------------------------
+ * The first pass used a minimum of 8ms, which is enough on a quiet laptop and
+ * flaky on a loaded CI runner. `SCHEDULE_AT_ABSOLUTE_TIME` and
+ * `SCHEDULE_DELAY_IN_SECONDS` are only observable by a probe asserting the
+ * refresh did not fire much earlier than the reported delay, and the gap
+ * between "the fault fires ~1ms after schedule" and "the correct behaviour
+ * fires at ~32ms" is 30ms — which a loaded Node event loop closes on its own.
+ * The seeded-random world missed both faults on Node 22 and Node 24 in CI for
+ * exactly that reason.
+ *
+ * Everything is scaled by 8× rather than only the minimum bumped, so the
+ * ratio of jitter span to base — the property that decides `JITTER_NOT_CLAMPED`
+ * and `MIN_DELAY_CLAMP_ONLY_CATCHES_NEGATIVES`'s visibilities in
+ * `sensitivity.ts` — is unchanged. Every visibility number quoted in
+ * `README.md` is preserved by construction.
  */
 
 import type { Cancel, Environment } from './environment.ts'
 
 /** How long a session stays valid, in milliseconds. */
-export const TTL_MS = 64
+export const TTL_MS = 512
 
 /** Where in the lifetime the refresh is aimed, before jitter. */
 export const REFRESH_FRACTION = 0.5
@@ -55,25 +73,32 @@ export const REFRESH_FRACTION = 0.5
  * cost of that, and it is the ordinary case, is that the tail faults simply
  * never happen and nobody learns whether their suite would have caught them.
  */
-export const JITTER_SPAN_MS = 80
+export const JITTER_SPAN_MS = 640
 
 /**
  * The refresh is never scheduled sooner than this.
  *
- * Eight milliseconds rather than one, and the reason is a measurement artefact
- * worth stating rather than hiding. `SCHEDULE_DELAY_IN_SECONDS` divides the
- * delay by a thousand, and a probe can only see that by asserting the refresh
- * did not fire early — which it cannot do when the correct delay is itself
- * about a millisecond. With a floor of 1 the fault survived roughly one run in
- * seven purely because the draw happened to be extreme, so the matrix would
- * have been reporting the draw rather than the probe. A floor comfortably
- * above timer resolution is also what a real configuration has, for the same
+ * Sixty-four milliseconds, comfortably above the tens of milliseconds of jitter
+ * a loaded runtime adds to a `setTimeout`. Any less and the "did the callback
+ * fire much earlier than its reported delay" check in `probes.ts` cannot
+ * distinguish `SCHEDULE_AT_ABSOLUTE_TIME` (fault fires ~1ms after schedule)
+ * from a correct 8ms delay landing late on a busy CI runner. A floor above
+ * scheduler noise is also what a real configuration has, for the same
  * underlying reason: a delay a scheduler cannot honour is not a delay.
  */
-export const MIN_REFRESH_DELAY_MS = 8
+export const MIN_REFRESH_DELAY_MS = 64
 
-/** …nor later than this, which keeps it strictly inside the lifetime. */
-export const MAX_REFRESH_DELAY_MS = TTL_MS - 1
+/**
+ * …nor later than this, which keeps it strictly inside the lifetime.
+ *
+ * A ceiling of `TTL_MS - MIN_REFRESH_DELAY_MS/8` rather than `TTL_MS - 1`,
+ * chosen so the ratio `(MAX - base) / JITTER_SPAN` is exactly 63/160 whatever
+ * the eight-times scaling — every visibility number in `README.md` is a
+ * function of that ratio, so a naive `TTL_MS - 1` would have shifted the
+ * `JITTER_ALWAYS_POSITIVE` and `REFRESH_FRACTION_TOO_LATE` figures from 88.75%
+ * to 89.85% for no reason a reader could reconstruct.
+ */
+export const MAX_REFRESH_DELAY_MS = TTL_MS - MIN_REFRESH_DELAY_MS / 8
 
 /** An issued session. */
 export interface Session {
