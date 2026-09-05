@@ -196,10 +196,18 @@ describe('the registry', () => {
 
   // `measured` is the only disposition that argues *for* ambient
   // nondeterminism rather than tolerating it, so it is confined to the
-  // directory doing the measuring.
-  it('confines the measured disposition to this directory', () => {
+  // directories whose subject is the runtime's own behaviour: this one, and
+  // `concurrency/`, whose free strategies exist to measure what the untouched
+  // microtask queue does with two overlapping operations. Anywhere else, a read
+  // that cannot be controlled is a read to be argued about, not a measurement.
+  it('confines the measured disposition to the directories doing the measuring', () => {
+    const measuring = ['determinism/', 'concurrency/']
+
     for (const entry of REGISTRY.filter((row) => row.disposition === 'measured')) {
-      expect(entry.file.startsWith('determinism/')).toBe(true)
+      expect({
+        file: entry.file,
+        measuring: measuring.some((directory) => entry.file.startsWith(directory)),
+      }).toEqual({ file: entry.file, measuring: true })
     }
   })
 })
@@ -218,12 +226,15 @@ describe('the repository as it stands', () => {
     expect(reconcile(scanRepository()).map(describeProblem)).toEqual([])
   })
 
-  it('finds fewer reads than a pattern match would, because four of them are prose', () => {
-    // A regular expression over the repository matches nineteen lines outside
-    // `determinism/`; four are a call named in a comment, in two string
-    // literals and in a test title. The parser reports fifteen.
+  it('finds fewer reads than a pattern match would, because five of them are prose', () => {
+    // A regular expression over the repository matches twenty-one lines outside
+    // `determinism/`; five are a call named in a comment, in two string
+    // literals, in a test title, and in the paragraph of
+    // `concurrency/strategies.ts` explaining why it does not draw its delays
+    // from `Math.random()` — which arrived after this claim was first written
+    // and is exactly the false positive it is about. The parser reports sixteen.
     const outside = scanRepository().filter((site) => !site.file.startsWith('determinism/'))
 
-    expect(outside).toHaveLength(15)
+    expect(outside).toHaveLength(16)
   })
 })

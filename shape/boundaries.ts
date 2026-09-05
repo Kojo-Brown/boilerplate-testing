@@ -120,6 +120,12 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
   'node:path': pure('Path string manipulation. Touches no filesystem.'),
   'node:url': pure('URL parsing and `fileURLToPath`. Touches no filesystem.'),
   'node:os': pure('Reads static host facts such as `tmpdir()`. No I/O.'),
+  'node:async_hooks': pure(
+    '`AsyncLocalStorage` follows a value across a chain of awaits inside this ' +
+      'process. It observes the runtime rather than reaching past it, which is ' +
+      'why `concurrency/runtime.ts` can use it to attribute a store call to the ' +
+      'task that made it without the test crossing anything.',
+  ),
   'node:module': pure(
     "`createRequire` builds a resolver; resolution itself is `require.resolve`'s " +
       'job and the callers here pair it with `node:fs`, which is already a boundary.',

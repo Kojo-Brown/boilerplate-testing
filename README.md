@@ -22,6 +22,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | Suite shape: pyramid vs honeycomb, with a CI-enforced ratio | `shape/` |
 | Snapshot policy: what deserves one, with a registry gate | `snapshot/` |
 | Fuzzing parsers and validators: oracles, generators, and a replayable corpus | `fuzz/` |
+| Concurrency: race detection strategies compared by detection *rate*, with a deterministic scheduler | `concurrency/` |
 
 ## Quick Start
 
