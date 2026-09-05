@@ -101,8 +101,13 @@ const CALLS: Readonly<Record<string, SourceKind>> = {
   'randomBytes': 'randomness',
   'setTimeout': 'scheduler',
   'setInterval': 'scheduler',
+  // Not a timer, and still a scheduler: `setImmediate` hands control back to
+  // the event loop, which is exactly the ambient decision this audit tracks.
+  // `concurrency/runtime.ts` is built on it.
+  'setImmediate': 'scheduler',
   'globalThis.setTimeout': 'scheduler',
   'globalThis.setInterval': 'scheduler',
+  'globalThis.setImmediate': 'scheduler',
 }
 
 interface Node {

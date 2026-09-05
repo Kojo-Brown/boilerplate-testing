@@ -126,6 +126,17 @@ export const REGISTRY: readonly RegistryEntry[] = [
   },
 
   // -------------------------------------------------------------------------
+  // concurrency/ — the one ambient decision a deterministic scheduler needs
+  // -------------------------------------------------------------------------
+  {
+    file: 'concurrency/runtime.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'measured',
+    why: 'The single `setImmediate` behind `turn()`, which is how that harness knows the microtask queue has gone quiet — every task has either finished or is waiting on a store operation the scheduler is holding. It cannot be faked away: `vi.useFakeTimers()` would make the queue never drain and every scheduled run report a deadlock. It is also the reason nothing else in that directory reads a clock or a draw — the delays are counted in microtasks and drawn from a seeded generator, so `concurrency/README.md` can quote rates that reproduce.',
+  },
+
+  // -------------------------------------------------------------------------
   // Everything else
   // -------------------------------------------------------------------------
   {
