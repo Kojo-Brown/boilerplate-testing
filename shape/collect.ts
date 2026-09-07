@@ -121,14 +121,22 @@ function collectJson(
  * Collect from one Vitest project.
  *
  * `vitest list` resolves the same include and exclude globs the run uses, so
- * the default project reports the unit suite (which excludes `pact/**` and
- * `playwright/**`) and the pact project reports its own. Asking both is how
- * the census covers `pnpm test` and `pnpm test:pact` without hardcoding either
- * config's globs a second time.
+ * the default project reports the unit suite (which excludes `pact/**`,
+ * `playwright/**` and `containers/**\/*.container.test.ts`) and each other
+ * project reports its own. Asking all of them is how the census covers
+ * `pnpm test`, `pnpm test:pact` and `pnpm test:containers` without hardcoding
+ * any config's globs a second time.
+ *
+ * Listing a project is not running it: `vitest list` evaluates the test files
+ * to find out what they declare and stops there, so the container project can
+ * be counted on a machine with no container runtime.
  */
 export function collectVitest(config: string | null, outputDir: string): CollectorResult {
   const runner = config === null ? 'vitest' : `vitest (${config})`
-  const outputFile = join(outputDir, `vitest-${config === null ? 'default' : 'pact'}.json`)
+  // Named after the project rather than after a fixed list, so a fourth
+  // project is one line at the call site and not a second edit here.
+  const label = config === null ? 'default' : config.split('/')[0]
+  const outputFile = join(outputDir, `vitest-${label}.json`)
   const args = ['list', `--json=${outputFile}`]
 
   if (config !== null) {
@@ -260,6 +268,7 @@ export function collectCensus(): Census {
     const results = [
       collectVitest(null, outputDir),
       collectVitest('pact/vitest.config.ts', outputDir),
+      collectVitest('containers/vitest.config.ts', outputDir),
       collectPlaywright(outputDir),
     ]
 

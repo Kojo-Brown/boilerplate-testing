@@ -256,3 +256,66 @@ jobs:
           path: reports/mutation/
           retention-days: 7
           if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # Container suites
+  # ---------------------------------------------------------------------------
+  # Its own job, on one Node major, for the same two reasons the mutation gate
+  # has one.
+  #
+  # Its own job because it needs a container runtime and `pnpm test` must never
+  # require one — a contributor with no Docker still runs every other gate — and
+  # because starting a Postgres, a Redis and a Kafka broker and driving a
+  # residue matrix through them is minutes rather than seconds. Sequenced behind
+  # `gates` it would sit on the critical path of every pull request; in parallel
+  # it costs a runner and no wall clock.
+  #
+  # One Node major because what these suites measure is the behaviour of a
+  # container runtime and three servers, none of which is written in JavaScript.
+  # Three legs would start three Kafka brokers to re-derive the same matrix.
+  #
+  # `ubuntu-latest` ships a running Docker daemon, which is the whole
+  # requirement: `containers/setup.ts` asks it for a version before any suite
+  # tries to start something, so a runner image that ever stops providing one
+  # fails with a sentence rather than a start-up timeout.
+  #
+  # Reuse is deliberately off here and `daemon.ts` decides that from `CI`: a
+  # fresh runner's daemon has nothing to adopt, so every reuse lookup would miss
+  # and the only thing left would be the liability — a reused container carries
+  # no session label and Ryuk never reaps it. See containers/README.md.
+  containers:
+    name: Container suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      # Pulled explicitly rather than on demand so that a registry problem is
+      # reported as one, before a wait strategy has a chance to report it as a
+      # container that would not start. The tags are the ones in
+      # `containers/images.ts`; `containers/images.test.ts` fails if they drift
+      # apart.
+      - name: Pull images
+        run: |
+          docker pull postgres:17-alpine
+          docker pull redis:7.4-alpine
+          docker pull confluentinc/cp-kafka:8.0.0
+
+      - name: Container suites
+        run: pnpm test:containers
+        env:
+          NODE_OPTIONS: --throw-deprecation

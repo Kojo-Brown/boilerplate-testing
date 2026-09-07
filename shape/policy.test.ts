@@ -18,13 +18,16 @@ const counts = (unit: number, integration: number, e2e: number): Record<Layer, n
 })
 
 /**
- * The shape measured on this PR's merge commit, near the middle of every band.
+ * The shape measured on the commit that added `containers/`.
  *
  * Written down rather than collected. These tests are about what the policy
  * does with a set of counts, and wiring them to the live suite would make every
- * assertion below change meaning whenever anybody added a test.
+ * assertion below change meaning whenever anybody added a test. The cost of
+ * that choice is that the triple has to be re-derived whenever the headroom
+ * claims in `policy.ts` and `README.md` are, which is what the edge cases below
+ * are for — they are the claims, not a paraphrase of them.
  */
-const HEALTHY = counts(553, 295, 51)
+const HEALTHY = counts(1229, 852, 51)
 
 const honeycombPolicy: Policy = {
   shape: 'honeycomb',
@@ -157,39 +160,50 @@ describe('the declared policy', () => {
     expect(POLICY.bands.unit.min).toBeLessThan(SHAPES.pyramid.bands.unit.min)
   })
 
-  it('leaves the end-to-end ceiling on the textbook 10%, where it still has teeth', () => {
-    // A 12% ceiling was tried and abandoned: it let the Playwright suite double
-    // and still pass, which makes the band decorative. This is the test that
-    // established it, so the claim in POLICY's comment is measured.
+  it('leaves the end-to-end ceiling on the textbook 10%, which no longer binds anything', () => {
+    // The ceiling stays where it was. What it catches does not: at 899 tests a
+    // doubled Playwright suite was 10.7% and failed, and at 2,132 the same 51
+    // declarations tripled are 6.8% and pass. The band that stops e2e growth
+    // now is the unit floor, and this is the test that says so rather than
+    // leaving a decorative ceiling looking like a gate. See README.md for why
+    // re-tightening it is deliberately not done here.
     expect(POLICY.bands.e2e.max).toBe(SHAPES.pyramid.bands.e2e.max)
 
-    const doubled = measure(counts(553, 295, 102))
+    const doubledAtTheOldSize = measure(counts(553, 295, 102))
 
-    expect(percent(doubled.share.e2e)).toBe('10.7%')
+    expect(percent(doubledAtTheOldSize.share.e2e)).toBe('10.7%')
     expect(
-      evaluate(doubled).some(
+      evaluate(doubledAtTheOldSize).some(
         (violation) => violation.kind === 'band' && violation.layer === 'e2e',
       ),
     ).toBe(true)
+
+    const tripledAtThisSize = measure(counts(1229, 852, 153))
+
+    expect(percent(tripledAtThisSize.share.e2e)).toBe('6.8%')
+    expect(evaluate(tripledAtThisSize)).toEqual([])
   })
 
   it('states headroom the bands actually leave, one layer at a time', () => {
     // Each figure quoted in POLICY's comment and in README.md, checked at the
-    // edge: the last value that passes and the first that does not.
-    expect(evaluate(measure(counts(553, 295, 94)))).toEqual([])
-    expect(evaluate(measure(counts(553, 295, 95))).length).toBeGreaterThan(0)
+    // edge: the last value that passes and the first that does not. Every one
+    // of the three is stopped by the unit floor, which is the whole point of
+    // checking them here rather than reasoning about each band alone.
+    expect(evaluate(measure(counts(1229, 852, 153)))).toEqual([])
+    expect(evaluate(measure(counts(1229, 852, 154)))).toMatchObject([{ layer: 'unit' }])
 
-    // Integration is stopped by the unit *floor*, not its own ceiling: at 401
-    // the middle band is only 39.9% but unit has been diluted to 55.02%.
-    expect(evaluate(measure(counts(553, 401, 51)))).toEqual([])
-    expect(evaluate(measure(counts(553, 402, 51)))).toMatchObject([{ layer: 'unit' }])
+    // Integration is stopped by the unit floor, not its own ceiling: at 954 the
+    // middle band is 42.7%, comfortably under 45%, and unit has been diluted to
+    // 55.01%.
+    expect(evaluate(measure(counts(1229, 954, 51)))).toEqual([])
+    expect(evaluate(measure(counts(1229, 955, 51)))).toMatchObject([{ layer: 'unit' }])
 
-    expect(evaluate(measure(counts(553 - 130, 295, 51)))).toEqual([])
-    expect(evaluate(measure(counts(553 - 131, 295, 51))).length).toBeGreaterThan(0)
+    expect(evaluate(measure(counts(1229 - 125, 852, 51)))).toEqual([])
+    expect(evaluate(measure(counts(1229 - 126, 852, 51))).length).toBeGreaterThan(0)
   })
 
   it('tolerates a quarter of ordinary growth without firing', () => {
-    expect(evaluate(measure(counts(553 + 60, 295 + 30, 51 + 6)))).toEqual([])
+    expect(evaluate(measure(counts(1229 + 130, 852 + 70, 51 + 12)))).toEqual([])
   })
 
   it('names a shape that exists', () => {
