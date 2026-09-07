@@ -182,7 +182,8 @@ between the two suites:
 | `kafka` / `delete-topic` | 63ms |
 | `kafka` / `topic-and-group-per-suite` | 0ms |
 
-63ms is not slow. It is *asynchronous*, which is the part that matters:
+63ms is not slow — the CI runner measured 55ms for the same reset. It is
+*asynchronous*, which is the part that matters:
 `deleteTopics` returns when the controller accepts the request, not when the
 topic is gone, and a `createTopics` issued too early fails against a topic that
 is mid-deletion. So `isolation.ts` has an `awaitTopicGone` polling loop, and
@@ -200,13 +201,19 @@ enough*. `awaitUsable` then performs one real operation of the store's own
 protocol — a query, a `PING`, a metadata fetch — and counts what that costs.
 
 Measured on the machine named at the bottom of this file, images already
-pulled, containers not reused:
+pulled, containers not reused — and, in the right-hand columns, on the
+`ubuntu-latest` runner of the CI job that runs these suites, which is a
+different machine, a different Docker version and a cold image cache:
 
-| Store | `start()` returned | first client succeeded after | probes | total |
-| --- | --- | --- | --- | --- |
-| Postgres | 2,330ms | +22ms | 1 | 2,352ms |
-| Redis | 259ms | +10ms | 1 | 269ms |
-| Kafka | 225ms | +7,647ms | 146 | 7,872ms |
+| Store | `start()` | usable after | probes | total | CI `start()` | CI usable after | CI probes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Postgres | 2,330ms | +22ms | 1 | 2,352ms | 2,093ms | +10ms | 1 |
+| Redis | 259ms | +10ms | 1 | 269ms | 143ms | +2ms | 1 |
+| Kafka | 225ms | +7,647ms | 146 | 7,872ms | 144ms | +7,517ms | 145 |
+
+The two machines agree to within a few per cent on every figure, and the
+matrix cells are identical on both — which is the point of quoting them side by
+side. This is not a slow laptop.
 
 Postgres and Redis are honest: one probe, single-digit or low-double-digit
 milliseconds, which is the probe's own connection setup rather than a gap.
@@ -355,6 +362,34 @@ An environment that cannot reach Docker Hub sets
 `TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX` (for example `mirror.gcr.io/`) and
 Testcontainers rewrites every unqualified image name, Ryuk's included.
 
+## One warning this job emits and nothing catches
+
+The CI job's log carries a single line the local run does not:
+
+```
+(node:2681) TimeoutNegativeWarning: -1788789282350 is a negative number.
+Timeout duration was set to 1.
+```
+
+The number is exactly `-Date.now()`, which locates it precisely.
+`kafkajs@2.2.4` initialises `RequestQueue#throttledUntil` to `-1` and computes
+`scheduleAt = this.throttledUntil - Date.now()` in
+`scheduleCheckPendingRequests`; the clamp to a positive value on the next line
+only applies when there is something pending, so an empty queue schedules a
+timer with a large negative delay. Node clamps it to 1ms and warns. Nothing
+misbehaves.
+
+It is recorded here rather than fixed, and rather than ignored, because this
+repository made warnings fatal on purpose and this is one that no gate can see:
+`--throw-deprecation` promotes `DeprecationWarning` and this is a
+`TimeoutNegativeWarning`. The two ways to close it are a `process.on('warning')`
+trap that fails the run, and a one-line patch to kafkajs in `patches/` beside
+the Storybook one. Both were considered and neither was taken for a log line
+that costs nothing: the trap would fail this job on any warning any dependency
+ever emits, which is a policy decision for the whole repository rather than for
+one directory, and a patched dependency is maintenance carried until upstream
+moves — and kafkajs 2.2.4 is from 2022.
+
 ## What is deliberately not here
 
 - **A comparison of database isolation strategies.** Transaction rollback per
@@ -373,7 +408,8 @@ Testcontainers rewrites every unqualified image name, Ryuk's included.
 
 Every number above was measured on:
 
-- Linux 6.18 x86_64, 4 CPUs, 15.7GiB, Docker Engine 29.3.1
+- Linux 6.18 x86_64, 4 CPUs, 15.7GiB, Docker Engine 29.3.1; the CI columns are
+  a GitHub `ubuntu-latest` runner, 4 CPUs, Docker Engine 28.0.4
 - `testcontainers@12.1.0`, `@testcontainers/postgresql@12.1.0`,
   `@testcontainers/redis@12.1.0`, `@testcontainers/kafka@12.1.0`, all pinned
   exactly — finding 5 is a property of a version, not of Kafka
