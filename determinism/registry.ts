@@ -202,6 +202,94 @@ export const REGISTRY: readonly RegistryEntry[] = [
     disposition: 'seam-default',
     why: 'As above, for the audit-flag draw the legacy function used to make inline.',
   },
+
+  // -------------------------------------------------------------------------
+  // containers/ — real servers, so real elapsed time
+  // -------------------------------------------------------------------------
+  // Every row here is `measured`, and for once that is not a judgement call.
+  // The subject of `containers/` is how long a real Postgres, Redis or Kafka
+  // takes to become usable, so the clock these files read *is* the result;
+  // substituting it would leave the directory measuring nothing. The poll loops
+  // are the same argument from the other side: a container becomes ready in
+  // wall-clock time and a fake timer would advance past the wait without the
+  // server having done anything, so the loop would spin until its budget.
+  {
+    file: 'containers/stores.ts',
+    kind: 'monotonic-clock',
+    count: 3,
+    disposition: 'measured',
+    why: '`awaitUsable` times the gap between a resolved `start()` and the first client operation that succeeds. That gap is the directory\'s headline finding — 7.6s on Kafka, 22ms on Postgres — and it cannot be read from anything but a real clock.',
+  },
+  {
+    file: 'containers/stores.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'measured',
+    why: 'The 50ms interval between readiness probes. A fake queue would run the next probe with no time having passed and the container in exactly the state the previous probe found it in, so the loop would spin to its budget without the server ever having moved.',
+  },
+  {
+    file: 'containers/readiness.ts',
+    kind: 'monotonic-clock',
+    count: 2,
+    disposition: 'measured',
+    why: 'Times `start()` itself, which is the other half of the pair the README reports: on Kafka `start()` is the fastest of the three stores and readiness the slowest.',
+  },
+  {
+    file: 'containers/matrix.ts',
+    kind: 'monotonic-clock',
+    count: 2,
+    disposition: 'measured',
+    why: 'Times each strategy\'s `beforeAll`, which is what the reset-cost table in `containers/README.md` reports.',
+  },
+  {
+    file: 'containers/isolation.ts',
+    kind: 'monotonic-clock',
+    count: 3,
+    disposition: 'measured',
+    why: '`awaitTopicGone` measures how long a Kafka topic deletion takes to reach cluster metadata. That it takes any time at all is finding 4.',
+  },
+  {
+    file: 'containers/isolation.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'measured',
+    why: 'The 50ms interval in that same loop. What it is waiting for is a controller in another process propagating a deletion, which no amount of advancing this process\'s timers brings any closer.',
+  },
+  {
+    file: 'containers/workload.ts',
+    kind: 'monotonic-clock',
+    count: 3,
+    disposition: 'measured',
+    why: '`drain` stops reading a topic when it has been quiet for a second. Silence is the only end-of-log signal a Kafka consumer gets, and silence is measured in real time.',
+  },
+  {
+    file: 'containers/workload.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'measured',
+    why: 'The poll interval inside `drain`. It is waiting on messages a broker delivers on its own schedule, over a socket, so the wait is real by construction.',
+  },
+  {
+    file: 'containers/example.container.test.ts',
+    kind: 'monotonic-clock',
+    count: 2,
+    disposition: 'measured',
+    why: 'The example waits for a real event to come back from a real broker. Written out longhand rather than hidden in a helper, because it is the file a reader copies.',
+  },
+  {
+    file: 'containers/example.container.test.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'measured',
+    why: 'The poll interval in that same wait, written out longhand for the same reason: the file exists to be read and copied, and hiding the poll in a helper would hide the one line a reader has to think about.',
+  },
+  {
+    file: 'containers/suite.ts',
+    kind: 'identity',
+    count: 1,
+    disposition: 'inert',
+    why: '`RUN_ID` makes a suite\'s schema, database and topic names differ between two runs that share a reused container. Nothing asserts on its value — only that two runs do not collide — and `suite.test.ts` pins its shape rather than its content.',
+  },
 ]
 
 /** The key a site and a row agree on. */

@@ -82,6 +82,11 @@ moment the suite gets slower.
 | `@pact-foundation/pact` | TCP socket + filesystem | `integration` |
 | `eslint#ESLint` | filesystem + real config | `integration` |
 | `@prisma/client` | database | `integration` |
+| `pg`, `ioredis` | database | `integration` |
+| `kafkajs` | message broker | `integration` |
+| `testcontainers` | container runtime | `integration` |
+| `@testcontainers/postgresql`, `@testcontainers/redis` | container runtime + database | `integration` |
+| `@testcontainers/kafka` | container runtime + message broker | `integration` |
 
 Everything else is `pure` — it cannot reach outside the test process's own
 memory. That is not the same as "has no side effects": React renders into a DOM
@@ -123,7 +128,7 @@ which is the pyramid's claim.
 | Layer | Enforced band |
 |---|---|
 | `unit` | 55–80% |
-| `integration` | 15–40% |
+| `integration` | 15–45% |
 | `e2e` | 2–10% |
 
 These are wider in the middle than the textbook pyramid's 10–30%, on purpose,
@@ -138,27 +143,45 @@ for two reasons that are properties of what this repository is:
    above.
 
 The textbook ceiling of 30% does not merely pinch — **this suite is outside it**,
-at 32.8%. That is the finding rather than a problem to size around: a pattern
+at 40.0%. That is the finding rather than a problem to size around: a pattern
 library that demonstrates boundary-crossing, and audits itself by reading its own
 files, has a legitimately fatter middle than the application the pyramid was
 drawn for. Saying so is more useful than quietly adopting a band nobody meets.
 
+The middle ceiling has moved twice, from the textbook 30% to 40% and then to
+45%, and the second move has a date on it: `containers/` landed, and it is a
+directory in which *every* test is a boundary test by subject matter — it starts
+a Postgres, a Redis and a Kafka broker and measures what they leak between
+suites. It took the middle band to 40.0% against a ceiling of 40%, which is a
+gate that would have failed on the next honest commit. A ceiling four tests
+above the measurement enforces nothing except a rewrite of itself.
+
 The end-to-end ceiling is deliberately *not* widened and stays on the textbook
-10%, because it is the band with the most to catch. Widening it to 12% was tried
-first and abandoned: at 12% a doubled Playwright suite still passed, which makes
-the ceiling decorative.
+10%. It has, however, stopped binding: see below.
 
 ### What the bands still refuse
 
 Holding the other layers still:
 
-- `e2e` may grow 51 → 94 tests (+84%) before the ceiling fires. A doubling to
-  102 gives 10.7% and fails.
-- `integration` may grow 295 → 401 (+36%). The band that stops it is the **unit
-  floor**, not the integration ceiling — adding integration tests dilutes every
-  other layer's share, so 55% unit binds at 401 while 40% integration would not
-  bind until 402. Bands interact; only the tightest one is ever the real limit.
-- 130 unit tests may be deleted before the 55% floor fires.
+- `integration` may grow 852 → 954 tests (+12%). The band that stops it is the
+  **unit floor**, not the integration ceiling — adding integration tests dilutes
+  every other layer's share, so 55% unit binds at 954 while 45% integration
+  would not bind until 1,048. Bands interact; only the tightest one is ever the
+  real limit.
+- 125 unit tests may be deleted before the 55% floor fires.
+- `e2e` may grow 51 → 153 tests (+200%), and the band that stops it is *also*
+  the unit floor: at 154 the suite is 54.99% unit while the e2e layer is 6.9%,
+  nowhere near its 10% ceiling.
+
+That last one is worth stating plainly rather than leaving in the arithmetic:
+**the end-to-end ceiling no longer binds anything.** It was set at 10% when the
+suite was 899 tests, where it would have caught a doubled Playwright suite; at
+2,132 tests the same 51 declarations could triple and no band would notice. The
+unit floor is now the only band doing work in any direction. Re-tightening the
+e2e ceiling is a real decision and it is deliberately not taken here — Phase 10
+of `SPEC.md` is a series of items that add end-to-end tests, and drawing the
+ceiling snugly around today's number the week before that is how a band ends up
+being raised rather than read.
 
 Each of those is checked at the edge in `shape/policy.test.ts` — the last value
 that passes and the first that does not. Both figures this section first carried
@@ -168,15 +191,15 @@ were wrong, and the tests are what found them.
 
 ## The measurement
 
-Measured on the merge commit of PR #32, by `pnpm shape:check`:
+Measured by `pnpm shape:check` on the commit that added `containers/`:
 
 ```
-  unit          553  █████████████████████████···············  61.5%   band 55–80%  ok
-  integration   295  █████████████···························  32.8%   band 15–40%  ok
-  e2e            51  ██······································   5.7%   band 2–10%   ok
+  unit         1229  ███████████████████████·················  57.6%   band 55–80%  ok
+  integration   852  ████████████████························  40.0%   band 15–45%  ok
+  e2e            51  █·······································   2.4%   band 2–10%   ok
 ```
 
-899 tests across 59 files. The numbers move with every commit; the command is
+2,132 tests across 115 files. The numbers move with every commit; the command is
 the source of truth, not this block.
 
 One number the ratio deliberately does not use: those 51 end-to-end tests are
@@ -257,7 +280,7 @@ reason attached, so a second one has to be argued for in writing.
 Two things this does **not** measure, and should not be read as measuring:
 
 - **Time.** The ratio counts tests, not seconds, and the two come apart badly
-  here: the e2e layer is 5.7% of the declarations and 274 browser executions.
+  here: the e2e layer is 2.4% of the declarations and 274 browser executions.
   A suite can satisfy every band on this page and still spend most of its wall
   clock at the top. Time is the more honest metric and the harder gate, because
   it is not deterministic.

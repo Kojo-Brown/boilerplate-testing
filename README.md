@@ -23,6 +23,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | Snapshot policy: what deserves one, with a registry gate | `snapshot/` |
 | Fuzzing parsers and validators: oracles, generators, and a replayable corpus | `fuzz/` |
 | Concurrency: race detection strategies compared by detection *rate*, with a deterministic scheduler | `concurrency/` |
+| Testcontainers: Postgres, Redis and Kafka per suite, with reuse and a residue matrix | `containers/` |
 
 ## Quick Start
 
@@ -30,8 +31,10 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 git clone https://github.com/Kojo-Brown/boilerplate-testing.git
 cd boilerplate-testing
 pnpm install
-pnpm test          # run all unit tests
-pnpm test:e2e      # run Playwright
+pnpm test            # run all unit tests
+pnpm test:e2e        # run Playwright
+pnpm test:containers # run the container suites (needs a container runtime)
+pnpm containers:prune # remove containers a reused run left behind
 ```
 
 ## Patched dependencies

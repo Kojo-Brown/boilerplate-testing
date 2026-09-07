@@ -68,8 +68,12 @@ export const THROW_DEPRECATION = '--throw-deprecation'
  * flag still applies to the parent, which is where the census, the join and the
  * policy evaluation run.
  *
- * `mutation:check` joined it with the mutation-score gate, and it is the one
- * entry that lives in a different job from the rest — the mutation run is a
+ * `test:containers` joined it with the container suites, and like
+ * `mutation:check` it runs in a job of its own — it needs a container runtime,
+ * which `pnpm test` must never require, and it is minutes rather than seconds.
+ *
+ * `mutation:check` joined it with the mutation-score gate, and it was the first
+ * entry to live in a different job from the rest — the mutation run is a
  * property of the tests rather than of the runtime, so it runs once instead of
  * once per Node major. That makes no difference to this audit, which reads
  * every `run:` step in the file regardless of the job it sits in, and it is
@@ -85,6 +89,7 @@ export const GATED_SCRIPTS: readonly string[] = [
   'snapshot:check',
   'build',
   'mutation:check',
+  'test:containers',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows

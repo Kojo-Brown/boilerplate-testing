@@ -129,7 +129,7 @@ export interface Policy {
 /**
  * This repository's declared policy.
  *
- * **Shape: pyramid.** Measured at 61.5% unit / 32.8% integration / 5.7% e2e,
+ * **Shape: pyramid.** Measured at 57.6% unit / 40.0% integration / 2.4% e2e,
  * this suite orders unit > integration > e2e, which is the pyramid's claim.
  *
  * **Bands: wider than the textbook pyramid, on purpose.** Two reasons, and
@@ -138,49 +138,60 @@ export interface Policy {
  *   1. It is a library of testing patterns, not an application. A meaningful
  *      share of its suite demonstrates boundary-crossing on purpose — MSW
  *      interception, supertest over a real socket, Pact against a mock
- *      provider. An application with 30% integration tests might be
+ *      provider, and now `containers/`, where a Postgres, a Redis and a Kafka
+ *      broker are started so that what they leak between suites can be
+ *      measured. An application with 30% integration tests might be
  *      over-invested at the seams; here it is the subject matter.
  *   2. Its audit suites read the repository off disk. `actionPins`,
  *      `gateSteps`, `patchedDeps`, `katas`, `taxonomy` and the
  *      characterisation corpus all open real files, which `boundaries.ts`
  *      classifies as integration on the classic Fowler line. That is one
- *      judgement call moving ~29% of the middle band, and README.md says
- *      exactly what happens if you make it differently.
+ *      judgement call moving a large share of the middle band, and README.md
+ *      says exactly what happens if you make it differently.
  *
  * The textbook pyramid's `integration: {max: 30}` does not merely pinch here —
- * this suite is outside it, at 32.8%. That is the honest finding rather than a
- * problem to be sized around: for the two reasons above, this repository's
- * middle band is legitimately fatter than the one the pyramid was drawn for. So
- * the middle band is the one that moves, from 10–30% to 15–40%.
+ * this suite is outside it, at 40.0%. That is the honest finding rather than a
+ * problem to be sized around, and it is why the middle band moved to 40% when
+ * this policy was written.
  *
- * The end-to-end ceiling is deliberately *not* widened, and stays on the
- * textbook 10%. It is the band with the most to catch — end-to-end tests are
- * where a suite gets slow and flaky — and widening it to 12% was tried first
- * and abandoned: at 12% a doubled Playwright suite still passed, which makes
- * the ceiling decorative. The measured headroom at 10%, holding the other
- * layers still, is:
+ * It has since moved again, to 45%, and that has a date on it: `containers/`
+ * landed, a directory in which every test is a boundary test by subject
+ * matter, and took the middle band to 40.0% against a ceiling of 40. Four more
+ * integration tests would have failed the gate. A ceiling that close to the
+ * measurement does not enforce a shape; it enforces a rewrite of itself on the
+ * next honest commit.
  *
- *   - e2e may grow 51 → 94 tests (+84%) before the ceiling fires; a doubling
- *     to 102 gives 10.7% and fails.
- *   - integration may grow 295 → 401 (+36%). Note that the band which stops it
- *     is the *unit floor*, not the integration ceiling: adding integration
- *     tests dilutes every other layer's share, so 55% unit binds at 401 while
- *     40% integration would not bind until 402. Bands interact, and only the
- *     tightest one is ever the real limit.
- *   - 130 unit tests may be deleted before the 55% floor fires.
+ * The end-to-end ceiling is deliberately *not* widened and stays on the
+ * textbook 10%. What has changed is that it no longer binds anything: it was
+ * set when the suite was 899 tests, where 12% was measured to let a doubled
+ * Playwright suite through and 10% did not, and at 2,132 tests the same 51
+ * declarations could triple and still be 6.8%. Every direction is now stopped
+ * by the unit floor:
+ *
+ *   - integration may grow 852 → 954 (+12%); at 955 the middle band is still
+ *     only 42.7% and unit has been diluted to 54.99%.
+ *   - e2e may grow 51 → 153 (+200%); at 154 the e2e layer is 6.9% and unit is
+ *     again 54.99%.
+ *   - 125 unit tests may be deleted before the 55% floor fires.
  *
  * Those are checked in `policy.test.ts` at the edge — the last value that
- * passes and the first that does not — rather than left as prose. Both of the
- * numbers this comment first carried were wrong, and the tests are what found
- * them: a 12% end-to-end ceiling turned out to permit a doubled Playwright
- * suite, and the integration figure was computed as if the bands did not
- * interact.
+ * passes and the first that does not — rather than left as prose. Every number
+ * this comment has carried was wrong at least once, and the tests are what
+ * found them: a 12% end-to-end ceiling turned out to permit a doubled
+ * Playwright suite, the first integration figure was computed as if the bands
+ * did not interact, and the e2e ceiling went on being described as the band
+ * with the most to catch for two items after it had stopped catching anything.
+ *
+ * Re-tightening the e2e ceiling around today's 2.4% is a real decision and is
+ * deliberately not taken here: Phase 10 of SPEC.md is a run of items that add
+ * end-to-end tests, and drawing a band snugly the week before that is how a
+ * band ends up being raised rather than read.
  */
 export const POLICY: Policy = {
   shape: 'pyramid',
   bands: {
     unit: { min: 55, max: 80 },
-    integration: { min: 15, max: 40 },
+    integration: { min: 15, max: 45 },
     e2e: { min: 2, max: 10 },
   },
   why:

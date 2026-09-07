@@ -126,6 +126,11 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
       'why `concurrency/runtime.ts` can use it to attribute a store call to the ' +
       'task that made it without the test crossing anything.',
   ),
+  'node:crypto': pure(
+    '`randomUUID` computes a value from the runtime\'s entropy pool. No ' +
+      'socket, no file — and `determinism/registry.ts` is where its use is ' +
+      'argued about, which is the register that question belongs in.',
+  ),
   'node:module': pure(
     "`createRequire` builds a resolver; resolution itself is `require.resolve`'s " +
       'job and the callers here pair it with `node:fs`, which is already a boundary.',
@@ -243,6 +248,60 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
       'Everything it touches is in this process\u2019s heap \u2014 `property/` pins the seed ' +
       'precisely so the generation is a pure function of a constant.',
   ),
+  pg: boundary(
+    'integration',
+    'database',
+    'Opens a TCP connection to a real Postgres and runs SQL against it. ' +
+      '`containers/` is the first thing here to do that, and the container it ' +
+      'connects to is a second process with its own filesystem — the widest ' +
+      'boundary in this table short of a browser.',
+  ),
+  ioredis: boundary(
+    'integration',
+    'database',
+    'Opens a TCP connection to a real Redis. Same argument as `pg`: the ' +
+      'keyspace being asserted on lives in another process.',
+  ),
+  kafkajs: boundary(
+    'integration',
+    'message broker',
+    'Produces to and consumes from a real broker over TCP, and a consumer ' +
+      'group is durable state on the far side of that connection — which is ' +
+      'the whole subject of `containers/`.',
+  ),
+
+  // -------------------------------------------------------------------------
+  // Containers
+  // -------------------------------------------------------------------------
+  // The runtime itself, and the three modules that drive it. Every one of them
+  // talks to a container daemon over a socket and starts processes with it, so
+  // there is no interesting distinction to draw between them here.
+  testcontainers: boundary(
+    'integration',
+    'container runtime',
+    'Talks to a container daemon over its socket: creates containers, starts ' +
+      'them, execs into them and reads their logs. A test that reaches this ' +
+      'has left the process, the machine\'s port space and its disk.',
+  ),
+  '@testcontainers/postgresql': boundary(
+    'integration',
+    'container runtime + database',
+    'A `GenericContainer` that knows what a ready Postgres looks like. Same ' +
+      'boundary as `testcontainers`, with a `HEALTHCHECK` attached.',
+  ),
+  '@testcontainers/redis': boundary(
+    'integration',
+    'container runtime + database',
+    'As above, waiting on a log line rather than a health check.',
+  ),
+  '@testcontainers/kafka': boundary(
+    'integration',
+    'container runtime + message broker',
+    'As above, plus a substitute entrypoint so the advertised listeners can ' +
+      'be rewritten once the published port is known. `containers/README.md` ' +
+      'is largely about what that costs.',
+  ),
+
   '@prisma/client': boundary(
     'integration',
     'database',

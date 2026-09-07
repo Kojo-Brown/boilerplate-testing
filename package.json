@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^22.18.0 || ^24.0.0 || ^26.0.0"
+    "node": "^22.22.0 || ^24.0.0 || ^26.0.0"
   },
   "packageManager": "pnpm@10.33.0",
   "scripts": {
@@ -13,12 +13,14 @@
     "test:quarantine": "QUARANTINE=1 vitest run --config vitest/quarantine.config.ts",
     "test:e2e": "playwright test",
     "test:pact": "vitest run --config pact/vitest.config.ts",
+    "test:containers": "vitest run --config containers/vitest.config.ts",
     "coverage": "vitest run --coverage",
     "shape:check": "node shape/check.ts",
     "snapshot:check": "node snapshot/check.ts",
     "mutation:check": "node mutation/check.ts",
     "characterise:record": "node tdd/characterisation/record.ts",
     "fuzz:record": "node fuzz/record.ts",
+    "containers:prune": "node containers/prune.ts",
     "typecheck": "tsc --noEmit",
     "build": "storybook build",
     "lint": "eslint . --max-warnings 0",
@@ -47,11 +49,15 @@
     "@stryker-mutator/core": "10.0.0",
     "@stryker-mutator/vitest-runner": "10.0.0",
     "@tanstack/react-query": "^5.101.2",
+    "@testcontainers/kafka": "12.1.0",
+    "@testcontainers/postgresql": "12.1.0",
+    "@testcontainers/redis": "12.1.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/k6": "^0.54.0",
     "@types/node": "^22.0.0",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/superagent": "^8.1.11",
@@ -62,14 +68,18 @@
     "eslint": "^10.8.0",
     "fast-check": "4.9.0",
     "globals": "^17.8.0",
+    "ioredis": "^6.0.0",
     "jsdom": "^26.0.0",
+    "kafkajs": "^2.2.4",
     "msw": "^2.8.0",
+    "pg": "^8.23.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-redux": "^9.2.0",
     "react-router": "^7.0.0",
     "storybook": "^10.5.5",
     "supertest": "^7.0.0",
+    "testcontainers": "12.1.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.65.0",
     "vite": "^7.0.0",
@@ -84,6 +94,11 @@
     ],
     "patchedDependencies": {
       "storybook@10.5.5": "patches/storybook@10.5.5.patch"
-    }
+    },
+    "ignoredBuiltDependencies": [
+      "cpu-features",
+      "protobufjs",
+      "ssh2"
+    ]
   }
 }
