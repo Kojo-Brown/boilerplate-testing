@@ -6,7 +6,7 @@ import { email } from './matchers';
 
 const { integer, string, regex } = MatchersV3;
 
-const JSON_CONTENT_TYPE = regex('application/json.*', 'application/json');
+const JSON_CONTENT_TYPE = 'application/json';
 
 // Synthetic JWT fixture — each segment is the base64url encoding of
 // "test-<section>" and contains no secret material whatsoever.
@@ -92,7 +92,7 @@ describe('Auth API — consumer contract', () => {
 
   it('POST /v1/auth/refresh → 200 with rotated token pair', () =>
     provider
-      .given('a valid refresh token exists')
+      .given('a valid refresh token exists', { refreshToken: EXAMPLE_JWT })
       .uponReceiving('a token refresh request')
       .withRequest({
         method: 'POST',
@@ -123,7 +123,7 @@ describe('Auth API — consumer contract', () => {
 
   it('POST /v1/auth/logout → 204 no content', () =>
     provider
-      .given('a valid refresh token exists')
+      .given('a valid refresh token exists', { refreshToken: EXAMPLE_JWT })
       .uponReceiving('a logout request')
       .withRequest({
         method: 'POST',

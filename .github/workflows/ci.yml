@@ -12,10 +12,12 @@
 # those jobs cannot go green here. Wiring them up needs a demo app or a
 # `webServer` block and is tracked separately — see SPEC.md.
 #
-# There are two jobs. `gates` runs the five gates on every supported Node
-# major; `mutation` runs the mutation-score gate once, in parallel, for the
-# reasons stated above it. Both are required — nothing here treats the
-# mutation score as advisory.
+# There are four jobs. `gates` runs the five gates plus the contract suites on
+# every supported Node major; `mutation`, `containers` and `contracts` each run
+# once, in parallel, for the reason stated above each of them — a mutation
+# score is a property of the tests rather than the runtime, and the other two
+# need a service that `pnpm test` must never require. All four are required:
+# nothing here treats any of them as advisory.
 #
 # ---------------------------------------------------------------------------
 # Node support matrix
@@ -158,6 +160,17 @@ jobs:
 
       - name: Unit tests
         run: pnpm test
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # The contract suites. Their own step rather than part of `pnpm test`
+      # because they are two commands in a fixed order — the consumer suites
+      # write `pacts/`, the provider suite verifies it — and because they spawn
+      # the pact FFI, which wants a Node environment and a forked pool that the
+      # jsdom unit run must not share. Nothing here needs a broker; the wirings
+      # that do are the `contracts` job below.
+      - name: Contract tests
+        run: pnpm test:pact
         env:
           NODE_OPTIONS: --throw-deprecation
 
@@ -319,3 +332,104 @@ jobs:
         run: pnpm test:containers
         env:
           NODE_OPTIONS: --throw-deprecation
+
+  # ---------------------------------------------------------------------------
+  # Contract pipeline
+  # ---------------------------------------------------------------------------
+  # Its own job, on one Node major, for the reasons the `containers` job has
+  # one: it needs a service this repository must never require of `pnpm test`,
+  # and what it measures — which contract-testing wiring notices which change —
+  # is a property of a Pact Broker and a Rust verifier, neither of which is
+  # written in JavaScript. Three legs would start three brokers to re-derive
+  # the same matrix.
+  #
+  # The broker is started with `docker run` rather than declared as a service
+  # container, and that is deliberate. `pactfoundation/pact-broker` runs its
+  # database migrations at boot and exits if the database is not there;
+  # GitHub starts service containers concurrently, so a broker declared
+  # alongside its Postgres races it and loses often enough to matter. Started
+  # as a step, it runs after Postgres has passed its health check, and the wait
+  # below turns a broker that did not come up into one line naming the
+  # heartbeat rather than into 44 connection errors.
+  #
+  # The image is pinned in `pact/broker/image.ts` and `image.test.ts` audits
+  # this file against it: every figure in `pact/README.md` is an answer some
+  # version of the broker gave.
+  contracts:
+    name: Contract pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pact_broker
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      # Pulled explicitly so a registry problem is reported as one, before the
+      # readiness wait has a chance to report it as a broker that would not
+      # start. Same reasoning as the `containers` job.
+      - name: Pull the Pact Broker image
+        run: docker pull pactfoundation/pact-broker:2.143.0-pactbroker2.121.0
+
+      # `--network host` so the broker can reach the Postgres service on
+      # 127.0.0.1:5432 and the runner can reach the broker on 127.0.0.1:9292,
+      # without a bridge network the service container is not on.
+      - name: Start the Pact Broker
+        run: |
+          docker run -d --name pact-broker --network host \
+            -e PACT_BROKER_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/pact_broker \
+            -e PACT_BROKER_PORT=9292 \
+            -e PACT_BROKER_LOG_LEVEL=WARN \
+            pactfoundation/pact-broker:2.143.0-pactbroker2.121.0
+
+      - name: Wait for the Pact Broker
+        run: |
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:9292/diagnostic/status/heartbeat > /dev/null; then
+              echo "broker answered after ${attempt}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "the broker did not answer its heartbeat within 60s"
+          docker logs pact-broker
+          exit 1
+
+      - name: Contract pipeline matrix
+        run: pnpm test:pact:broker
+        env:
+          NODE_OPTIONS: --throw-deprecation
+          PACT_BROKER_BASE_URL: http://127.0.0.1:9292
+
+      # The broker's own log, whether or not the matrix passed — especially
+      # when it did not. A cell that reports the wrong stage is usually
+      # explained by a request the broker rejected, and that request is here.
+      - name: Pact Broker logs
+        if: always()
+        run: docker logs pact-broker

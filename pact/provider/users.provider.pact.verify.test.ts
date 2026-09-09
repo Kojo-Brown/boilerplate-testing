@@ -1,58 +1,52 @@
 /**
- * Provider-side verification — copy this file into the API provider's test suite.
+ * Provider verification, run for real.
  *
- * Prerequisites:
- *   1. Run consumer tests first to generate pacts/boilerplate-consumer-boilerplate-api.json
- *   2. Start the provider server and set PROVIDER_BASE_URL (default: http://localhost:3000)
- *   3. Run: PROVIDER_BASE_URL=http://localhost:3000 vitest run --config pact/vitest.config.ts
+ * This file used to be a template: it pointed `Verifier` at
+ * `PROVIDER_BASE_URL`, listed six state handlers whose bodies were comments,
+ * and skipped itself unless that variable was set. It never ran, here or
+ * anywhere, which is the ordinary way a contract-testing setup ends up
+ * half-built — the consumer half needs nothing but the consumer, and the
+ * provider half needs a provider.
+ *
+ * So there is a provider now (`app.ts`) with real state handlers
+ * (`states.ts`), and this suite starts it, verifies the pact against it, and
+ * fails when it does not hold.
+ *
+ * Two things it deliberately does *not* do, both measured in `pipeline/`:
+ *
+ *   - It reads the pact from the filesystem, which is the weakest of the
+ *     wirings compared there. A file is only as current as the last person to
+ *     copy it, and nothing in this suite can tell a current file from a stale
+ *     one.
+ *   - It publishes nothing. A verification whose result nobody records cannot
+ *     answer "is this provider safe to deploy", which is what `can-i-deploy`
+ *     is for.
+ *
+ * That is not a gap to be apologised for: this is what provider verification
+ * looks like inside one repository, it is the version most teams start with,
+ * and `pipeline/README.md` is the argument for the next step rather than an
+ * assertion that this one is worthless.
  */
-import { Verifier } from '@pact-foundation/pact';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { describe, it } from 'vitest';
-import { PACT_LOG_LEVEL, PACT_PROVIDER, PACT_PROVIDER_BASE_URL } from '../pact.config';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import { existsSync } from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import { CONSUMER_PACT_FILE } from '../pact.config'
+import { verifyProvider } from './verify'
 
-describe('Users API — provider verification', () => {
-  // Skipped when no live provider is available (consumer CI).
-  // Remove the condition when running in the provider's CI.
-  it.skipIf(!process.env['PROVIDER_BASE_URL'])(
-    'satisfies all consumer contracts',
-    () => {
-      const verifier = new Verifier({
-        provider: PACT_PROVIDER,
-        providerBaseUrl: PACT_PROVIDER_BASE_URL,
-        pactUrls: [
-          resolve(__dirname, '../../pacts/boilerplate-consumer-boilerplate-api.json'),
-        ],
-        logLevel: PACT_LOG_LEVEL,
-        stateHandlers: {
-          'user with id 1 exists': async () => {
-            // Seed: ensure a user with id=1 exists in the test DB.
-            // e.g. await prisma.user.upsert({ where: { id: 1 }, create: { ... }, update: {} });
-          },
-          'users exist': async () => {
-            // Seed: ensure at least one user row exists.
-          },
-          'no user with email bob@example.com exists': async () => {
-            // Cleanup: remove bob@example.com before the create-user interaction.
-            // e.g. await prisma.user.deleteMany({ where: { email: 'bob@example.com' } });
-          },
-          'valid credentials for alice@example.com': async () => {
-            // Seed: upsert alice@example.com with a known hashed password.
-          },
-          'no user with email unknown@example.com exists': async () => {
-            // Cleanup: ensure unknown@example.com is absent.
-          },
-          'a valid refresh token exists': async () => {
-            // Seed: insert a non-expired refresh token in the DB.
-          },
-        },
-      });
+describe('Users and Auth API — provider verification', () => {
+  it('honours every interaction in the consumer pact', async () => {
+    expect(
+      existsSync(CONSUMER_PACT_FILE),
+      `No pact at ${CONSUMER_PACT_FILE}. The consumer suites write it, and ` +
+        '`pnpm test:pact` runs both halves in file order.',
+    ).toBe(true)
 
-      return verifier.verifyProvider();
-    },
-    60_000,
-  );
-});
+    const outcome = await verifyProvider({
+      source: { kind: 'files', paths: [CONSUMER_PACT_FILE] },
+    })
+
+    // Asserted on the whole outcome rather than on `kind` alone: a failure
+    // prints the verifier's message, which names the interaction.
+    expect(outcome).toEqual({ kind: 'passed' })
+  }, 60_000)
+})

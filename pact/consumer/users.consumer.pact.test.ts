@@ -15,7 +15,7 @@ const provider = new PactV3({
   logLevel: PACT_LOG_LEVEL,
 });
 
-const JSON_CONTENT_TYPE = regex('application/json.*', 'application/json');
+const JSON_CONTENT_TYPE = 'application/json';
 const BEARER_AUTH = regex('Bearer .+', 'Bearer test-token');
 
 describe('Users API — consumer contract', () => {
