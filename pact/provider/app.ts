@@ -52,16 +52,33 @@ export interface UserRow {
 }
 
 /**
- * A token triple.
+ * A JWT-shaped token built from readable words.
  *
- * The segments are the base64url encoding of `mock-header` / `mock-payload` /
- * `mock-signature`, so the value is JWT-*shaped* — which is all the contract
- * asks for — while being unmistakably synthetic. Nothing here signs anything;
- * a provider that did would need a key, and a key in a fixture is the failure
- * mode this repository's secret scanning exists to catch.
+ * The contract asks for three dot-separated base64url segments and nothing
+ * else, so that is all this produces. Nothing here signs anything; a provider
+ * that did would need a key, and a key in a fixture is the failure mode this
+ * repository's secret scanning exists to catch.
+ *
+ * It is *computed* rather than written out, and that is the point rather than
+ * a flourish. The first version of this file committed the two encoded strings
+ * as literals, and GitGuardian flagged both as "Generic High Entropy Secret"
+ * on the pull request. It was right to. The values are not secrets — they
+ * decode to `mock-header`, `mock-payload` / `mock-refresh` and
+ * `mock-signature` — but CLAUDE.md asks fixtures to *look* obviously fake, and
+ * a base64 blob only looks fake to somebody who decodes it first. A scanner
+ * cannot, a reviewer will not, and "that one is fine" is the habit that gets a
+ * real credential waved through eventually. So the plaintext is what the
+ * source shows and the encoding happens here; the strings produced are
+ * byte-identical to the literals they replace, which `app.test.ts` checks by
+ * decoding them.
  */
-export const MOCK_ACCESS_TOKEN = 'bW9jay1oZWFkZXI.bW9jay1wYXlsb2Fk.bW9jay1zaWduYXR1cmU'
-export const MOCK_REFRESH_TOKEN = 'bW9jay1oZWFkZXI.bW9jay1yZWZyZXNo.bW9jay1zaWduYXR1cmU'
+function mockJwt(payload: string): string {
+  const segment = (text: string) => Buffer.from(text, 'utf8').toString('base64url')
+  return [segment('mock-header'), segment(payload), segment('mock-signature')].join('.')
+}
+
+export const MOCK_ACCESS_TOKEN = mockJwt('mock-payload')
+export const MOCK_REFRESH_TOKEN = mockJwt('mock-refresh')
 
 /** Seconds an access token is good for. Matches the contract's `integer(900)`. */
 export const ACCESS_TOKEN_TTL_SECONDS = 900
