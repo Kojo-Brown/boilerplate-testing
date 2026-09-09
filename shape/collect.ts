@@ -55,16 +55,25 @@ export interface CollectorResult {
  *
  * A test file no runner collects anything from is normally dead code — it was
  * renamed out of an include glob, or its suite throws during collection — and
- * the census reports it. This is the one file where zero is correct:
- * `it.skipIf(!process.env['PROVIDER_BASE_URL'])` means the provider
- * verification is not declared at all unless a provider is running, and
- * `vitest list` omits skipped tests rather than listing them as pending.
+ * the census reports it. Exceptions are listed rather than special-cased in the
+ * code so that each one has to be argued for, in writing, here.
  *
- * It is an exception rather than a special case in the code so that a second
- * one has to be argued for, in writing, here.
+ * `pact/provider/users.provider.pact.verify.test.ts` used to be the only entry,
+ * and its removal is the point of the contract-pipeline work: the suite was
+ * `it.skipIf(!process.env['PROVIDER_BASE_URL'])` and there was no provider in
+ * the repository to point that at, so provider verification was never declared
+ * and never ran. There is a provider now and the suite starts it, so the file
+ * collects a test like any other and the exception was stale.
+ *
+ * `pact/pipeline/matrix.broker.test.ts` replaces it, and needs the exception
+ * for a reason that cannot be designed away: the matrix is measured against a
+ * running Pact Broker, `describe.skipIf` drops it when `PACT_BROKER_BASE_URL`
+ * is unset, and `vitest list` omits skipped tests rather than listing them as
+ * pending. The census runs in the `gates` job, which has no broker; the
+ * `contracts` job, which has one, is where those 13 tests are enforced.
  */
 export const EXPECTED_EMPTY: readonly string[] = [
-  'pact/provider/users.provider.pact.verify.test.ts',
+  'pact/pipeline/matrix.broker.test.ts',
 ]
 
 const toPosix = (path: string): string => path.split('\\').join('/')

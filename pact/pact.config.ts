@@ -8,5 +8,11 @@ export const PACT_PROVIDER = 'boilerplate-api';
 export const PACT_DIR = resolve(__dirname, '..', 'pacts');
 export const PACT_LOG_LEVEL = 'warn' as const;
 
+/** The pact the two consumer suites write, and the provider suite reads. */
+export const CONSUMER_PACT_FILE = resolve(
+  PACT_DIR,
+  `${PACT_CONSUMER}-${PACT_PROVIDER}.json`,
+);
+
 export const PACT_PROVIDER_BASE_URL =
   process.env['PROVIDER_BASE_URL'] ?? 'http://localhost:3000';

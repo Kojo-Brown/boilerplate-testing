@@ -72,6 +72,15 @@ export const THROW_DEPRECATION = '--throw-deprecation'
  * `mutation:check` it runs in a job of its own — it needs a container runtime,
  * which `pnpm test` must never require, and it is minutes rather than seconds.
  *
+ * `test:pact` and `test:pact:broker` joined it with the contract pipeline, and
+ * they are the first pair where one entry is a *chain*: `test:pact` runs
+ * `pnpm pact:consumer && pnpm pact:verify`, because the consumer suites write
+ * the pact the provider suite verifies and a single Vitest run gives no
+ * ordering guarantee between two files. {@link pnpmScriptOf} reads the first
+ * command in a `run:`, so it resolves the chain to `test:pact` and the audit
+ * covers it; the two halves inherit `NODE_OPTIONS` from the parent, which is
+ * where this repository's code runs in both of them.
+ *
  * `mutation:check` joined it with the mutation-score gate, and it was the first
  * entry to live in a different job from the rest — the mutation run is a
  * property of the tests rather than of the runtime, so it runs once instead of
@@ -90,6 +99,8 @@ export const GATED_SCRIPTS: readonly string[] = [
   'build',
   'mutation:check',
   'test:containers',
+  'test:pact',
+  'test:pact:broker',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows

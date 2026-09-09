@@ -146,10 +146,16 @@ describe('problems the join exists to find', () => {
 
 describe('the empty-file exception list', () => {
   it('accepts zero tests only from a file that is listed', () => {
-    // `pact/provider/...` is the one file where zero is correct, because its
-    // suite is `it.skipIf(!PROVIDER_BASE_URL)` and `vitest list` omits skipped
-    // tests. Anything else at zero is a broken include glob.
-    expect(EXPECTED_EMPTY).toEqual(['pact/provider/users.provider.pact.verify.test.ts'])
+    // `pact/pipeline/matrix.broker.test.ts` is the one file where zero is
+    // correct: its suite is `describe.skipIf(!PACT_BROKER_BASE_URL)` and
+    // `vitest list` omits skipped tests, so a census run without a broker sees
+    // none of its 13. Anything else at zero is a broken include glob.
+    //
+    // It replaced `pact/provider/users.provider.pact.verify.test.ts`, which
+    // was listed here for the same mechanical reason and a much worse
+    // underlying one: there was no provider in the repository to point
+    // `PROVIDER_BASE_URL` at, so provider verification never ran anywhere.
+    expect(EXPECTED_EMPTY).toEqual(['pact/pipeline/matrix.broker.test.ts'])
   })
 
   it('reports an exception that has outlived its reason', () => {
