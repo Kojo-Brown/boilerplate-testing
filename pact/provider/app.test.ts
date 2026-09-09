@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest'
 import {
   ACCESS_TOKEN_TTL_SECONDS,
   CORRECT,
+  MOCK_ACCESS_TOKEN,
   MOCK_REFRESH_TOKEN,
   REQUIRED_SCOPE,
   serialiseUser,
@@ -32,6 +33,35 @@ function seeded(): UserStore {
   store.upsert(MOD)
   return store
 }
+
+describe('Token fixtures', () => {
+  // The claim the comment in `app.ts` makes, asserted rather than trusted:
+  // these are three readable words in base64url, not a credential. Written as
+  // a decode so that a fixture which stopped being obviously fake — somebody
+  // pasting a real token to reproduce something — fails here.
+  it.each([
+    ['access', MOCK_ACCESS_TOKEN, 'mock-payload'],
+    ['refresh', MOCK_REFRESH_TOKEN, 'mock-refresh'],
+  ])('builds the %s token from readable words', (_name, token, payload) => {
+    expect(token.split('.').map((s) => Buffer.from(s, 'base64url').toString('utf8'))).toEqual([
+      'mock-header',
+      payload,
+      'mock-signature',
+    ])
+  })
+
+  it('keeps the three-segment shape the consumer contract matches on', () => {
+    for (const token of [MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN]) {
+      expect(token).toMatch(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/)
+    }
+  })
+
+  it('gives the two tokens different values', () => {
+    // The refresh flow rotates one for the other; equal fixtures would let a
+    // provider that returned the wrong one pass.
+    expect(MOCK_ACCESS_TOKEN).not.toBe(MOCK_REFRESH_TOKEN)
+  })
+})
 
 describe('User serialisation', () => {
   it('emits the five fields the contract names, under the correct flags', () => {

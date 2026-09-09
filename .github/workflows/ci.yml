@@ -360,12 +360,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
+    # `POSTGRES_HOST_AUTH_METHOD: trust` rather than a password, and not for
+    # convenience: a literal password here was flagged by GitGuardian as a
+    # "Generic Password" on the pull request that added this job. It was a
+    # throwaway for a container that lives for one job on a network only that
+    # job can reach — but a scanner cannot tell that from the real thing, and a
+    # repository whose secret scanning is routinely red is one where the next
+    # finding is skimmed. `trust` is what the postgres image documents for
+    # exactly this case, and it leaves nothing credential-shaped in the file.
     services:
       postgres:
         image: postgres:17-alpine
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: pact_broker
         ports:
           - 5432:5432
@@ -403,7 +411,7 @@ jobs:
       - name: Start the Pact Broker
         run: |
           docker run -d --name pact-broker --network host \
-            -e PACT_BROKER_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/pact_broker \
+            -e PACT_BROKER_DATABASE_URL=postgres://postgres@127.0.0.1:5432/pact_broker \
             -e PACT_BROKER_PORT=9292 \
             -e PACT_BROKER_LOG_LEVEL=WARN \
             pactfoundation/pact-broker:2.143.0-pactbroker2.121.0
