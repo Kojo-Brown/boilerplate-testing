@@ -38,6 +38,8 @@ export type PatchProblem =
   | { kind: 'version-drift'; pin: PatchPin; installed: string }
   | { kind: 'undocumented'; pin: PatchPin }
   | { kind: 'orphaned-reason'; name: string }
+  | { kind: 'unknown-parent'; pin: PatchPin; via: string }
+  | { kind: 'orphaned-parent'; name: string }
 
 /**
  * Why each patched dependency is patched.
@@ -54,6 +56,37 @@ export const PATCH_REASONS: Readonly<Record<string, string>> = {
     '--throw-deprecation. The patch prefers module.registerHooks() where it ' +
     'exists, forward-porting storybookjs/storybook#35337; remove it when that ' +
     'lands upstream.',
+  'http-proxy':
+    'lib/http-proxy/index.js and lib/http-proxy/common.js take their `extend` ' +
+    'from require("util")._extend, which is DEP0060 and therefore throws under ' +
+    'the Contract gates’ --throw-deprecation — inside the request handler of ' +
+    'the proxy pact-js puts in front of the provider, so every state-handling ' +
+    'verification hits it. The patch uses Object.assign, which is what the ' +
+    'deprecation notice itself recommends and what _extend does for these two ' +
+    'call sites. http-proxy 1.18.1 is the last release (2020) and unmaintained, ' +
+    'so there is nothing upstream to wait for: this goes away when pact-js ' +
+    'moves off it.',
+}
+
+/**
+ * Patched packages that are not direct dependencies, and what pulls them in.
+ *
+ * The `not-a-dependency` rule below was written when the only patch was on a
+ * package this repository declares, and it assumed that would stay true. It
+ * does not: `http-proxy` reaches us through `@pact-foundation/pact`, and the
+ * deprecation it throws is in code we never call directly. Patching a
+ * *transitive* dependency is the ordinary case for this kind of fix, and the
+ * old rule would have forced a fake direct dependency into package.json to
+ * satisfy it — a worse lie than the one it was preventing.
+ *
+ * So the entry names the direct dependency responsible instead, and the rule
+ * is preserved rather than dropped: the parent must itself be declared, and an
+ * entry here for a package nothing patches is a failure of its own. What the
+ * original rule was for — a patch pin outliving the dependency it patches —
+ * still fails, one level up.
+ */
+export const TRANSITIVE_PATCHES: Readonly<Record<string, string>> = {
+  'http-proxy': '@pact-foundation/pact',
 }
 
 /** The manifest fields a patched package may legitimately be declared in. */
@@ -116,7 +149,12 @@ export function findPatchProblems(
   for (const pin of pins) {
     if (!(pin.name in PATCH_REASONS)) problems.push({ kind: 'undocumented', pin })
     if (!patchFileExists(pin.file)) problems.push({ kind: 'missing-patch-file', pin })
-    if (!declared.has(pin.name)) problems.push({ kind: 'not-a-dependency', pin })
+    const via = TRANSITIVE_PATCHES[pin.name]
+    if (via === undefined) {
+      if (!declared.has(pin.name)) problems.push({ kind: 'not-a-dependency', pin })
+    } else if (!declared.has(via)) {
+      problems.push({ kind: 'unknown-parent', pin, via })
+    }
 
     if (pin.version === null) {
       problems.push({ kind: 'unpinned-version', pin })
@@ -133,6 +171,9 @@ export function findPatchProblems(
   for (const name of Object.keys(PATCH_REASONS)) {
     if (!pinned.has(name)) problems.push({ kind: 'orphaned-reason', name })
   }
+  for (const name of Object.keys(TRANSITIVE_PATCHES)) {
+    if (!pinned.has(name)) problems.push({ kind: 'orphaned-parent', name })
+  }
 
   return problems
 }
@@ -141,6 +182,10 @@ export function findPatchProblems(
 export function formatPatchProblem(problem: PatchProblem): string {
   if (problem.kind === 'orphaned-reason') {
     return `PATCH_REASONS still documents "${problem.name}", but nothing patches it any more — drop the entry`
+  }
+
+  if (problem.kind === 'orphaned-parent') {
+    return `TRANSITIVE_PATCHES still names a parent for "${problem.name}", but nothing patches it any more — drop the entry`
   }
 
   const { pin } = problem
@@ -155,6 +200,8 @@ export function formatPatchProblem(problem: PatchProblem): string {
       return `"${pinned}" is patched but is not in dependencies, devDependencies or optionalDependencies`
     case 'undocumented':
       return `"${pinned}" is patched with no entry in PATCH_REASONS — say why the patch exists and what removes it`
+    case 'unknown-parent':
+      return `"${pinned}" is patched as a transitive dependency of "${problem.via}", but "${problem.via}" is not in dependencies, devDependencies or optionalDependencies`
     case 'version-drift':
       return `"${pinned}" is patched, but ${problem.installed} is installed — rebase the patch onto ${problem.installed} or pin it back`
   }

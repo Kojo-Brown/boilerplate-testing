@@ -96,7 +96,8 @@
       "unrs-resolver"
     ],
     "patchedDependencies": {
-      "storybook@10.5.5": "patches/storybook@10.5.5.patch"
+      "storybook@10.5.5": "patches/storybook@10.5.5.patch",
+      "http-proxy@1.18.1": "patches/http-proxy@1.18.1.patch"
     },
     "ignoredBuiltDependencies": [
       "cpu-features",

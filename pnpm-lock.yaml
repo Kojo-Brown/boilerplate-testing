@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
+  http-proxy@1.18.1:
+    hash: 3032f3a47f33911d5c278ec6f2d4e0e4afc8f977baea1012613b13de23831c73
+    path: patches/http-proxy@1.18.1.patch
   storybook@10.5.5:
     hash: ad552f0887ab0148088333d1e9704193bd3ab2f764d4b3840d371170cd5c897a
     path: patches/storybook@10.5.5.patch
@@ -7108,7 +7111,7 @@ snapshots:
       express: 4.22.2
       graphql: 14.7.0
       graphql-tag: 2.12.7(graphql@14.7.0)
-      http-proxy: 1.18.1
+      http-proxy: 1.18.1(patch_hash=3032f3a47f33911d5c278ec6f2d4e0e4afc8f977baea1012613b13de23831c73)
       https-proxy-agent: 7.0.6
       js-base64: 3.9.2
       lodash: 4.18.1
@@ -9462,7 +9465,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  http-proxy@1.18.1:
+  http-proxy@1.18.1(patch_hash=3032f3a47f33911d5c278ec6f2d4e0e4afc8f977baea1012613b13de23831c73):
     dependencies:
       eventemitter3: 4.0.7
       follow-redirects: 1.16.0
