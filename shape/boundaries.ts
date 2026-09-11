@@ -243,6 +243,19 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
   // Data
   // -------------------------------------------------------------------------
   '@faker-js/faker': pure('Seeded pseudo-random generation.'),
+  'ajv/dist/2020.js': pure(
+    'Compiles a JSON Schema to a JavaScript function and runs it over a value ' +
+      'already in memory. `openapi/` never gives it a `$ref` that leaves the ' +
+      'document, and Ajv has no remote-fetch behaviour to disable — a `$ref` it ' +
+      'cannot resolve from what it has been given is a compile error, not a ' +
+      'request. Keyed by the 2020-12 entry point because that is the only one ' +
+      'this repository imports; bare `ajv` is deliberately unclassified so a ' +
+      'future import of the draft-07 default has to be a decision.',
+  ),
+  'ajv-formats': pure(
+    'Registers `format` keyword implementations — regular expressions and date ' +
+      'parsing — on an Ajv instance. No I/O of any kind.',
+  ),
   'fast-check': pure(
     'Generates values from a written-down seed and runs a predicate over them. ' +
       'Everything it touches is in this process\u2019s heap \u2014 `property/` pins the seed ' +

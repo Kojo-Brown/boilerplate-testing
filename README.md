@@ -24,6 +24,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | Fuzzing parsers and validators: oracles, generators, and a replayable corpus | `fuzz/` |
 | Concurrency: race detection strategies compared by detection *rate*, with a deterministic scheduler | `concurrency/` |
 | Testcontainers: Postgres, Redis and Kafka per suite, with reuse and a residue matrix | `containers/` |
+| OpenAPI conformance: six wirings scored against eleven ways a service leaves its spec | `openapi/` |
 
 ## Quick Start
 
