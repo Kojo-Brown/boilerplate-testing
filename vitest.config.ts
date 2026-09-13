@@ -15,13 +15,14 @@ export default defineConfig({
       // `*.spec.ts` include glob. They need a real browser and a running app,
       // so they belong to `pnpm test:e2e`, not the unit run.
       'playwright/**',
-      // `containers/` is split across two projects by filename. The suites
-      // that start a container are `*.container.test.ts`, need a runtime, and
-      // take minutes: they belong to `pnpm test:containers` and its own CI job.
-      // Everything else in that directory — the image table, the fixture's
-      // naming, the README audit — is ordinary computation and stays here, so
-      // `pnpm test` keeps covering it on a machine with no Docker at all.
-      'containers/**/*.container.test.ts',
+      // Suites that need a container runtime are `*.container.test.ts`
+      // wherever they live — `containers/` and `dbisolation/` today. They take
+      // minutes and belong to `pnpm test:containers` and its own CI job.
+      // Everything else in those directories — the image table, the fixture's
+      // naming, the fault catalogue, the README audits — is ordinary
+      // computation and stays here, so `pnpm test` keeps covering it on a
+      // machine with no Docker at all.
+      '**/*.container.test.ts',
     ],
     coverage: {
       provider: 'v8',

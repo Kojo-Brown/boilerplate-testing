@@ -201,14 +201,20 @@ describe('the registry', () => {
   // microtask queue does with two overlapping operations. Anywhere else, a read
   // that cannot be controlled is a read to be argued about, not a measurement.
   it('confines the measured disposition to the directories doing the measuring', () => {
-    // Three directories, and each earned its place by having elapsed time as
+    // Four directories, and each earned its place by having elapsed time as
     // its subject rather than as an inconvenience: `determinism/` measures what
     // controlling a clock buys, `concurrency/` measures detection rates over
-    // real interleavings, and `containers/` measures how long a real Postgres,
-    // Redis or Kafka takes to become usable. Anywhere else, an uncontrolled
-    // read is a seam default, an inert value or a bug — which is what this
-    // list is for.
-    const measuring = ['determinism/', 'concurrency/', 'containers/']
+    // real interleavings, `containers/` measures how long a real Postgres,
+    // Redis or Kafka takes to become usable, and `dbisolation/` measures what
+    // an isolation strategy charges per test — the figure that decides between
+    // two strategies its other two matrices score identically. Anywhere else,
+    // an uncontrolled read is a seam default, an inert value or a bug — which
+    // is what this list is for.
+    //
+    // The list grows slowly and that is the property worth protecting: three of
+    // the four are directories that start a real server, and the admission test
+    // is not "this code waits for something" but "the waiting is the result".
+    const measuring = ['determinism/', 'concurrency/', 'containers/', 'dbisolation/']
 
     for (const entry of REGISTRY.filter((row) => row.disposition === 'measured')) {
       expect({
@@ -234,20 +240,23 @@ describe('the repository as it stands', () => {
   })
 
   it('finds fewer reads than a pattern match would, because five of them are prose', () => {
-    // A regular expression over the repository matches forty-one lines outside
+    // A regular expression over the repository matches fifty lines outside
     // `determinism/`; five are a call named in a comment, in two string
     // literals, in a test title, and in the paragraph of
     // `concurrency/strategies.ts` explaining why it does not draw its delays
     // from `Math.random()` — which arrived after this claim was first written
     // and is exactly the false positive it is about. The parser reports
-    // thirty-six.
+    // forty-five.
     //
-    // The gap has stayed at exactly five while the real sites went 16 → 36:
-    // `containers/` added twenty reads and not one false positive, because a
-    // directory that talks about elapsed time in its comments still only calls
-    // `performance.now()` where it means it.
+    // The gap has stayed at exactly five while the real sites went 16 → 36 →
+    // 45: `containers/` added twenty reads and `dbisolation/` nine, and between
+    // them not one false positive, because a directory that talks about elapsed
+    // time in its comments still only calls `performance.now()` where it means
+    // it. The five are all in the two directories whose *subject* is a clock
+    // somebody removed — a characterisation corpus and a jitter explanation —
+    // which is the shape of the false positive worth predicting.
     const outside = scanRepository().filter((site) => !site.file.startsWith('determinism/'))
 
-    expect(outside).toHaveLength(36)
+    expect(outside).toHaveLength(45)
   })
 })

@@ -8,10 +8,18 @@ const rootDir = fileURLToPath(new URL('..', import.meta.url))
 // container runtime, which `pnpm test` must never require.
 //
 // The split is by filename rather than by directory. `*.container.test.ts`
-// starts a container and runs here; every other test file under `containers/`
-// is ordinary computation and runs in `pnpm test`, so the image table, the
-// fixture's naming rules and the README audit are checked on every commit
-// rather than only in the job that has a Docker daemon.
+// starts a container and runs here; every other test file is ordinary
+// computation and runs in `pnpm test`, so the image table, the fixture's
+// naming rules and the README audits are checked on every commit rather than
+// only in the job that has a Docker daemon.
+//
+// The include glob is repository-wide rather than `containers/**` because the
+// project is "suites that need a container runtime", not "the containers
+// directory". `dbisolation/` is the second directory to qualify: it compares
+// database isolation strategies against a real Postgres, and it borrows the
+// container `containers/suite.ts` has already started rather than starting a
+// second one — which is the arrangement that directory's own matrix argues
+// for. A third directory needs no change here.
 //
 // `singleFork` is the load-bearing option. Vitest would otherwise run each test
 // file in its own worker, and each worker would start its own Postgres, Redis
@@ -21,7 +29,7 @@ const rootDir = fileURLToPath(new URL('..', import.meta.url))
 // the directory is about, not merely a way of running it.
 export default defineConfig({
   test: {
-    include: ['containers/**/*.container.test.ts'],
+    include: ['**/*.container.test.ts'],
     environment: 'node',
     globals: true,
     pool: 'forks',
@@ -35,6 +43,8 @@ export default defineConfig({
     globalSetup: ['./containers/setup.ts'],
     // Kafka is the reason these are minutes rather than seconds: a cold broker
     // takes ~11s to answer, and the residue matrix drains a topic 24 times.
+    // `dbisolation/` adds two matrices whose work is done in `beforeAll`, so
+    // its hooks are the long ones and its tests read a computed result.
     testTimeout: 180_000,
     hookTimeout: 300_000,
   },
