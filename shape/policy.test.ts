@@ -106,7 +106,9 @@ describe('evaluate, on a suite that has drifted within its shape', () => {
   })
 
   it('rejects a unit layer that has fallen through its floor', () => {
-    const violations = evaluate(measure(counts(300, 240, 50)))
+    // 47.5% unit, with the ordering still intact and the other two layers
+    // inside their bands, so the unit floor is the only thing being tested.
+    const violations = evaluate(measure(counts(280, 260, 50)))
 
     expect(
       violations.some((violation) => violation.kind === 'band' && violation.layer === 'unit'),
@@ -114,7 +116,12 @@ describe('evaluate, on a suite that has drifted within its shape', () => {
   })
 
   it('rejects an integration layer above its ceiling while the ordering still holds', () => {
-    const violations = evaluate(measure(counts(500, 450, 40)))
+    // 50.0 / 49.5 / 0.5. The e2e floor fires here too and that is unavoidable:
+    // under a 50% unit floor the ordering forbids integration from reaching
+    // 50%, so the only room left above a 48% middle ceiling is room taken from
+    // the e2e layer. What this case still pins is that the *ordering* has not
+    // fired — the shape is intact and the drift is a band.
+    const violations = evaluate(measure(counts(500, 495, 5)))
 
     expect(violations.every((violation) => violation.kind === 'band')).toBe(true)
     expect(
@@ -162,8 +169,8 @@ describe('the declared policy', () => {
 
   it('leaves the end-to-end ceiling on the textbook 10%, which no longer binds anything', () => {
     // The ceiling stays where it was. What it catches does not: at 899 tests a
-    // doubled Playwright suite was 10.7% and failed, and at 2,132 the same 51
-    // declarations tripled are 6.8% and pass. The band that stops e2e growth
+    // doubled Playwright suite was 10.7% and failed, and at 2,484 the same 51
+    // declarations tripled are 5.9% and pass. The band that stops e2e growth
     // now is the unit floor, and this is the test that says so rather than
     // leaving a decorative ceiling looking like a gate. See README.md for why
     // re-tightening it is deliberately not done here.
@@ -178,28 +185,28 @@ describe('the declared policy', () => {
       ),
     ).toBe(true)
 
-    const tripledAtThisSize = measure(counts(1229, 852, 153))
+    const tripledAtThisSize = measure(counts(1348, 1085, 153))
 
-    expect(percent(tripledAtThisSize.share.e2e)).toBe('6.8%')
+    expect(percent(tripledAtThisSize.share.e2e)).toBe('5.9%')
     expect(evaluate(tripledAtThisSize)).toEqual([])
   })
 
   it('states headroom the bands actually leave, one layer at a time', () => {
     // Each figure quoted in POLICY's comment and in README.md, checked at the
-    // edge: the last value that passes and the first that does not. Every one
-    // of the three is stopped by the unit floor, which is the whole point of
-    // checking them here rather than reasoning about each band alone.
-    expect(evaluate(measure(counts(1229, 852, 153)))).toEqual([])
-    expect(evaluate(measure(counts(1229, 852, 154)))).toMatchObject([{ layer: 'unit' }])
+    // edge: the last value that passes and the first that does not. Measured
+    // from 1,348 / 1,085 / 51, and the interesting part is that the three edges
+    // are no longer all the same band — which is why they are checked together
+    // rather than reasoned about one band at a time.
+    expect(evaluate(measure(counts(1348, 1085, 263)))).toEqual([])
+    expect(evaluate(measure(counts(1348, 1085, 264)))).toMatchObject([{ layer: 'unit' }])
 
-    // Integration is stopped by the unit floor, not its own ceiling: at 954 the
-    // middle band is 42.7%, comfortably under 45%, and unit has been diluted to
-    // 55.01%.
-    expect(evaluate(measure(counts(1229, 954, 51)))).toEqual([])
-    expect(evaluate(measure(counts(1229, 955, 51)))).toMatchObject([{ layer: 'unit' }])
+    // Integration is stopped by its own ceiling now, not by dilution: at 1,291
+    // the middle band is 48.0% and unit is still 50.1%.
+    expect(evaluate(measure(counts(1348, 1291, 51)))).toEqual([])
+    expect(evaluate(measure(counts(1348, 1292, 51)))).toMatchObject([{ layer: 'integration' }])
 
-    expect(evaluate(measure(counts(1229 - 125, 852, 51)))).toEqual([])
-    expect(evaluate(measure(counts(1229 - 126, 852, 51))).length).toBeGreaterThan(0)
+    expect(evaluate(measure(counts(1348 - 212, 1085, 51)))).toEqual([])
+    expect(evaluate(measure(counts(1348 - 213, 1085, 51))).length).toBeGreaterThan(0)
   })
 
   it('tolerates a quarter of ordinary growth without firing', () => {

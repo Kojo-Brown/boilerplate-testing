@@ -283,6 +283,41 @@ export const REGISTRY: readonly RegistryEntry[] = [
     disposition: 'measured',
     why: 'The poll interval in that same wait, written out longhand for the same reason: the file exists to be read and copied, and hiding the poll in a helper would hide the one line a reader has to think about.',
   },
+  // -------------------------------------------------------------------------
+  // dbisolation/ — a real server again, and one figure that is the result
+  // -------------------------------------------------------------------------
+  // Same argument as `containers/` and one addition. The cost table there
+  // reports what a container took to start; the cost table here reports what an
+  // isolation strategy charges per test, which is the number that decides
+  // between two strategies the detection and leakage matrices cannot separate.
+  // A substituted clock would leave that comparison with nothing in it.
+  //
+  // The two matrices are deliberately absent from this list: every cell in them
+  // is a boolean about a database, nothing in `matrix.ts` or `leakage.ts` reads
+  // a clock, and that is why they can run eight suites concurrently while
+  // `cost.ts` runs serially.
+  {
+    file: 'dbisolation/cost.ts',
+    kind: 'monotonic-clock',
+    count: 6,
+    disposition: 'measured',
+    why: 'Times each strategy\'s per-test isolating, which is the cost table in `dbisolation/README.md` — 0.8ms for a savepoint rollback against 58.9ms for a database clone, and the 8.4ms connection baseline that turns out to be half the gap the headline comparison is usually about.',
+  },
+  {
+    file: 'dbisolation/behaviours.ts',
+    kind: 'monotonic-clock',
+    count: 2,
+    disposition: 'measured',
+    why: 'The budget the `notification` behaviour waits within. What it is waiting for is a commit in one session reaching a listener in another, which happens in wall-clock time or not at all — and "not at all" is the measurement, since that behaviour is unusable under savepoint isolation.',
+  },
+  {
+    file: 'dbisolation/behaviours.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'measured',
+    why: 'The 25ms gap between round trips in that same wait. A fake queue would run the next poll with no time having passed and the other session no closer to committing, so the loop would spin to its budget.',
+  },
+
   {
     file: 'containers/suite.ts',
     kind: 'identity',
