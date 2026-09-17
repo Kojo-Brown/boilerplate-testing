@@ -1,0 +1,101 @@
+# Ephemeral per-PR environment — deploy and teardown.
+#
+# This file and `preview-reconcile.yml` are the `namespace-reconciled` row of
+# `ephemeral/README.md`, which is the wiring that handles 11 of the 12 hazards
+# measured there. `ephemeral/workflows.ts` reads both files and checks that the
+# controls they carry are still the controls the top-scoring row is made of, so
+# if the measurement changes and these do not, `pnpm test` fails rather than
+# leaving advice from last year in a file people copy.
+#
+# Four controls live here, and each one is a cell in that matrix:
+#
+#   1. `concurrency` keyed on the pull request and shared by both jobs, with
+#      `cancel-in-progress`. The group must NOT include `github.workflow` — a
+#      group per workflow leaves a close free to race a deploy, which is the
+#      `zombie-deploy` hazard with the mitigation applied and not working.
+#   2. A label gate on fork pull requests. `pull_request_target` runs with this
+#      repository's secrets against a head commit the contributor wrote, so a
+#      fork gets an environment only once a maintainer has read the diff and
+#      applied the label.
+#   3. Everything created inside one namespace this workflow owns, so teardown
+#      is one delete that cascades over the resources the platform made and the
+#      deploy step never recorded.
+#   4. Seeding per environment, at the schema of the commit being deployed, so
+#      a pull request containing a migration has somewhere to run it and one
+#      preview's end-to-end run cannot write into another's review.
+#
+# Replace the four `run:` bodies marked TODO with your own provisioner. Nothing
+# else in the file should need editing except the namespace expression.
+
+name: Preview environment
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled, closed]
+
+# Control 1. One group per pull request, shared by deploy and destroy.
+concurrency:
+  group: preview-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+env:
+  PREVIEW_NAMESPACE: preview-pr-${{ github.event.number }}
+
+jobs:
+  deploy:
+    name: Deploy preview
+    # Control 2. Same-repository pull requests deploy on their own; a fork's
+    # does not exist until a maintainer applies the label.
+    if: >-
+      github.event.action != 'closed' &&
+      (github.event.pull_request.head.repo.full_name == github.repository ||
+       contains(github.event.pull_request.labels.*.name, 'preview'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: preview
+    steps:
+      - name: Checkout the pull request head
+        uses: actions/checkout@v7
+        with:
+          # `pull_request_target` checks out the base branch by default. The
+          # preview has to be built from the head commit, which is exactly why
+          # the label gate above is not optional.
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Create the namespace
+        # Control 3. One owned parent, labelled with the pull request, so that
+        # deleting it takes everything underneath — including the log groups,
+        # registry images and DNS records the platform creates on first use and
+        # no state file has ever heard of.
+        run: |
+          echo "TODO: create ${PREVIEW_NAMESPACE} labelled pr=${{ github.event.number }}"
+
+      - name: Deploy the head commit into it
+        run: |
+          echo "TODO: deploy ${{ github.event.pull_request.head.sha }} into ${PREVIEW_NAMESPACE}"
+
+      - name: Seed this environment
+        # Control 4. Migrations from this commit, then the fixture. Never a
+        # shared staging database: see the `cross-pr-write` and
+        # `migration-in-pr` rows.
+        run: |
+          echo "TODO: migrate and seed the database inside ${PREVIEW_NAMESPACE}"
+
+  destroy:
+    name: Destroy preview
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: preview
+    steps:
+      - name: Delete the namespace
+        # One delete, and the cascade does the rest. `preview-reconcile.yml` is
+        # what covers this run being cancelled.
+        run: |
+          echo "TODO: delete ${PREVIEW_NAMESPACE} and everything inside it"

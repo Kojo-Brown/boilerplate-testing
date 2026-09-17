@@ -120,6 +120,13 @@ describe('vitest.config.ts', () => {
 // What the run loads
 // ---------------------------------------------------------------------------
 
+// Each test below walks the whole repository: every test file parsed, plus
+// everything each one reaches. That is seconds rather than milliseconds, it
+// grows with the repository, and Vitest's default 5s is a number chosen for
+// tests that do not read a file — `mutation/reach.test.ts`'s equivalent went
+// over it on a two-core runner. The timeouts are therefore stated, at the 60s
+// this repository already uses for its other whole-tree scans, and no
+// assertion changes.
 describe('the suites a mutation run loads', () => {
   it('covers every scoped module', () => {
     const found = suitesReaching(scopedModules())
@@ -127,7 +134,7 @@ describe('the suites a mutation run loads', () => {
     for (const entry of SCOPE) {
       expect(found.get(entry.module) ?? []).not.toHaveLength(0)
     }
-  })
+  }, 60_000)
 
   it('loads nothing that does not reach a scoped module', () => {
     // The dry run pays for every test in the project once. A suite in the
@@ -136,7 +143,7 @@ describe('the suites a mutation run loads', () => {
     const union = new Set([...found.values()].flat())
 
     expect([...suites].sort()).toEqual([...union].sort())
-  })
+  }, 60_000)
 
   it('needs no DOM, which is what `environment: node` claims', () => {
     // The list is the DOM-dependent modules this repository actually has, so
@@ -155,7 +162,7 @@ describe('the suites a mutation run loads', () => {
     const reached = externalsReachedBy(suites.map((suite) => join(repoRoot, suite)))
 
     expect(needsDom.filter((module) => reached.has(module))).toEqual([])
-  })
+  }, 60_000)
 
   it('is every suite Vitest would run for these modules, including the indirect ones', () => {
     // Named explicitly because it is the assertion the whole derivation

@@ -1,0 +1,81 @@
+# Ephemeral per-PR environment — the reconciling sweep.
+#
+# The other half of the `namespace-reconciled` wiring measured in
+# `ephemeral/README.md`. It exists because the close hook in
+# `preview-environment.yml` is a workflow run, and a workflow run can be
+# cancelled: `teardown-cancelled` is the row where every close-hook-only
+# design reads `leaked`.
+#
+# What makes this a reconciler rather than a TTL reaper is the basis it deletes
+# on. It lists the namespaces that exist and deletes the ones whose pull
+# request is not open — it never asks how old anything is. A TTL sweep scores
+# the same total in the matrix and fails differently: it deletes the
+# environment of a pull request that has been under review for two days, which
+# is the `long-review` row.
+#
+# This is not a backstop against everything. GitHub disables `schedule:`
+# workflows on repositories with sixty days of no activity, quietly, which is
+# the `sweep-never-ran` row that no wiring in that table handles. The thing
+# that bounds the loss is a spend alert on the account, and it does not live in
+# a workflow file.
+
+name: Reconcile preview environments
+
+on:
+  schedule:
+    # Hourly. The interval is the window a leaked environment survives for, so
+    # it is a cost decision rather than a correctness one.
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+# Not keyed on a pull request: this run is about all of them, and two of these
+# racing each other would double-delete rather than leak.
+concurrency:
+  group: preview-reconcile
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: read
+  id-token: write
+
+jobs:
+  reconcile:
+    name: Delete namespaces whose pull request is closed
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: preview
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: List the preview namespaces that exist
+        id: namespaces
+        # Read from the cloud, not from a state file. The whole point of the
+        # `platform-created-resource` row is that a state file is a record of
+        # what you made, which is not a record of what exists.
+        run: |
+          echo "TODO: list namespaces labelled pr=* and write one pull request number per line to prs.txt"
+          : > prs.txt
+
+      - name: Delete the ones whose pull request is not open
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          while read -r pr; do
+            [ -n "${pr}" ] || continue
+
+            state=$(gh pr view "${pr}" --repo "${GITHUB_REPOSITORY}" --json state --jq .state)
+
+            if [ "${state}" = "OPEN" ]; then
+              echo "pr ${pr}: open, keeping"
+              continue
+            fi
+
+            echo "pr ${pr}: ${state}, deleting preview-pr-${pr}"
+            echo "TODO: delete preview-pr-${pr} and everything inside it"
+          done < prs.txt
