@@ -121,6 +121,24 @@ describe('coveringSuites', () => {
 })
 
 describe('the repository’s own scope', () => {
+  // ---------------------------------------------------------------------
+  // Why this one has a timeout and the fixture tests above do not
+  // ---------------------------------------------------------------------
+  // Everything above walks a fixture tree of six files. This walks the real
+  // repository, which means parsing every test file and everything each one
+  // reaches — around 2.7s on a developer machine at the time of writing, and
+  // better than 4s when the rest of `pnpm test` is competing for the same
+  // cores. Vitest's default is 5s, which is a number chosen for tests that do
+  // not read a file, and the cost of this one grows with the repository: it
+  // went over on a two-core CI runner after `ephemeral/` added eleven modules
+  // and eleven suites to the tree, having passed with the same assertion the
+  // commit before.
+  //
+  // So the timeout is stated rather than inherited, at the 60s this
+  // repository already uses for its other whole-tree scans
+  // (`snapshot/detection.test.ts`, `snapshot/yield.test.ts`). Nothing about
+  // the assertion changes: a walk that genuinely took a minute would be a
+  // finding of its own, and this leaves room to notice it.
   it('has at least one suite behind every scoped module', () => {
     // The assertion that would have caught a scope entry pointing at a module
     // nobody tests: the run would report 0% for it and the floor would be the
@@ -130,5 +148,5 @@ describe('the repository’s own scope', () => {
     for (const entry of SCOPE) {
       expect(found.get(entry.module) ?? []).not.toHaveLength(0)
     }
-  })
+  }, 60_000)
 })
