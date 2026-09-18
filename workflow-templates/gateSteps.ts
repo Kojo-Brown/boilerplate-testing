@@ -81,6 +81,13 @@ export const THROW_DEPRECATION = '--throw-deprecation'
  * covers it; the two halves inherit `NODE_OPTIONS` from the parent, which is
  * where this repository's code runs in both of them.
  *
+ * `test:ct` joined it with the component suite, in a job of its own for the
+ * same shape of reason as `test:containers`: it needs a browser, which
+ * `pnpm test` must never require. It is also the entry where the flag polices
+ * the least of the work — the assertions are decided by Chromium — and it is
+ * kept for the part Node does run, which is a Vite build of every component on
+ * every invocation.
+ *
  * `mutation:check` joined it with the mutation-score gate, and it was the first
  * entry to live in a different job from the rest — the mutation run is a
  * property of the tests rather than of the runtime, so it runs once instead of
@@ -101,6 +108,7 @@ export const GATED_SCRIPTS: readonly string[] = [
   'test:containers',
   'test:pact',
   'test:pact:broker',
+  'test:ct',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows

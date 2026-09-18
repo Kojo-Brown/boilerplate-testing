@@ -109,6 +109,20 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
       'only module in the table that implies end-to-end on its own, and it is ' +
       'the one boundary nothing else in this repository can reach.',
   ),
+  '@playwright/experimental-ct-react': boundary(
+    'e2e',
+    'browser + component bundle',
+    'Playwright component testing: bundles a component with Vite, serves it, and ' +
+      'drives a real browser against it. There is no application, which is the ' +
+      'whole point of the pattern — but the boundary crossed is a browser ' +
+      'process, and the axis this table measures is how wide a boundary a test ' +
+      'reaches, not how much of a system sits behind it. So a component test is ' +
+      'e2e here, at the same cost and the same rank as one that drives an ' +
+      'application. A fourth layer between integration and e2e would say it more ' +
+      'precisely, and would mean re-drawing the bands, the ordering and the two ' +
+      'shapes over a distinction one directory currently makes; ct/README.md ' +
+      'records that trade rather than making it.',
+  ),
 
   // -------------------------------------------------------------------------
   // Node built-ins

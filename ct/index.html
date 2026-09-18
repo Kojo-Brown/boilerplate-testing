@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Component tests</title>
+    <style>
+      /*
+        The typography every component is measured against.
+
+        This is not decoration. `OverflowTooltip` asks the browser whether its
+        text overflows its box, and the answer depends on the face the text is
+        laid out in — a default `system-ui` resolves differently on a Linux
+        runner, a Mac and a contributor's machine, so the same string in the
+        same box would clip in one place and not another. `monospace` at a
+        fixed size is the one stack Chromium resolves everywhere this runs, and
+        `ct/README.md` records the margin the specs leave on top of it.
+      */
+      body {
+        margin: 0;
+        font: 16px/1.5 monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      The page every component is mounted into. Playwright's Vite plugin
+      rewrites the module script below to import the registered components and
+      the mount hooks in `index.tsx`; everything else here is an ordinary
+      document, and anything a component needs from the page — a stylesheet, a
+      font, a CSS reset — belongs in it.
+    -->
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+  </body>
+</html>

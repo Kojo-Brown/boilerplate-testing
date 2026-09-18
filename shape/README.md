@@ -74,6 +74,7 @@ moment the suite gets slower.
 | Boundary | Reaches | Layer |
 |---|---|---|
 | `@playwright/test` | browser + running application | `e2e` |
+| `@playwright/experimental-ct-react` | browser + component bundle | `e2e` |
 | `node:fs`, `node:fs/promises` | filesystem | `integration` |
 | `node:http`, `node:https`, `node:net` | TCP socket | `integration` |
 | `node:child_process` | child process | `integration` |
@@ -94,10 +95,23 @@ and faker mutates a seeded PRNG, and both are `pure` here.
 
 ### Three judgement calls, stated so you can disagree with them
 
-**jsdom is not a boundary.** A Testing Library test renders into a DOM that
-lives in the test process's own heap. It is not a browser and crosses nothing,
-so component tests are unit tests here. The pyramid's cost argument is about
-out-of-process work, and there is none.
+**jsdom is not a boundary, but a browser is — even with no application behind
+it.** A Testing Library test renders into a DOM that lives in the test
+process's own heap. It is not a browser and crosses nothing, so it is a unit
+test here; the pyramid's cost argument is about out-of-process work, and there
+is none. A Playwright *component* test (`ct/`) mounts the same component into a
+real browser instead, and that lands at `e2e` alongside the application suite —
+the axis this table measures is how wide a boundary a test reaches, not how
+much of a system sits behind it, and the browser is the same browser at the
+same cost. The two therefore sit at opposite ends of the ratio while testing
+the same component, which is the comparison `ct/README.md` is about.
+
+A fourth layer between `integration` and `e2e` would state that more precisely.
+It is deliberately not introduced: it would mean re-drawing the bands, the
+ordering and both shapes over a distinction one directory currently makes, and
+the shapes this page compares are stated over three layers by the people who
+proposed them. The place to revisit it is when the component suite is large
+enough that its share is worth reasoning about separately.
 
 **`eslint` is split by binding.** The `ESLint` class resolves this repository's
 real flat config and lints real paths — genuinely an integration test of the
@@ -180,11 +194,13 @@ that: its "integration above its ceiling while the ordering still holds" case
 became unsatisfiable at 55% and refused to pass.
 
 The e2e **floor** moved 2% → 1% for a reason that is not about e2e at all. The
-Playwright suite is a fixed 51 declarations, so its *share* falls whenever
-anything else is added. A floor that fires because a Postgres suite landed
-elsewhere is not reporting anything about end-to-end coverage; at 1% it still
-catches somebody deleting the suite, and Phase 10 of `SPEC.md` adds end-to-end
-items that will restore the headroom.
+Playwright suite was a fixed 51 declarations when this floor was drawn, so its
+*share* fell whenever anything else was added. A floor that fires because a
+Postgres suite landed elsewhere is not reporting anything about end-to-end
+coverage; at 1% it still catches somebody deleting the suite, and Phase 10 of
+`SPEC.md` adds end-to-end items that restore the headroom. The component suite
+in `ct/` is the first of them: 13 declarations, and the first movement in this
+layer since the floor was drawn.
 
 The end-to-end **ceiling** is deliberately *not* widened and stays on the
 textbook 10%. It has, however, stopped binding: see below.
@@ -233,12 +249,14 @@ Measured by `pnpm shape:check` on the commit that added `dbisolation/`:
 2,484 tests across 140 files. The numbers move with every commit; the command is
 the source of truth, not this block.
 
-One number the ratio deliberately does not use: those 51 end-to-end tests are
-*declarations*. `playwright.config.ts` runs them across six projects — five
+One number the ratio deliberately does not use: those end-to-end tests are
+*declarations*. `playwright.config.ts` runs its 51 across six projects — five
 browser/device projects that each take all 51, plus a visual project that takes
-19 — so they are **274 executions**, each against a real browser. The ratio is a
-statement about tests written and maintained, not tests run, which is worth
-remembering when the pyramid's cost argument is the reason you are reading this.
+19 — so they are **274 executions**, each against a real browser.
+`ct/playwright-ct.config.ts` adds 13 declarations on a single project, so the
+layer stands at 64 declarations and **287 executions**. The ratio is a statement
+about tests written and maintained, not tests run, which is worth remembering
+when the pyramid's cost argument is the reason you are reading this.
 
 ---
 
@@ -311,7 +329,8 @@ reason attached, so a second one has to be argued for in writing.
 Two things this does **not** measure, and should not be read as measuring:
 
 - **Time.** The ratio counts tests, not seconds, and the two come apart badly
-  here: the e2e layer is 2.4% of the declarations and 274 browser executions.
+  here: the e2e layer is about 2% of the declarations and 287 browser
+  executions.
   A suite can satisfy every band on this page and still spend most of its wall
   clock at the top. Time is the more honest metric and the harder gate, because
   it is not deterministic.

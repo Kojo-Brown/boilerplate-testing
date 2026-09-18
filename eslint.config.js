@@ -30,6 +30,11 @@ export default tseslint.config(
       'storybook-static/**',
       'playwright-report/**',
       'playwright-results/**',
+      // Playwright's component-test bundle. Emitted JavaScript, rebuilt on
+      // every `pnpm test:ct`, and the one directory in the repository that
+      // would otherwise put a few hundred lint errors in front of a
+      // contributor who has just run the component suite.
+      'ct/.cache/**',
       'pact/pacts/**',
       // Stryker's sandbox is a full copy of the repository, tsconfig.json
       // included. A run that crashes leaves it behind, and the next `pnpm lint`

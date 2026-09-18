@@ -8,6 +8,11 @@ playwright-results/
 .auth/
 *.tgz
 
+# Playwright's component-test bundle: the Vite build of `ct/index.html` and
+# every registered component, rebuilt by `pnpm test:ct` whenever a source file
+# under `ct/` changes.
+ct/.cache/
+
 # macOS
 .DS_Store
 

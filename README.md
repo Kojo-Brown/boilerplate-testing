@@ -25,6 +25,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | Concurrency: race detection strategies compared by detection *rate*, with a deterministic scheduler | `concurrency/` |
 | Testcontainers: Postgres, Redis and Kafka per suite, with reuse and a residue matrix | `containers/` |
 | OpenAPI conformance: six wirings scored against eleven ways a service leaves its spec | `openapi/` |
+| Component testing in a real browser, paired with the same component in jsdom | `ct/` |
 
 ## Quick Start
 
@@ -33,7 +34,8 @@ git clone https://github.com/Kojo-Brown/boilerplate-testing.git
 cd boilerplate-testing
 pnpm install
 pnpm test            # run all unit tests
-pnpm test:e2e        # run Playwright
+pnpm test:e2e        # run Playwright against an application
+pnpm test:ct         # run the component suite (bundles and drives a browser)
 pnpm test:containers # run the container suites (needs a container runtime)
 pnpm containers:prune # remove containers a reused run left behind
 ```
