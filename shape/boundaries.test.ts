@@ -38,12 +38,20 @@ describe('the module table', () => {
     }
   })
 
-  it('puts @playwright/test alone at the end-to-end layer', () => {
+  it('puts a browser, and only a browser, at the end-to-end layer', () => {
     const e2e = Object.entries(MODULES).filter(
       ([, entry]) => entry.kind === 'boundary' && entry.layer === 'e2e',
     )
 
-    expect(e2e.map(([key]) => key)).toEqual(['@playwright/test'])
+    // Two entry points, one boundary: `@playwright/test` drives an application
+    // over HTTP and `@playwright/experimental-ct-react` drives a bundled
+    // component, and launching a browser is the only way into this layer.
+    // Written as an exact list rather than a predicate so that a third entry
+    // has to be argued for here.
+    expect(e2e.map(([key]) => key).sort()).toEqual([
+      '@playwright/experimental-ct-react',
+      '@playwright/test',
+    ])
   })
 
   it('never classifies a boundary as the unit layer, which would be a contradiction', () => {

@@ -181,7 +181,7 @@ interface PlaywrightSuite {
 }
 
 /**
- * Collect from Playwright.
+ * Collect from one Playwright config.
  *
  * The subtlety here is projects. `playwright.config.ts` declares six — five
  * browser/device projects plus a visual one — and the JSON reporter repeats
@@ -191,16 +191,28 @@ interface PlaywrightSuite {
  * are deduplicated by file, line and title.
  *
  * That the two numbers differ by 5× is itself the pyramid's argument, and
- * `report.ts` prints both for exactly that reason: 51 end-to-end tests are
- * 251 end-to-end runs.
+ * `report.ts` prints both for exactly that reason: 64 end-to-end declarations
+ * — 51 from the application config across six projects, 13 from the component
+ * config on one — are 287 end-to-end runs.
+ *
+ * `config` is a parameter for the same reason `collectVitest` takes one: there
+ * is a second Playwright config, `ct/playwright-ct.config.ts`, and its specs
+ * are test files like any other. A collector hardcoded to the default config
+ * would leave them uncollected, and `census.ts` would report every one of them
+ * as a file no runner runs — which is the census working, but only after
+ * somebody has already written a suite nothing counts.
  */
-export function collectPlaywright(outputDir: string): CollectorResult {
-  const runner = 'playwright'
-  const outputFile = join(outputDir, 'playwright.json')
+export function collectPlaywright(
+  outputDir: string,
+  configPath: string | null = null,
+): CollectorResult {
+  const runner = configPath === null ? 'playwright' : `playwright (${configPath})`
+  const label = configPath === null ? 'default' : configPath.split('/')[0]
+  const outputFile = join(outputDir, `playwright-${label}.json`)
   const entry = runnerEntry('node_modules/@playwright/test/cli.js', runner)
   const payload = collectJson(
     entry,
-    ['test', '--list', '--reporter=json'],
+    ['test', '--list', '--reporter=json', ...(configPath === null ? [] : ['--config', configPath])],
     outputFile,
     { PLAYWRIGHT_JSON_OUTPUT_NAME: outputFile },
     runner,
@@ -279,6 +291,7 @@ export function collectCensus(): Census {
       collectVitest('pact/vitest.config.ts', outputDir),
       collectVitest('containers/vitest.config.ts', outputDir),
       collectPlaywright(outputDir),
+      collectPlaywright(outputDir, 'ct/playwright-ct.config.ts'),
     ]
 
     const counts: Record<string, number> = {}

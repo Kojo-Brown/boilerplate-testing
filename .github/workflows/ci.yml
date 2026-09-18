@@ -10,14 +10,16 @@
 # `playwright/` navigate to a running application at PLAYWRIGHT_BASE_URL
 # (default http://localhost:5173) and this repository ships no such app, so
 # those jobs cannot go green here. Wiring them up needs a demo app or a
-# `webServer` block and is tracked separately — see SPEC.md.
+# `webServer` block and is tracked separately — see SPEC.md. The `component`
+# job below is the other half of Playwright and has no such problem: it bundles
+# a component and drives it, so there is nothing to serve.
 #
-# There are four jobs. `gates` runs the five gates plus the contract suites on
-# every supported Node major; `mutation`, `containers` and `contracts` each run
-# once, in parallel, for the reason stated above each of them — a mutation
-# score is a property of the tests rather than the runtime, and the other two
-# need a service that `pnpm test` must never require. All four are required:
-# nothing here treats any of them as advisory.
+# There are five jobs. `gates` runs the five gates plus the contract suites on
+# every supported Node major; `mutation`, `containers`, `component` and
+# `contracts` each run once, in parallel, for the reason stated above each of
+# them — a mutation score is a property of the tests rather than the runtime,
+# and the other three need a browser or a service that `pnpm test` must never
+# require. All five are required: nothing here treats any of them as advisory.
 #
 # ---------------------------------------------------------------------------
 # Node support matrix
@@ -332,6 +334,75 @@ jobs:
         run: pnpm test:containers
         env:
           NODE_OPTIONS: --throw-deprecation
+
+  # ---------------------------------------------------------------------------
+  # Component tests
+  # ---------------------------------------------------------------------------
+  # Its own job, on one Node major, for reasons that rhyme with the three jobs
+  # above without being the same ones.
+  #
+  # Its own job because it needs a browser. `pnpm test:ct` bundles each
+  # component with Vite and drives it in Chromium, so the job downloads a
+  # browser and its system libraries — a couple of minutes that every leg of
+  # the `gates` matrix would otherwise pay three times over for a suite whose
+  # subject is a rendering engine rather than a Node runtime.
+  #
+  # One Node major because what these specs measure is Chromium's layout,
+  # top layer and focus behaviour. Node runs the test file and the bundler;
+  # nothing the specs assert is decided by it.
+  #
+  # This is the one job in this file that runs a Playwright suite, and it is
+  # worth being explicit about why the *other* Playwright suite still does not:
+  # the specs in `playwright/` navigate to an application at
+  # PLAYWRIGHT_BASE_URL and this repository ships none. A component test has no
+  # such dependency — the component is the system under test and the bundle is
+  # the whole deployment — which is exactly what makes it the half of Playwright
+  # this repository can hold itself to. See ct/README.md.
+  #
+  # `--with-deps` installs the shared libraries Chromium needs on the runner
+  # image. `--only-shell` is deliberately not used: `ct/ConfirmButton.spec.tsx`
+  # asserts on the top layer and the backdrop, and the headless shell is a
+  # different build from the browser people use.
+  component:
+    name: Component tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Component tests
+        run: pnpm test:ct
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # The HTML report, whether or not the suite passed. A failing component
+      # spec is usually a question about what the browser actually rendered,
+      # and the report carries the trace and the screenshot that answer it.
+      - name: Upload component test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: component-report-${{ github.run_number }}
+          path: playwright-report/ct/
+          retention-days: 7
+          if-no-files-found: ignore
 
   # ---------------------------------------------------------------------------
   # Contract pipeline

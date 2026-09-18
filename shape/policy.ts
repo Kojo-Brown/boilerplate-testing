@@ -192,12 +192,18 @@ export interface Policy {
  * this line is choosing rather than adjusting.
  *
  * The end-to-end **floor** moved 2% → 1% for a reason that is not about e2e at
- * all: the Playwright suite is a fixed 51 declarations, so its *share* falls
- * whenever anything else is added, and at 2,484 tests it sits at 2.1%. A floor
- * that fires because a Postgres suite was added elsewhere is not reporting
- * anything about end-to-end coverage. At 1% it still catches the failure it is
- * for — somebody deleting the e2e suite — and Phase 10 of `SPEC.md` is a run of
- * items that add end-to-end tests and will restore the headroom.
+ * all: the Playwright suite was a fixed 51 declarations when the floor was
+ * drawn, so its *share* fell whenever anything else was added, and at 2,484
+ * tests it sat at 2.1%. A floor that fires because a Postgres suite was added
+ * elsewhere is not reporting anything about end-to-end coverage. At 1% it still
+ * catches the failure it is for — somebody deleting the e2e suite — and Phase
+ * 10 of `SPEC.md` is a run of items that add end-to-end tests and restore the
+ * headroom. The component suite in `ct/` is the first, at 13 declarations.
+ *
+ * The figures in the headroom arithmetic below are the ones measured then, and
+ * they are scenarios rather than a snapshot to keep current: `policy.test.ts`
+ * checks them at the edge as written-down numbers, which is what makes them
+ * still mean something after the suite has moved.
  *
  * The end-to-end **ceiling** stays on the textbook 10% and still binds nothing.
  * What has changed is that the unit floor is no longer the only band doing

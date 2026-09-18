@@ -15,6 +15,12 @@ export default defineConfig({
       // `*.spec.ts` include glob. They need a real browser and a running app,
       // so they belong to `pnpm test:e2e`, not the unit run.
       'playwright/**',
+      // Playwright *component* specs, which bundle and mount a component in a
+      // real browser. They match Vitest's default `*.spec.tsx` include glob
+      // too, and belong to `pnpm test:ct`. Only the specs: `ct/` also holds
+      // `*.jsdom.test.tsx`, which is the same component under Testing Library
+      // and is the half of the comparison that runs here.
+      'ct/**/*.spec.tsx',
       // Suites that need a container runtime are `*.container.test.ts`
       // wherever they live — `containers/` and `dbisolation/` today. They take
       // minutes and belong to `pnpm test:containers` and its own CI job.
@@ -33,6 +39,12 @@ export default defineConfig({
         '**/node_modules/**',
         'pact/**',
         'playwright/**',
+        // The component-test directory. Its components are exercised by
+        // `pnpm test:ct`, which runs in a browser outside this process, so
+        // whatever this run covered of them would be the jsdom half of a
+        // comparison — a coverage figure that says the opposite of what it
+        // looks like.
+        'ct/**',
       ],
     },
   },
