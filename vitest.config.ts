@@ -21,6 +21,14 @@ export default defineConfig({
       // `*.jsdom.test.tsx`, which is the same component under Testing Library
       // and is the half of the comparison that runs here.
       'ct/**/*.spec.tsx',
+      // Playwright specs that drive a browser against the fixture origin
+      // `intercept/server.ts` starts. They match Vitest's default `*.spec.ts`
+      // include glob and belong to `pnpm test:intercept` and its own CI job.
+      // Only the specs: the rest of `intercept/` — the route table, the
+      // wirings, the classifiers, the matrix and the recording audit — is
+      // ordinary computation and stays here, so `pnpm test` keeps covering it
+      // on a machine with no browser at all.
+      'intercept/**/*.spec.ts',
       // Suites that need a container runtime are `*.container.test.ts`
       // wherever they live — `containers/` and `dbisolation/` today. They take
       // minutes and belong to `pnpm test:containers` and its own CI job.
@@ -45,6 +53,13 @@ export default defineConfig({
         // comparison — a coverage figure that says the opposite of what it
         // looks like.
         'ct/**',
+        // The same argument as `ct/`, one directory over: what `intercept/`
+        // measures happens in a browser outside this process, so a coverage
+        // figure taken here would be of the parts that do not need one.
+        'intercept/**/*.spec.ts',
+        'intercept/client.ts',
+        'intercept/record.ts',
+        'intercept/session.ts',
       ],
     },
   },

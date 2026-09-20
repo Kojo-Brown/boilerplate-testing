@@ -198,7 +198,9 @@ export interface Policy {
  * elsewhere is not reporting anything about end-to-end coverage. At 1% it still
  * catches the failure it is for — somebody deleting the e2e suite — and Phase
  * 10 of `SPEC.md` is a run of items that add end-to-end tests and restore the
- * headroom. The component suite in `ct/` is the first, at 13 declarations.
+ * headroom. The component suite in `ct/` is the first, at 13 declarations, and
+ * the interception matrix in `intercept/` is the second, at 29 — which is what
+ * took the layer from 2.2% to 3.0% without moving a band.
  *
  * The figures in the headroom arithmetic below are the ones measured then, and
  * they are scenarios rather than a snapshot to keep current: `policy.test.ts`

@@ -196,11 +196,17 @@ interface PlaywrightSuite {
  * config on one — are 287 end-to-end runs.
  *
  * `config` is a parameter for the same reason `collectVitest` takes one: there
- * is a second Playwright config, `ct/playwright-ct.config.ts`, and its specs
- * are test files like any other. A collector hardcoded to the default config
- * would leave them uncollected, and `census.ts` would report every one of them
- * as a file no runner runs — which is the census working, but only after
- * somebody has already written a suite nothing counts.
+ * are two more Playwright configs — `ct/playwright-ct.config.ts` and
+ * `intercept/playwright-intercept.config.ts` — and their specs are test files
+ * like any other. A collector hardcoded to the default config would leave them
+ * uncollected, and `census.ts` would report every one of them as a file no
+ * runner runs — which is the census working, but only after somebody has
+ * already written a suite nothing counts.
+ *
+ * Listing the intercept config starts no server: `--list` resolves the config
+ * and collects, and Playwright starts a `webServer` only for a run. The census
+ * therefore counts those specs on a machine with no browser and no free port,
+ * exactly as it counts the container project without a container runtime.
  */
 export function collectPlaywright(
   outputDir: string,
@@ -292,6 +298,7 @@ export function collectCensus(): Census {
       collectVitest('containers/vitest.config.ts', outputDir),
       collectPlaywright(outputDir),
       collectPlaywright(outputDir, 'ct/playwright-ct.config.ts'),
+      collectPlaywright(outputDir, 'intercept/playwright-intercept.config.ts'),
     ]
 
     const counts: Record<string, number> = {}
