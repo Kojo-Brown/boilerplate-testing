@@ -11,15 +11,19 @@
 # (default http://localhost:5173) and this repository ships no such app, so
 # those jobs cannot go green here. Wiring them up needs a demo app or a
 # `webServer` block and is tracked separately — see SPEC.md. The `component`
-# job below is the other half of Playwright and has no such problem: it bundles
-# a component and drives it, so there is nothing to serve.
+# and `intercept` jobs below are the halves of Playwright that have no such
+# problem: one bundles a component and drives it, so there is nothing to serve,
+# and the other brings its own origin — `intercept/server.ts`, seven routes of
+# Node started as a `webServer` — because what it measures is what happens
+# between a browser and a server rather than inside an application.
 #
-# There are five jobs. `gates` runs the five gates plus the contract suites on
-# every supported Node major; `mutation`, `containers`, `component` and
-# `contracts` each run once, in parallel, for the reason stated above each of
-# them — a mutation score is a property of the tests rather than the runtime,
-# and the other three need a browser or a service that `pnpm test` must never
-# require. All five are required: nothing here treats any of them as advisory.
+# There are six jobs. `gates` runs the five gates plus the contract suites on
+# every supported Node major; `mutation`, `containers`, `component`,
+# `contracts` and `intercept` each run once, in parallel, for the reason stated
+# above each of them — a mutation score is a property of the tests rather than
+# the runtime, and the other four need a browser, a port or a service that
+# `pnpm test` must never require. All six are required: nothing here treats any
+# of them as advisory.
 #
 # ---------------------------------------------------------------------------
 # Node support matrix
@@ -512,3 +516,69 @@ jobs:
       - name: Pact Broker logs
         if: always()
         run: docker logs pact-broker
+
+  # ---------------------------------------------------------------------------
+  # Network-interception matrix
+  # ---------------------------------------------------------------------------
+  # Its own job, on one Node major, for the reason the `component` job has one
+  # and for a second that is new to this file.
+  #
+  # The first is a browser: `pnpm test:intercept` drives Chromium, so the job
+  # downloads a browser and its system libraries. The `gates` matrix would pay
+  # that three times over for a suite whose subject is Playwright's routing.
+  #
+  # The second is a *port*. These specs measure what happens between a browser
+  # and an origin, so there has to be an origin: the config starts
+  # `intercept/server.ts` on 3111 as a `webServer` and waits for it. `pnpm test`
+  # must never require a free port any more than it may require Docker, which
+  # is why the suite is not part of it — and why `vitest.config.ts` excludes
+  # `intercept/**/*.spec.ts` while keeping the rest of that directory, which is
+  # ordinary computation, in the unit run.
+  #
+  # One Node major because what the specs measure is decided by Chromium and by
+  # Playwright's HAR matcher. Node runs the fixture origin and the test file;
+  # nothing asserted here is a property of its version.
+  #
+  # `--only-shell` is deliberately not used, matching the `component` job: the
+  # offline specs read a computed style out of a rendered document, and the
+  # headless shell is a different build from the browser people use.
+  intercept:
+    name: Network interception
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Network interception matrix
+        run: pnpm test:intercept
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # The HTML report, whether or not the suite passed. A failing cell is a
+      # question about what the browser did with one request, and the trace is
+      # what answers it.
+      - name: Upload interception test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: intercept-report-${{ github.run_number }}
+          path: playwright-report/intercept/
+          retention-days: 7
+          if-no-files-found: ignore

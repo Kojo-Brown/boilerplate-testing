@@ -200,7 +200,8 @@ Postgres suite landed elsewhere is not reporting anything about end-to-end
 coverage; at 1% it still catches somebody deleting the suite, and Phase 10 of
 `SPEC.md` adds end-to-end items that restore the headroom. The component suite
 in `ct/` is the first of them: 13 declarations, and the first movement in this
-layer since the floor was drawn.
+layer since the floor was drawn. The interception matrix in `intercept/` is the
+second, at 29.
 
 The end-to-end **ceiling** is deliberately *not* widened and stays on the
 textbook 10%. It has, however, stopped binding: see below.
@@ -253,10 +254,11 @@ One number the ratio deliberately does not use: those end-to-end tests are
 *declarations*. `playwright.config.ts` runs its 51 across six projects — five
 browser/device projects that each take all 51, plus a visual project that takes
 19 — so they are **274 executions**, each against a real browser.
-`ct/playwright-ct.config.ts` adds 13 declarations on a single project, so the
-layer stands at 64 declarations and **287 executions**. The ratio is a statement
-about tests written and maintained, not tests run, which is worth remembering
-when the pyramid's cost argument is the reason you are reading this.
+`ct/playwright-ct.config.ts` adds 13 declarations on a single project and
+`intercept/playwright-intercept.config.ts` another 29, also on one, so the layer
+stands at 93 declarations and **316 executions**. The ratio is a statement about
+tests written and maintained, not tests run, which is worth remembering when the
+pyramid's cost argument is the reason you are reading this.
 
 ---
 

@@ -88,6 +88,13 @@ export const THROW_DEPRECATION = '--throw-deprecation'
  * kept for the part Node does run, which is a Vite build of every component on
  * every invocation.
  *
+ * `test:intercept` joined it with the network-interception matrix, in a job of
+ * its own for the same reason `test:ct` has one — it needs a browser — plus a
+ * second this file is the first to see: it needs a *port*. `pnpm test` must
+ * require neither. The flag polices the fixture origin, which is the one part
+ * of that suite Node runs, and which is a `node:http` server this repository
+ * wrote rather than a dependency.
+ *
  * `mutation:check` joined it with the mutation-score gate, and it was the first
  * entry to live in a different job from the rest — the mutation run is a
  * property of the tests rather than of the runtime, so it runs once instead of
@@ -109,6 +116,7 @@ export const GATED_SCRIPTS: readonly string[] = [
   'test:pact',
   'test:pact:broker',
   'test:ct',
+  'test:intercept',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows
