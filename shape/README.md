@@ -308,10 +308,20 @@ disagreement is a bug in something:
 - **Double-counted** — two runners claim the same file.
 - **Stale exception** — a file in `EXPECTED_EMPTY` that now collects tests.
 
-One file is legitimately empty: `pact/provider/users.provider.pact.verify.test.ts`
-declares its suite as `it.skipIf(!process.env['PROVIDER_BASE_URL'])`, and
-`vitest list` omits skipped tests. It is an entry in `EXPECTED_EMPTY` with a
-reason attached, so a second one has to be argued for in writing.
+Eight files are legitimately empty, and for two different reasons.
+`pact/pipeline/matrix.broker.test.ts` declares its suite as
+`describe.skipIf(!process.env['PACT_BROKER_BASE_URL'])`, and `vitest list` omits
+skipped tests. The seven `matrix/fixture/specs/*.spec.ts` files are not tests at
+all: they are the subject of the sharding measurement in `matrix/`, 24 empty
+declarations that exist to be partitioned by `playwright test --list --shard`,
+and registering their config here would put them in the pyramid as end-to-end
+tests. Each is an entry in `EXPECTED_EMPTY` with a reason attached, so the next
+one has to be argued for in writing too.
+
+`promisify` from `node:util` is classified alongside the built-ins for a
+related reason — it wraps a function rather than reaching anything, and what it
+wraps in this repository is `node:child_process`, already a boundary in the same
+file.
 
 ---
 

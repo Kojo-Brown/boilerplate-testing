@@ -71,9 +71,27 @@ export interface CollectorResult {
  * is unset, and `vitest list` omits skipped tests rather than listing them as
  * pending. The census runs in the `gates` job, which has no broker; the
  * `contracts` job, which has one, is where those 13 tests are enforced.
+ *
+ * `matrix/fixture/specs/*.spec.ts` are the seven entries after it, and they
+ * are the first exceptions here that are not about a runner declining to
+ * collect. Those files are the *subject* of the sharding measurement rather
+ * than tests of anything: 24 empty test declarations whose only purpose is to
+ * be partitioned by `playwright test --list --shard`, which
+ * `matrix/partition.test.ts` and `matrix/merge.test.ts` do for them. No runner
+ * in this repository's configuration runs them, and none should — registering
+ * `matrix/fixture/playwright-fixture.config.ts` below would add 24 end-to-end
+ * declarations to a pyramid ratio that is supposed to describe tests somebody
+ * wrote to catch something.
  */
 export const EXPECTED_EMPTY: readonly string[] = [
   'pact/pipeline/matrix.broker.test.ts',
+  'matrix/fixture/specs/hooked.spec.ts',
+  'matrix/fixture/specs/medium.spec.ts',
+  'matrix/fixture/specs/parallel.spec.ts',
+  'matrix/fixture/specs/plain.spec.ts',
+  'matrix/fixture/specs/serial.spec.ts',
+  'matrix/fixture/specs/setup.spec.ts',
+  'matrix/fixture/specs/small.spec.ts',
 ]
 
 const toPosix = (path: string): string => path.split('\\').join('/')
@@ -299,6 +317,7 @@ export function collectCensus(): Census {
       collectPlaywright(outputDir),
       collectPlaywright(outputDir, 'ct/playwright-ct.config.ts'),
       collectPlaywright(outputDir, 'intercept/playwright-intercept.config.ts'),
+      collectPlaywright(outputDir, 'matrix/playwright-matrix.config.ts'),
     ]
 
     const counts: Record<string, number> = {}

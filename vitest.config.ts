@@ -29,6 +29,15 @@ export default defineConfig({
       // ordinary computation and stays here, so `pnpm test` keeps covering it
       // on a machine with no browser at all.
       'intercept/**/*.spec.ts',
+      // Playwright specs belonging to the cross-browser matrix. `matrix/` has
+      // two kinds: `emulation.spec.ts`, which needs a browser and belongs to
+      // `pnpm test:matrix`, and `matrix/fixture/specs/*.spec.ts`, which are
+      // the *subject* of the sharding measurement rather than tests of
+      // anything — they are counted by `--list`, never run here. Everything
+      // else in the directory, including the runs that spawn the Playwright
+      // CLI, is ordinary Node and stays in this suite: the whole sharding half
+      // is measurable on a machine with no browser at all.
+      'matrix/**/*.spec.ts',
       // Suites that need a container runtime are `*.container.test.ts`
       // wherever they live — `containers/` and `dbisolation/` today. They take
       // minutes and belong to `pnpm test:containers` and its own CI job.
@@ -60,6 +69,14 @@ export default defineConfig({
         'intercept/client.ts',
         'intercept/record.ts',
         'intercept/session.ts',
+        // The same argument again for the matrix directory: `page.ts` is a
+        // string of HTML evaluated by a browser in another process, `server.ts`
+        // binds it there, and the fixture specs exist to be listed rather than
+        // executed by this run.
+        'matrix/**/*.spec.ts',
+        'matrix/fixture/**',
+        'matrix/page.ts',
+        'matrix/server.ts',
       ],
     },
   },

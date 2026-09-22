@@ -155,7 +155,24 @@ describe('the empty-file exception list', () => {
     // was listed here for the same mechanical reason and a much worse
     // underlying one: there was no provider in the repository to point
     // `PROVIDER_BASE_URL` at, so provider verification never ran anywhere.
-    expect(EXPECTED_EMPTY).toEqual(['pact/pipeline/matrix.broker.test.ts'])
+    //
+    // The seven `matrix/fixture/specs/*.spec.ts` entries are the other kind of
+    // exception, and the list is pinned exactly so that adding one is a visible
+    // edit here rather than a quiet line in `collect.ts`. Those files are the
+    // *subject* of the sharding measurement rather than tests: 24 empty
+    // declarations that `matrix/partition.test.ts` partitions with
+    // `playwright test --list --shard`. Registering their config would add 24
+    // end-to-end tests to the pyramid that nobody wrote to catch anything.
+    expect(EXPECTED_EMPTY).toEqual([
+      'pact/pipeline/matrix.broker.test.ts',
+      'matrix/fixture/specs/hooked.spec.ts',
+      'matrix/fixture/specs/medium.spec.ts',
+      'matrix/fixture/specs/parallel.spec.ts',
+      'matrix/fixture/specs/plain.spec.ts',
+      'matrix/fixture/specs/serial.spec.ts',
+      'matrix/fixture/specs/setup.spec.ts',
+      'matrix/fixture/specs/small.spec.ts',
+    ])
   })
 
   it('reports an exception that has outlived its reason', () => {
