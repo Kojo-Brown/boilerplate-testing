@@ -62,14 +62,26 @@ describe('the files handed to the collector', () => {
 })
 
 describe('the report', () => {
-  it('prints each snapshot with its size, its budget and its reason', () => {
-    const inventory = takeInventory()
-    const output = render(inventory, evaluate(inventory, REGISTRY, null))
+  // An explicit timeout, and the only one in this file. `takeInventory()`
+  // walks and parses every test file in the repository, so its cost grows with
+  // the repository and nothing else does: it was already using four of
+  // Vitest's five default seconds before `matrix/` was added, and timed out
+  // under the full suite's parallel load once it was. Nothing is asserted here
+  // that was not asserted before — the budget is what was wrong, because a
+  // gate that gets closer to failing every time somebody adds a directory
+  // fails for a reason that has nothing to do with snapshots.
+  it(
+    'prints each snapshot with its size, its budget and its reason',
+    () => {
+      const inventory = takeInventory()
+      const output = render(inventory, evaluate(inventory, REGISTRY, null))
 
-    expect(output).toContain('39/48')
-    expect(output).toContain('the order summary markup > renders a paid order in full 1')
-    expect(output).toContain('the only probe here that catches all ten')
-  })
+      expect(output).toContain('39/48')
+      expect(output).toContain('the order summary markup > renders a paid order in full 1')
+      expect(output).toContain('the only probe here that catches all ten')
+    },
+    30_000,
+  )
 
   it('names the rule, the file and what to do for every violation', () => {
     const inventory = inventoryOf(snapshot({ file: 'a/one.test.ts', name: 'unregistered thing 1' }))

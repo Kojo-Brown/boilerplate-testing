@@ -582,3 +582,71 @@ jobs:
           path: playwright-report/intercept/
           retention-days: 7
           if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # Emulation matrix
+  # ---------------------------------------------------------------------------
+  # The browser half of `matrix/`, and only that half. The sharding half is
+  # ordinary Node — it spawns `playwright test --list` and a few real runs of a
+  # fixture whose specs never take a `page` — so it rides the `gates` matrix
+  # with the rest of `pnpm test`, on every Node major, with no browser at all.
+  # `vitest.config.ts` excludes `matrix/**/*.spec.ts` to keep exactly that
+  # line: the specs need a browser and a port, the rest of the directory needs
+  # neither.
+  #
+  # One Node major, for the reason the `intercept` job gives: the forty-five
+  # cells are decided by Chromium and by what Playwright's context options do
+  # to it. Node serves the fixture page and runs the test file, and nothing
+  # asserted here is a property of its version.
+  #
+  # Chromium only, which is the one thing about this job worth arguing with.
+  # The table it checks is a claim about what *emulation* does, measured with
+  # the engine held still, so a second engine would not add rows to it — it
+  # would make every moved cell ambiguous between the engine and the device.
+  # What the registry says about all three engines is data rather than
+  # behaviour, and is already checked in `pnpm test`. See matrix/README.md,
+  # "What is not measured here".
+  #
+  # `--only-shell` is not used, matching `intercept` and `component`: several
+  # probes read a computed style out of a rendered document, and the headless
+  # shell is a different build from the browser people use.
+  matrix:
+    name: Emulation matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Emulation matrix
+        run: pnpm test:matrix
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # The HTML report, whether or not the suite passed. A failing cell is a
+      # question about what one context option did to one page, and the trace
+      # is what answers it.
+      - name: Upload emulation test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: matrix-report-${{ github.run_number }}
+          path: playwright-report/matrix/
+          retention-days: 7
+          if-no-files-found: ignore

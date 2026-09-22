@@ -173,6 +173,11 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
       'entry exists so that the day something does, it is classified rather than ' +
       'failing the audit at an inconvenient moment.',
   ),
+  'node:util#promisify': pure(
+    'Wraps a callback-taking function in a promise. It reaches nothing itself — ' +
+      'whatever the wrapped function reaches is already classified, which for ' +
+      'every use here is `node:child_process` in the same file.',
+  ),
   'node:child_process': boundary(
     'integration',
     'child process',
