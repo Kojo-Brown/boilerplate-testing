@@ -14,11 +14,13 @@
  */
 
 import { execFile } from 'node:child_process'
-import { mkdtempSync } from 'node:fs'
+import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
+
+import { parseReport } from './list.ts'
 
 const run = promisify(execFile)
 
@@ -106,24 +108,39 @@ function titlesOf(suite: JsonSuite, into: string[]): void {
   }
 }
 
-/** Merge a directory of `report-*.zip` blobs into one report. */
+/**
+ * Merge a directory of `report-*.zip` blobs into one report.
+ *
+ * The JSON goes to a file rather than stdout, for the reason `list.ts` spells
+ * out at length — this is the call that found it, green on a laptop and a JSON
+ * syntax error on CI 145,872 characters into something that was not the
+ * report.
+ */
 export async function mergeReports(blobDir: string): Promise<MergedReport> {
-  const { stdout } = await run(PLAYWRIGHT_BIN, ['merge-reports', '--reporter=json', blobDir], {
-    encoding: 'utf8',
-    maxBuffer: 64 * 1024 * 1024,
-    env: { ...process.env, CI: '' },
-  })
+  const scratch = mkdtempSync(join(tmpdir(), 'matrix-merge-'))
+  const outputFile = join(scratch, 'merged.json')
 
-  const parsed = JSON.parse(stdout) as {
-    readonly stats: { expected: number; unexpected: number; flaky: number; skipped: number }
-    readonly suites?: readonly JsonSuite[]
+  try {
+    await run(PLAYWRIGHT_BIN, ['merge-reports', '--reporter=json', blobDir], {
+      encoding: 'utf8',
+      // As in `list.ts`: stdout is read and discarded, the file is the payload.
+      maxBuffer: 64 * 1024 * 1024,
+      env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_NAME: outputFile, CI: '' },
+    })
+
+    const parsed = parseReport<{
+      readonly stats: { expected: number; unexpected: number; flaky: number; skipped: number }
+      readonly suites?: readonly JsonSuite[]
+    }>(outputFile)
+
+    const titles: string[] = []
+
+    for (const suite of parsed.suites ?? []) {
+      titlesOf(suite, titles)
+    }
+
+    return { ...parsed.stats, titles: titles.sort() }
+  } finally {
+    rmSync(scratch, { recursive: true, force: true })
   }
-
-  const titles: string[] = []
-
-  for (const suite of parsed.suites ?? []) {
-    titlesOf(suite, titles)
-  }
-
-  return { ...parsed.stats, titles: titles.sort() }
 }
