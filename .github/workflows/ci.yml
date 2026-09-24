@@ -650,3 +650,76 @@ jobs:
           path: playwright-report/matrix/
           retention-days: 7
           if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # Accessibility journey
+  # ---------------------------------------------------------------------------
+  # The browser half of `a11y/`, and only that half. The reachability model, the
+  # hazard catalogue's audit against the fixture, the scan helpers, the README
+  # audit and the jsdom column of the environment comparison are ordinary
+  # computation and ride the `gates` matrix with the rest of `pnpm test`, on
+  # every Node major, with no browser at all. `vitest.config.ts` excludes
+  # `a11y/**/*.spec.ts` to keep exactly that line.
+  #
+  # That split is worth more here than elsewhere: half of what this directory
+  # measures is what a DOM scanner *cannot* see, and establishing that needs no
+  # scanner. Only the verdicts — which bucket axe-core puts each defect in, and
+  # what each of the five strategies finds when it is really run — need an
+  # engine, and they are what this job checks.
+  #
+  # One Node major, for the reason the `intercept` and `matrix` jobs give: the
+  # cells are decided by Chromium and by axe-core running inside it. Node serves
+  # the fixture page and runs the test file, and nothing asserted here is a
+  # property of its version.
+  #
+  # Chromium only. The verdicts are axe-core's, and axe-core is a script running
+  # in the page: what decides whether `color-contrast` resolves is whether there
+  # is a layout, not which engine computed it, so a second engine would re-run
+  # the same rules against the same DOM and add no rows. The environment
+  # difference that does move verdicts is jsdom versus a browser, and that
+  # comparison is measured in `pnpm test`. See a11y/README.md, "What is not
+  # measured here".
+  #
+  # `--only-shell` is not used, matching the other browser jobs: `color-contrast`
+  # reads a computed colour out of a rendered document, and the headless shell is
+  # a different build from the browser people use.
+  a11y:
+    name: Accessibility journey
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Accessibility journey
+        run: pnpm test:a11y
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # The HTML report, whether or not the suite passed. A failing cell is a
+      # question about what axe said in one journey state, and the trace is what
+      # answers it.
+      - name: Upload accessibility test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: a11y-report-${{ github.run_number }}
+          path: playwright-report/a11y/
+          retention-days: 7
+          if-no-files-found: ignore

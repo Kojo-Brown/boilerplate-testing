@@ -75,6 +75,7 @@ moment the suite gets slower.
 |---|---|---|
 | `@playwright/test` | browser + running application | `e2e` |
 | `@playwright/experimental-ct-react` | browser + component bundle | `e2e` |
+| `@axe-core/playwright` | browser + running application | `e2e` |
 | `node:fs`, `node:fs/promises` | filesystem | `integration` |
 | `node:http`, `node:https`, `node:net` | TCP socket | `integration` |
 | `node:child_process` | child process | `integration` |

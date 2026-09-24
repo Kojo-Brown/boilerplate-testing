@@ -38,6 +38,17 @@ export default defineConfig({
       // CLI, is ordinary Node and stays in this suite: the whole sharding half
       // is measurable on a machine with no browser at all.
       'matrix/**/*.spec.ts',
+      // The browser half of `a11y/`. `journey.spec.ts` drives a real Chromium
+      // against the fixture origin `a11y/server.ts` starts, and belongs to
+      // `pnpm test:a11y` and its own CI job. Only the spec: the rest of the
+      // directory — the hazard catalogue, the reachability model, the scan
+      // helpers, the README audit and the jsdom column of the environment
+      // comparison — is ordinary computation and stays here, so `pnpm test`
+      // keeps covering it on a machine with no browser at all. That split is
+      // the point of the directory rather than an accident of it: half the
+      // findings are about what a scanner cannot see, and none of those needs
+      // a scanner to check.
+      'a11y/**/*.spec.ts',
       // Suites that need a container runtime are `*.container.test.ts`
       // wherever they live — `containers/` and `dbisolation/` today. They take
       // minutes and belong to `pnpm test:containers` and its own CI job.
@@ -77,6 +88,15 @@ export default defineConfig({
         'matrix/fixture/**',
         'matrix/page.ts',
         'matrix/server.ts',
+        // The same argument once more for the accessibility journey: `page.ts`
+        // is a string of HTML evaluated by a browser in another process,
+        // `server.ts` binds it there, and `journeyScan.ts` is an `AxeBuilder`
+        // call that only a browser can make. What is left — `scan.ts`,
+        // `hazards.ts`, `strategies.ts`, `states.ts` — is covered by this run.
+        'a11y/**/*.spec.ts',
+        'a11y/page.ts',
+        'a11y/server.ts',
+        'a11y/journeyScan.ts',
       ],
     },
   },

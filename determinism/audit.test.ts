@@ -235,9 +235,18 @@ describe('the repository as it stands', () => {
     expect(files.some((file) => file.includes('.stryker-tmp'))).toBe(false)
   })
 
+  // Both audits below parse every TypeScript file in the repository, so their
+  // cost grows with it and is dominated by I/O rather than by anything they
+  // assert. Unloaded they take roughly three seconds and two and a half; under
+  // the full suite's parallelism they have been observed to pass five, and a
+  // repository-wide audit that fails on the default timeout reports "the
+  // registry is out of date" when what happened is that a runner was busy.
+  // The explicit budget is the repository's usual convention for an expensive
+  // test — `pact/provider/` and `mutation/` use the same form — and it bounds
+  // the I/O rather than relaxing either assertion.
   it('registers every ambient read it contains, with none left over', () => {
     expect(reconcile(scanRepository()).map(describeProblem)).toEqual([])
-  })
+  }, 30_000)
 
   it('finds fewer reads than a pattern match would, because five of them are prose', () => {
     // A regular expression over the repository matches fifty lines outside
@@ -258,5 +267,5 @@ describe('the repository as it stands', () => {
     const outside = scanRepository().filter((site) => !site.file.startsWith('determinism/'))
 
     expect(outside).toHaveLength(45)
-  })
+  }, 30_000)
 })

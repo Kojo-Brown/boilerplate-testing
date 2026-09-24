@@ -123,6 +123,17 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
       'shapes over a distinction one directory currently makes; ct/README.md ' +
       'records that trade rather than making it.',
   ),
+  '@axe-core/playwright': boundary(
+    'e2e',
+    'browser + running application',
+    'Injects axe-core into a live page over the Playwright protocol and runs it ' +
+      'there. The rule code is the same as the `axe-core` entry above, which is ' +
+      'classified pure — the difference is entirely where it runs, and that is ' +
+      'the distinction this table exists to make. Reaching a rendered document ' +
+      'in another process is what lets it decide `color-contrast` and ' +
+      '`target-size` at all; see a11y/README.md for what those two rules do ' +
+      'when the same version runs against jsdom instead.',
+  ),
 
   // -------------------------------------------------------------------------
   // Node built-ins
