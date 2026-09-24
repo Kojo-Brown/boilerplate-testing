@@ -13,6 +13,7 @@
     "test:quarantine": "QUARANTINE=1 vitest run --config vitest/quarantine.config.ts",
     "test:e2e": "playwright test",
     "test:ct": "playwright test --config ct/playwright-ct.config.ts",
+    "test:a11y": "playwright test --config a11y/playwright-a11y.config.ts",
     "test:intercept": "playwright test --config intercept/playwright-intercept.config.ts",
     "test:matrix": "playwright test --config matrix/playwright-matrix.config.ts",
     "pact:consumer": "vitest run --config pact/vitest.config.ts pact/consumer",
@@ -42,6 +43,7 @@
     "@faker-js/faker": "^9.8.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
     "@axe-core/react": "^4.10.0",
     "@eslint/js": "^10.0.1",
     "@lhci/cli": "^0.14.0",

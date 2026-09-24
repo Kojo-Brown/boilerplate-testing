@@ -318,6 +318,7 @@ export function collectCensus(): Census {
       collectPlaywright(outputDir, 'ct/playwright-ct.config.ts'),
       collectPlaywright(outputDir, 'intercept/playwright-intercept.config.ts'),
       collectPlaywright(outputDir, 'matrix/playwright-matrix.config.ts'),
+      collectPlaywright(outputDir, 'a11y/playwright-a11y.config.ts'),
     ]
 
     const counts: Record<string, number> = {}

@@ -43,12 +43,25 @@ describe('the module table', () => {
       ([, entry]) => entry.kind === 'boundary' && entry.layer === 'e2e',
     )
 
-    // Two entry points, one boundary: `@playwright/test` drives an application
-    // over HTTP and `@playwright/experimental-ct-react` drives a bundled
-    // component, and launching a browser is the only way into this layer.
-    // Written as an exact list rather than a predicate so that a third entry
+    // Three entry points, one boundary: `@playwright/test` drives an
+    // application over HTTP, `@playwright/experimental-ct-react` drives a
+    // bundled component, and `@axe-core/playwright` runs axe-core's rules
+    // inside a page one of those two opened. Launching a browser is still the
+    // only way into this layer.
+    //
+    // The third is the one worth arguing, because `axe-core` itself is
+    // classified `pure` a few lines below: the same rule code, the same
+    // version, and the table disagrees with itself about it. That is correct
+    // and is the distinction the table is for — what a test reaches, not what
+    // it imports. Run against jsdom the rules walk this process's own heap;
+    // run through the wrapper they walk a rendered document in another
+    // process, which is what lets `color-contrast` and `target-size` resolve
+    // at all. a11y/README.md measures exactly that gap.
+    //
+    // Written as an exact list rather than a predicate so that a fourth entry
     // has to be argued for here.
     expect(e2e.map(([key]) => key).sort()).toEqual([
+      '@axe-core/playwright',
       '@playwright/experimental-ct-react',
       '@playwright/test',
     ])
