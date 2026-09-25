@@ -163,6 +163,14 @@ describe('the empty-file exception list', () => {
     // declarations that `matrix/partition.test.ts` partitions with
     // `playwright test --list --shard`. Registering their config would add 24
     // end-to-end tests to the pyramid that nobody wrote to catch anything.
+    //
+    // `visual/fixture/cell.spec.ts` is the eighth of that kind and the
+    // smallest: one image assertion whose whole job is to be run fifteen times
+    // by `visual/lifecycle.test.ts` under different settings of
+    // `--update-snapshots`, so that what that flag does to a baseline on disk
+    // is a measurement rather than a reading of the documentation. Registering
+    // its config would put one end-to-end declaration in the ratio for a file
+    // that asserts a fact about an environment variable.
     expect(EXPECTED_EMPTY).toEqual([
       'pact/pipeline/matrix.broker.test.ts',
       'matrix/fixture/specs/hooked.spec.ts',
@@ -172,6 +180,7 @@ describe('the empty-file exception list', () => {
       'matrix/fixture/specs/serial.spec.ts',
       'matrix/fixture/specs/setup.spec.ts',
       'matrix/fixture/specs/small.spec.ts',
+      'visual/fixture/cell.spec.ts',
     ])
   })
 
