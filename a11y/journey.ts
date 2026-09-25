@@ -206,6 +206,28 @@ export async function operableByKeyboard(
  * `aria-hidden` background into the form states and put two hazards' findings
  * in one scan, which would make every later cell ambiguous.
  */
+/**
+ * Wait for the browser to have processed a DOM change, rather than for a
+ * duration.
+ *
+ * Two frames, which is the conventional "at least one rendering update has
+ * happened". It exists for one caller — see the end of `driveTo` — and it is a
+ * function rather than an inline `evaluate` so that the reason can be written
+ * down once.
+ */
+async function settleRendering(page: Page): Promise<void> {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            resolve()
+          })
+        })
+      }),
+  )
+}
+
 export async function driveTo(page: Page, state: JourneyState): Promise<void> {
   await page.goto('/')
 
@@ -247,4 +269,31 @@ export async function driveTo(page: Page, state: JourneyState): Promise<void> {
 
   await page.click('#to-details')
   await page.waitForSelector('#details-view:not([hidden])')
+
+  // The click focused `#to-details`, and the same handler hid `#list-view`
+  // around it. Dropping focus from an element inside a hidden subtree is a
+  // *rendering-update* side effect, not a synchronous consequence of the
+  // attribute write — so the selector above, which is satisfied the moment the
+  // incoming view's attribute flips, does not mean the outgoing button has
+  // been blurred yet.
+  //
+  // Measured in Chromium 141, immediately after the click and before any
+  // frame: `list-view.hidden` is already `true` and `#to-details` already
+  // reports zero client rects, and `document.activeElement` is still the
+  // button. After two frames it is `<body>`. So the obvious guards — waiting
+  // for the element to be unrendered, or for its ancestor to be hidden — are
+  // both already satisfied while the fact under test is still false, and only
+  // waiting for a rendering update works.
+  //
+  // This surfaced as `route-focus-not-moved` reading `to-details` where it
+  // expects `BODY`, on a loaded two-core CI runner, having passed every local
+  // run: the gap is one CDP round trip wide. Waiting for a frame is neutral
+  // between the two assertions that follow it — it says the transition has
+  // been rendered, not where focus ended up, which is what `focusedId` and
+  // `focusMovedInto` are there to find out.
+  //
+  // Only this transition needs it. `dialog-open` is the other state with a
+  // focus assertion, and there the dialog is *added* while `#edit` keeps its
+  // box, so nothing blurs it and the value is stable from the first moment.
+  await settleRendering(page)
 }
