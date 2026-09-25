@@ -723,3 +723,84 @@ jobs:
           path: playwright-report/a11y/
           retention-days: 7
           if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # Visual comparator
+  # ---------------------------------------------------------------------------
+  # The browser half of `visual/`, and only that half. The change catalogue, the
+  # wiring model, the fixture audit, the workflow audit, the README audit and —
+  # this is the one worth noticing — the entire baseline-lifecycle measurement
+  # ride the `gates` matrix with the rest of `pnpm test`, on every Node major,
+  # with no browser at all. `vitest.config.ts` excludes `visual/**/*.spec.ts` to
+  # keep exactly that line.
+  #
+  # That split is sharper here than in the other browser directories. Half of
+  # what this one measures is what `--update-snapshots` does to a baseline on
+  # disk, which is the runner's behaviour rather than the renderer's, and
+  # `visual/lifecycle.test.ts` establishes it by spawning fifteen real
+  # `playwright test` runs against a fixture whose PNGs `visual/fixture/pixel.ts`
+  # encodes by hand. Paying for a browser download to learn what a command-line
+  # flag does to a file would be paying for the wrong instrument.
+  #
+  # One Node major, for the reason the `intercept`, `matrix` and `a11y` jobs
+  # give: the 117 cells are decided by Chromium's rasteriser and by Playwright's
+  # image comparator. Node serves the fixture page and runs the test file, and
+  # nothing asserted here is a property of its version.
+  #
+  # Chromium only. The subject is a comparator that works on buffers and has no
+  # idea which engine produced them, so a second engine would re-grade the same
+  # images and add no rows — while making every band in `changes.ts` ambiguous
+  # between the engine and the control under test. See visual/README.md, "What
+  # is not measured here".
+  #
+  # No baselines are committed, and that is deliberate rather than an omission:
+  # every baseline this suite compares against is captured by the same browser
+  # in the same run milliseconds earlier. A committed PNG is a photograph of one
+  # Chromium build's font hinting on one operating system, and shipping one in a
+  # repository of copyable patterns would ship a suite that is red on arrival
+  # for most readers. `workflow-templates/visual-regression.yml` is the template
+  # for a project that does commit them.
+  #
+  # `--only-shell` is not used, matching the other browser jobs: the whole
+  # subject is what the renderer put in the buffer, and the headless shell is a
+  # different build from the browser people use.
+  visual:
+    name: Visual comparator
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Visual comparator matrix
+        run: pnpm test:visual
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # The HTML report, whether or not the suite passed. A failing cell is a
+      # question about two images, and `toMatchSnapshot` has already written
+      # the expected, the actual and the diff for every comparison that failed.
+      - name: Upload visual test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-report-${{ github.run_number }}
+          path: playwright-report/visual/
+          retention-days: 7
+          if-no-files-found: ignore

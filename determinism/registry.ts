@@ -168,20 +168,6 @@ export const REGISTRY: readonly RegistryEntry[] = [
     why: 'Two handlers compute a session expiry fifteen minutes out. This is the mock *server*, and a server that issued a token with a constant expiry would be a worse imitation of one, not a more deterministic test.',
   },
   {
-    file: 'playwright/visual.spec.ts',
-    kind: 'randomness',
-    count: 1,
-    disposition: 'masked',
-    why: 'A random order id rendered into the page under test. The point of the case is that `mask` hides it from the screenshot; a constant id would pass whether masking worked or not.',
-  },
-  {
-    file: 'playwright/visual.spec.ts',
-    kind: 'wall-clock',
-    count: 3,
-    disposition: 'masked',
-    why: 'A tracking number and two renderings of the current time, all inside the masked regions of the same case. Same argument as the order id.',
-  },
-  {
     file: 'storybook/LoginForm.stories.tsx',
     kind: 'scheduler',
     count: 1,

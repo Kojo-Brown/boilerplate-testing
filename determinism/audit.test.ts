@@ -230,7 +230,7 @@ describe('the repository as it stands', () => {
     const files = findSourceFiles()
 
     expect(files).toContain('determinism/session.ts')
-    expect(files).toContain('playwright/visual.spec.ts')
+    expect(files).toContain('visual/subject.ts')
     expect(files.some((file) => file.includes('node_modules'))).toBe(false)
     expect(files.some((file) => file.includes('.stryker-tmp'))).toBe(false)
   })
@@ -249,23 +249,32 @@ describe('the repository as it stands', () => {
   }, 30_000)
 
   it('finds fewer reads than a pattern match would, because five of them are prose', () => {
-    // A regular expression over the repository matches fifty lines outside
+    // A regular expression over the repository matches forty-six lines outside
     // `determinism/`; five are a call named in a comment, in two string
     // literals, in a test title, and in the paragraph of
     // `concurrency/strategies.ts` explaining why it does not draw its delays
     // from `Math.random()` — which arrived after this claim was first written
     // and is exactly the false positive it is about. The parser reports
-    // forty-five.
+    // forty-one.
     //
     // The gap has stayed at exactly five while the real sites went 16 → 36 →
-    // 45: `containers/` added twenty reads and `dbisolation/` nine, and between
-    // them not one false positive, because a directory that talks about elapsed
-    // time in its comments still only calls `performance.now()` where it means
-    // it. The five are all in the two directories whose *subject* is a clock
-    // somebody removed — a characterisation corpus and a jitter explanation —
-    // which is the shape of the false positive worth predicting.
+    // 45 → 41: `containers/` added twenty reads and `dbisolation/` nine, and
+    // between them not one false positive, because a directory that talks
+    // about elapsed time in its comments still only calls `performance.now()`
+    // where it means it. The four that went away are the whole of
+    // `playwright/visual.spec.ts`, deleted with the rest of the unrun
+    // visual-regression demonstration `visual/` replaces — and the count going
+    // *down* is the registry's other direction working: a row whose file no
+    // longer exists fails just as loudly as a read with no row.
+    //
+    // The five false positives are all in the two directories whose *subject*
+    // is a clock somebody removed — a characterisation corpus and a jitter
+    // explanation — which is the shape of the false positive worth predicting.
+    // `visual/` adds none of either: its varying regions are driven by a nonce
+    // the caller passes, so a directory whose entire subject is
+    // nondeterministic rendering reads no clock at all.
     const outside = scanRepository().filter((site) => !site.file.startsWith('determinism/'))
 
-    expect(outside).toHaveLength(45)
+    expect(outside).toHaveLength(41)
   }, 30_000)
 })

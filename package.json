@@ -16,6 +16,7 @@
     "test:a11y": "playwright test --config a11y/playwright-a11y.config.ts",
     "test:intercept": "playwright test --config intercept/playwright-intercept.config.ts",
     "test:matrix": "playwright test --config matrix/playwright-matrix.config.ts",
+    "test:visual": "playwright test --config visual/playwright-visual.config.ts",
     "pact:consumer": "vitest run --config pact/vitest.config.ts pact/consumer",
     "pact:verify": "vitest run --config pact/vitest.config.ts pact/provider pact/pipeline pact/broker",
     "test:pact": "pnpm pact:consumer && pnpm pact:verify",

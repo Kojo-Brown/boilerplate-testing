@@ -151,6 +151,12 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
       'why `concurrency/runtime.ts` can use it to attribute a store call to the ' +
       'task that made it without the test crossing anything.',
   ),
+  'node:zlib': pure(
+    '`deflateSync` compresses a buffer in this process. `visual/fixture/pixel.ts` ' +
+      'uses it to encode a PNG by hand, which is arithmetic over bytes and reaches ' +
+      'nothing — the point of encoding it rather than rendering it is that the ' +
+      'baseline-lifecycle measurement needs no browser.',
+  ),
   'node:crypto': pure(
     '`randomUUID` computes a value from the runtime\'s entropy pool. No ' +
       'socket, no file — and `determinism/registry.ts` is where its use is ' +

@@ -26,6 +26,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | Testcontainers: Postgres, Redis and Kafka per suite, with reuse and a residue matrix | `containers/` |
 | OpenAPI conformance: six wirings scored against eleven ways a service leaves its spec | `openapi/` |
 | Component testing in a real browser, paired with the same component in jsdom | `ct/` |
+| Visual regression: 13 changes × 9 wirings, plus what `--update-snapshots` does to a baseline | `visual/` |
 
 ## Quick Start
 
@@ -36,6 +37,7 @@ pnpm install
 pnpm test            # run all unit tests
 pnpm test:e2e        # run Playwright against an application
 pnpm test:ct         # run the component suite (bundles and drives a browser)
+pnpm test:visual     # run the visual comparator matrix (needs a browser)
 pnpm test:containers # run the container suites (needs a container runtime)
 pnpm containers:prune # remove containers a reused run left behind
 ```

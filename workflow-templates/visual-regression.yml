@@ -1,0 +1,131 @@
+# visual-regression.yml — A visual-regression gate with a review workflow
+#
+# Copy to .github/workflows/visual-regression.yml in your project.
+#
+# PURPOSE
+# -------
+# Run a Playwright screenshot suite as a *blocking* check whose diffs are
+# published, and whose baselines can only change through a reviewed commit.
+#
+# This file is the top-scoring row of the table in `visual/README.md`, as a
+# workflow. `visual/workflow.test.ts` reads it back and derives the three
+# controls it can see — the update flag, whether diffs are published, and
+# whether baselines are written back — then compares them against whichever
+# row actually tops the matrix. No constant here names the winner, so if the
+# measurement ever moves this file fails the build rather than becoming last
+# year's advice.
+#
+# THE ONE LINE THAT MATTERS
+# -------------------------
+#   pnpm exec playwright test --update-snapshots=none
+#
+# `visual/lifecycle.test.ts` measures what each setting of that flag does to a
+# baseline on disk, and the results are not what the names suggest:
+#
+#   * `--update-snapshots=changed` and `=all` are the *same* in all three
+#     situations a baseline can be in. Both rewrite a baseline that no longer
+#     matches and exit 0, which turns every regression they find into the new
+#     reference — strictly worse than not finding it, because no later run can
+#     find it either.
+#   * With no flag at all (the default, equivalent to `=missing`), a *missing*
+#     baseline is written and the run fails. That sounds safe and is not what
+#     you want in CI: the artifact of a red run is a baseline nobody reviewed,
+#     rendered by whichever runner happened to pick the job up, and the obvious
+#     next move is to commit it.
+#   * `=none` is the only setting that refuses to invent one. A test whose
+#     baseline was never committed fails here, loudly, instead of quietly
+#     seeding itself.
+#
+# BASELINES ARE A REVIEWED ARTEFACT
+# ---------------------------------
+# There is deliberately no step that commits baselines back to the branch. A
+# bot that pushes a new baseline when the suite goes red is `--update-snapshots`
+# wearing a hat: it converts every regression into a commit somebody rubber
+# stamps. Updating a baseline is a local command a person runs and a diff a
+# person reads:
+#
+#   pnpm exec playwright test --update-snapshots=changed
+#   git add -- '**/*-snapshots/**' && git commit
+#
+# PIXELS ARE PLATFORM-SPECIFIC
+# ----------------------------
+# Font rasterisation differs between operating systems and between Chromium
+# builds, so a baseline is a photograph of one environment. Either generate
+# them in the same container CI uses, or accept that `pnpm test:visual` is a
+# CI-only gate. The `container:` below is the first option; delete it and pin
+# `runs-on` if you prefer the second.
+#
+# Required secrets: none.
+# Required branch protection: add "Visual regression" to required checks.
+
+name: Visual Regression
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# A superseded run has nothing to say about the head commit, and screenshot
+# jobs are among the slowest in a suite.
+concurrency:
+  group: visual-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  visual:
+    name: Visual regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Pinned by digest, not by tag: the point of a container here is that the
+    # font stack is identical to the one the baselines were generated in, and
+    # a floating tag re-renders every glyph the day it moves. Replace this
+    # digest with the one your baselines were made in.
+    #
+    # container:
+    #   image: mcr.microsoft.com/playwright:v1.52.0-jammy@sha256:0000000000000000000000000000000000000000000000000000000000000000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      # `=none` is the whole gate. See THE ONE LINE THAT MATTERS above.
+      - name: Visual regression suite
+        run: pnpm exec playwright test --update-snapshots=none
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # Always, and this is the review half of the workflow. A blocking check
+      # with no artifact tells a reviewer that something differs and gives them
+      # no way to see what, which is how a team ends up raising the threshold
+      # instead of reading the diff. Playwright writes `-expected`, `-actual`
+      # and `-diff` for every failed comparison.
+      - name: Upload diffs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-diffs-${{ github.run_number }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+          if-no-files-found: ignore
