@@ -81,7 +81,7 @@ describe('the layers the classifier actually assigns', () => {
     // imports @playwright/test. Without transitive resolution this is a unit
     // test and the e2e layer loses most of its members.
     expect(layerOf('playwright/auth.spec.ts')).toBe('e2e')
-    expect(layerOf('playwright/visual.spec.ts')).toBe('e2e')
+    expect(layerOf('playwright/pom.spec.ts')).toBe('e2e')
   })
 
   it('counts an audit that reads the repository off disk as an integration test', () => {

@@ -82,6 +82,14 @@ export interface CollectorResult {
  * `matrix/fixture/playwright-fixture.config.ts` below would add 24 end-to-end
  * declarations to a pyramid ratio that is supposed to describe tests somebody
  * wrote to catch something.
+ *
+ * `visual/fixture/cell.spec.ts` is the same kind of entry, and the sharpest
+ * example of it: one assertion whose whole job is to be run fifteen times by
+ * `visual/lifecycle.test.ts` under different settings of `--update-snapshots`,
+ * so that the answer to "what does that flag do to a baseline on disk" is a
+ * measurement rather than a reading of the documentation. It is the subject of
+ * a test, not a test, and counting it would put one e2e declaration in the
+ * ratio for a file that asserts a fact about an environment variable.
  */
 export const EXPECTED_EMPTY: readonly string[] = [
   'pact/pipeline/matrix.broker.test.ts',
@@ -92,6 +100,7 @@ export const EXPECTED_EMPTY: readonly string[] = [
   'matrix/fixture/specs/serial.spec.ts',
   'matrix/fixture/specs/setup.spec.ts',
   'matrix/fixture/specs/small.spec.ts',
+  'visual/fixture/cell.spec.ts',
 ]
 
 const toPosix = (path: string): string => path.split('\\').join('/')
@@ -201,25 +210,23 @@ interface PlaywrightSuite {
 /**
  * Collect from one Playwright config.
  *
- * The subtlety here is projects. `playwright.config.ts` declares six — five
- * browser/device projects plus a visual one — and the JSON reporter repeats
- * the whole suite tree once per project, so a naive count reports 5× the
- * declarations (and 6× for the specs the visual project also picks up). The
- * ratio is a statement about tests *written*, not test *executions*, so specs
- * are deduplicated by file, line and title.
+ * The subtlety here is projects. `playwright.config.ts` declares several — an
+ * auth setup, five browser/device projects and a quarantine one — and the JSON
+ * reporter repeats the whole suite tree once per project, so a naive count
+ * reports a multiple of the declarations. The ratio is a statement about tests
+ * *written*, not test *executions*, so specs are deduplicated by file, line
+ * and title.
  *
- * That the two numbers differ by 5× is itself the pyramid's argument, and
- * `report.ts` prints both for exactly that reason: 64 end-to-end declarations
- * — 51 from the application config across six projects, 13 from the component
- * config on one — are 287 end-to-end runs.
+ * That the two numbers differ by several times over is itself the pyramid's
+ * argument, and `report.ts` prints both for exactly that reason.
  *
  * `config` is a parameter for the same reason `collectVitest` takes one: there
- * are two more Playwright configs — `ct/playwright-ct.config.ts` and
- * `intercept/playwright-intercept.config.ts` — and their specs are test files
- * like any other. A collector hardcoded to the default config would leave them
- * uncollected, and `census.ts` would report every one of them as a file no
- * runner runs — which is the census working, but only after somebody has
- * already written a suite nothing counts.
+ * are five more Playwright configs — `ct/`, `intercept/`, `matrix/`, `a11y/`
+ * and `visual/` each own one — and their specs are test files like any other.
+ * A collector hardcoded to the default config would leave them uncollected,
+ * and `census.ts` would report every one of them as a file no runner runs —
+ * which is the census working, but only after somebody has already written a
+ * suite nothing counts.
  *
  * Listing the intercept config starts no server: `--list` resolves the config
  * and collects, and Playwright starts a `webServer` only for a run. The census
@@ -319,6 +326,7 @@ export function collectCensus(): Census {
       collectPlaywright(outputDir, 'intercept/playwright-intercept.config.ts'),
       collectPlaywright(outputDir, 'matrix/playwright-matrix.config.ts'),
       collectPlaywright(outputDir, 'a11y/playwright-a11y.config.ts'),
+      collectPlaywright(outputDir, 'visual/playwright-visual.config.ts'),
     ]
 
     const counts: Record<string, number> = {}

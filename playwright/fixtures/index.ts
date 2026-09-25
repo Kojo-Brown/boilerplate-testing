@@ -8,5 +8,7 @@ export {
 
 export type { UserRole, AuthUser, AuthFixtures } from './auth'
 
-export { test as visualTest, expect as visualExpect, renderHtml, setColorScheme } from './visual'
-export type { VisualFixtures, PageSnapshotOptions, ElementSnapshotOptions } from './visual'
+// The visual-regression fixtures used to live here. They moved to `visual/`,
+// which measures what masking and tolerance actually do rather than
+// demonstrating the call signatures, and which runs in CI — see
+// visual/README.md.

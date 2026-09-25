@@ -49,6 +49,22 @@ export default defineConfig({
       // findings are about what a scanner cannot see, and none of those needs
       // a scanner to check.
       'a11y/**/*.spec.ts',
+      // The browser half of `visual/`. `matrix.spec.ts` and
+      // `calibration.spec.ts` drive a real Chromium against the fixture origin
+      // `visual/server.ts` starts, and belong to `pnpm test:visual` and its own
+      // CI job. `fixture/cell.spec.ts` is neither: it is the *subject* of the
+      // baseline-lifecycle measurement, spawned by `lifecycle.ts` through the
+      // Playwright CLI and never run by this suite or by `test:visual`.
+      //
+      // Only the specs. The rest of the directory — the change catalogue, the
+      // wiring model, the fixture audit, the workflow audit, the README audit
+      // and the whole baseline lifecycle — is ordinary computation and stays
+      // here, so `pnpm test` keeps covering it on a machine with no browser at
+      // all. That split matters more here than anywhere: what
+      // `--update-snapshots` does to a file on disk is the runner's behaviour,
+      // not the renderer's, and paying for a browser to establish it would be
+      // paying for the wrong instrument.
+      'visual/**/*.spec.ts',
       // Suites that need a container runtime are `*.container.test.ts`
       // wherever they live — `containers/` and `dbisolation/` today. They take
       // minutes and belong to `pnpm test:containers` and its own CI job.
@@ -97,6 +113,16 @@ export default defineConfig({
         'a11y/page.ts',
         'a11y/server.ts',
         'a11y/journeyScan.ts',
+        // The same argument once more for the visual comparator: `subject.ts`
+        // is a string of HTML rendered by a browser in another process,
+        // `server.ts` binds it there, and `capture.ts` is a `page.screenshot`
+        // call only a browser can make. What is left — `changes.ts`,
+        // `wirings.ts`, `lifecycle.ts` and `fixture/pixel.ts` — is covered by
+        // this run.
+        'visual/**/*.spec.ts',
+        'visual/subject.ts',
+        'visual/server.ts',
+        'visual/capture.ts',
       ],
     },
   },
