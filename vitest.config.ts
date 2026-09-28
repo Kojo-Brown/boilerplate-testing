@@ -65,6 +65,19 @@ export default defineConfig({
       // not the renderer's, and paying for a browser to establish it would be
       // paying for the wrong instrument.
       'visual/**/*.spec.ts',
+      // The browser half of `trace/`. `evidence.spec.ts` fails all eight of its
+      // tests on purpose — it is the *subject* of the evidence measurement, not
+      // a test of anything — and `attempts/attempts.spec.ts` is the subject of
+      // the retention measurement, run six times by `pnpm trace:check` with a
+      // different `trace` mode each time. Both are spawned by `trace/check.ts`
+      // through the Playwright CLI and neither belongs to any suite: running
+      // them here would make `pnpm test` red by design.
+      //
+      // Only the specs. The zip reader, the channel parser, the fault
+      // catalogue, both tables, every finding and the README audit are ordinary
+      // computation and stay here, so `pnpm test` keeps covering them on a
+      // machine with no browser at all.
+      'trace/**/*.spec.ts',
       // Suites that need a container runtime are `*.container.test.ts`
       // wherever they live — `containers/` and `dbisolation/` today. They take
       // minutes and belong to `pnpm test:containers` and its own CI job.
@@ -123,6 +136,13 @@ export default defineConfig({
         'visual/subject.ts',
         'visual/server.ts',
         'visual/capture.ts',
+        // And once more for `trace/`: `check.ts` spawns Playwright twice and
+        // reads the filesystem, so nothing in this run executes a line of it.
+        // What is left — `zip.ts`, `channels.ts`, `faults.ts`, `evidence.ts`,
+        // `retention.ts` and `subject.ts`'s renderer — is covered here.
+        'trace/**/*.spec.ts',
+        'trace/server.ts',
+        'trace/check.ts',
       ],
     },
   },

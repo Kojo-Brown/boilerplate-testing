@@ -90,6 +90,22 @@ export interface CollectorResult {
  * measurement rather than a reading of the documentation. It is the subject of
  * a test, not a test, and counting it would put one e2e declaration in the
  * ratio for a file that asserts a fact about an environment variable.
+ *
+ * `trace/evidence.spec.ts` and `trace/attempts/attempts.spec.ts` are the last
+ * two, and the same kind again: both are subjects of a measurement rather than
+ * tests of anything. `evidence.spec.ts` fails all eight of its tests on
+ * purpose — one per fault in `trace/faults.ts` — so that `trace/check.ts` has
+ * eight real trace zips to parse; a passing test in it is a *failure* of
+ * `pnpm trace:check`. `attempts.spec.ts` is three tests that pass, fail and
+ * flake, run six times over by the same script with a different `trace` mode
+ * each time, to establish which attempt each mode keeps a recording of.
+ *
+ * Registering either config here would be worse than the exception in both
+ * directions: it would add eleven end-to-end declarations to a pyramid ratio
+ * that is supposed to describe tests somebody wrote to catch something, and
+ * eight of the eleven are red by design, so the collector would be counting
+ * them as coverage of a repository whose suites they are not part of. They are
+ * excluded from `pnpm test` in `vitest.config.ts` for the matching reason.
  */
 export const EXPECTED_EMPTY: readonly string[] = [
   'pact/pipeline/matrix.broker.test.ts',
@@ -101,6 +117,8 @@ export const EXPECTED_EMPTY: readonly string[] = [
   'matrix/fixture/specs/setup.spec.ts',
   'matrix/fixture/specs/small.spec.ts',
   'visual/fixture/cell.spec.ts',
+  'trace/evidence.spec.ts',
+  'trace/attempts/attempts.spec.ts',
 ]
 
 const toPosix = (path: string): string => path.split('\\').join('/')

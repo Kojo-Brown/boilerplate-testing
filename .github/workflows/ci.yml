@@ -17,13 +17,13 @@
 # Node started as a `webServer` — because what it measures is what happens
 # between a browser and a server rather than inside an application.
 #
-# There are six jobs. `gates` runs the five gates plus the contract suites on
+# There are ten jobs. `gates` runs the five gates plus the contract suites on
 # every supported Node major; `mutation`, `containers`, `component`,
-# `contracts` and `intercept` each run once, in parallel, for the reason stated
-# above each of them — a mutation score is a property of the tests rather than
-# the runtime, and the other four need a browser, a port or a service that
-# `pnpm test` must never require. All six are required: nothing here treats any
-# of them as advisory.
+# `contracts`, `intercept`, `matrix`, `a11y`, `visual` and `trace` each run
+# once, in parallel, for the reason stated above each of them — a mutation score
+# is a property of the tests rather than the runtime, and the rest need a
+# browser, a port or a service that `pnpm test` must never require. All ten are
+# required: nothing here treats any of them as advisory.
 #
 # ---------------------------------------------------------------------------
 # Node support matrix
@@ -804,3 +804,72 @@ jobs:
           path: playwright-report/visual/
           retention-days: 7
           if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # Trace evidence — `trace/`. The eighth job, and the only one whose suite is
+  # supposed to be red.
+  #
+  # `pnpm trace:check` spawns Playwright seven times: once on
+  # `trace/evidence.spec.ts`, which fails all eight of its tests by design, and
+  # once each on `trace/attempts/attempts.spec.ts` for the six `trace` modes. It
+  # then opens the trace zips the first run left behind, parses them, and checks
+  # every cell of both tables in `trace/README.md` against what is actually in
+  # them. The script's own exit code is the gate; the suites' are not, and cannot
+  # be, which is exactly why this is a script and not a Playwright project of its
+  # own — a config CI treated as a gate would be red on every run.
+  #
+  # One Node major, for the reason the `intercept`, `matrix`, `a11y` and `visual`
+  # jobs give: what a trace zip contains is decided by Playwright's recorder and
+  # by Chromium. Node runs the fixture server and the parser, and no cell here is
+  # a property of its version.
+  #
+  # Chromium only, and this one is a stated limit of the measurement rather than
+  # a saving. At least one cell is specifically Chromium's behaviour — the
+  # console entry `failing-api` rests on is the browser logging a failed
+  # subresource, not the page logging anything — so a second engine would be a
+  # second table, not more rows in this one. See trace/README.md, "What is not
+  # measured here".
+  #
+  # `if-no-files-found: error` on the upload, unlike the report uploads above:
+  # this job's artefact is the thing the directory is about, and a run that
+  # produced no trace zips has not measured anything, whatever its exit code
+  # said. The traces are uploaded even when the gate passed, so that the eight
+  # archives every published cell was measured from can be opened by a reader who
+  # wants to check the table by hand.
+  trace:
+    name: Trace evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Trace evidence and retention
+        run: pnpm trace:check
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      - name: Upload traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: traces-${{ github.run_number }}
+          path: playwright-results/trace/
+          retention-days: 7
+          if-no-files-found: error

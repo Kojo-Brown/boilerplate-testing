@@ -171,6 +171,17 @@ describe('the empty-file exception list', () => {
     // is a measurement rather than a reading of the documentation. Registering
     // its config would put one end-to-end declaration in the ratio for a file
     // that asserts a fact about an environment variable.
+    //
+    // `trace/evidence.spec.ts` and `trace/attempts/attempts.spec.ts` are the
+    // ninth and tenth, and the same kind once more. `evidence.spec.ts` fails
+    // all eight of its tests on purpose — one per fault in `trace/faults.ts` —
+    // so that `trace/check.ts` has eight real trace zips to parse; a test in it
+    // that *passes* is a failure of `pnpm trace:check`, because the fault it
+    // provokes has stopped reproducing. `attempts.spec.ts` is three tests that
+    // pass, fail and flake, run six times over by the same script with a
+    // different `trace` mode each time, to establish which attempt each mode
+    // keeps a recording of. Registering either config would add eleven
+    // end-to-end declarations to the pyramid, eight of them red by design.
     expect(EXPECTED_EMPTY).toEqual([
       'pact/pipeline/matrix.broker.test.ts',
       'matrix/fixture/specs/hooked.spec.ts',
@@ -181,6 +192,8 @@ describe('the empty-file exception list', () => {
       'matrix/fixture/specs/setup.spec.ts',
       'matrix/fixture/specs/small.spec.ts',
       'visual/fixture/cell.spec.ts',
+      'trace/evidence.spec.ts',
+      'trace/attempts/attempts.spec.ts',
     ])
   })
 
