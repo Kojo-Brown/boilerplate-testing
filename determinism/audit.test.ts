@@ -272,9 +272,13 @@ describe('the repository as it stands', () => {
     // explanation — which is the shape of the false positive worth predicting.
     // `visual/` adds none of either: its varying regions are driven by a nonce
     // the caller passes, so a directory whose entire subject is
-    // nondeterministic rendering reads no clock at all.
+    // nondeterministic rendering reads no clock at all. `authstate/` takes it
+    // to forty-two with one `setTimeout`, and adds no false positive for the
+    // same reason: its two workers are ordered by a rendezvous rather than by a
+    // duration, so the only timer in the directory is the deadline that turns a
+    // barrier nobody will ever arrive at into a message.
     const outside = scanRepository().filter((site) => !site.file.startsWith('determinism/'))
 
-    expect(outside).toHaveLength(41)
+    expect(outside).toHaveLength(42)
   }, 30_000)
 })

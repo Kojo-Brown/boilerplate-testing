@@ -182,6 +182,14 @@ describe('the empty-file exception list', () => {
     // different `trace` mode each time, to establish which attempt each mode
     // keeps a recording of. Registering either config would add eleven
     // end-to-end declarations to the pyramid, eight of them red by design.
+    //
+    // `authstate/fixture/specs/*.spec.ts` are the last three, and they are the
+    // same kind again: five tests driven ten times over by
+    // `authstate/runs.test.ts` — five auth strategies × two phases — so that
+    // "what does a replacement worker inherit" is a measurement rather than a
+    // reading of the documentation. One of them fails on its first attempt on
+    // purpose, because that failure is what makes Playwright discard the worker
+    // and start the replacement the measurement is about.
     expect(EXPECTED_EMPTY).toEqual([
       'pact/pipeline/matrix.broker.test.ts',
       'matrix/fixture/specs/hooked.spec.ts',
@@ -194,6 +202,9 @@ describe('the empty-file exception list', () => {
       'visual/fixture/cell.spec.ts',
       'trace/evidence.spec.ts',
       'trace/attempts/attempts.spec.ts',
+      'authstate/fixture/specs/alpha.spec.ts',
+      'authstate/fixture/specs/beta.spec.ts',
+      'authstate/fixture/specs/restart.spec.ts',
     ])
   })
 

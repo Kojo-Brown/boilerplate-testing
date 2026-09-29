@@ -95,6 +95,13 @@ export const THROW_DEPRECATION = '--throw-deprecation'
  * of that suite Node runs, and which is a `node:http` server this repository
  * wrote rather than a dependency.
  *
+ * `test:authstate` joined it with the storage-state capture matrix, in a job of
+ * its own for the same two reasons `test:intercept` has one — it needs a browser
+ * and it needs a port. The flag polices the fixture session server, which is the
+ * part Node runs and which is a `node:http` server this repository wrote. The
+ * other half of that directory needs neither and rides `pnpm test`, so it is
+ * covered by the `test` entry above rather than by one of its own.
+ *
  * `mutation:check` joined it with the mutation-score gate, and it was the first
  * entry to live in a different job from the rest — the mutation run is a
  * property of the tests rather than of the runtime, so it runs once instead of
@@ -117,6 +124,7 @@ export const GATED_SCRIPTS: readonly string[] = [
   'test:pact:broker',
   'test:ct',
   'test:intercept',
+  'test:authstate',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows
