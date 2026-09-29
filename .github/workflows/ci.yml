@@ -873,3 +873,48 @@ jobs:
           path: playwright-results/trace/
           retention-days: 7
           if-no-files-found: error
+
+  authstate:
+    name: Storage-state capture
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # The capture half only. The isolation half — ten real `playwright test`
+    # runs measuring what two workers and one restart do to a shared session —
+    # needs no browser, because its fixture builds `APIRequestContext`s rather
+    # than browser contexts, so it rides `pnpm test` in the `gates` job on every
+    # Node major. Only the four wirings that ask what a *browser* hands back to
+    # `storageState` need Chromium, and this is the job that gives it to them.
+    # See authstate/README.md.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Storage-state capture matrix
+        run: pnpm test:authstate
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      - name: Upload capture report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: authstate-report-${{ github.run_number }}
+          path: playwright-report/authstate/
+          retention-days: 7
+          if-no-files-found: ignore

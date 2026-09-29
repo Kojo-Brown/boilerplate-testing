@@ -106,6 +106,16 @@ export interface CollectorResult {
  * eight of the eleven are red by design, so the collector would be counting
  * them as coverage of a repository whose suites they are not part of. They are
  * excluded from `pnpm test` in `vitest.config.ts` for the matching reason.
+ *
+ * `authstate/fixture/specs/*.spec.ts` are the last three, and they are the same
+ * kind again. Those five tests are driven ten times over by `authstate/runs.test.ts`
+ * — five strategies × two phases — with a different auth strategy each time, so
+ * that "what does a replacement worker inherit" is a measurement rather than a
+ * reading of the documentation. One of them fails on its first attempt on
+ * purpose: that failure is what makes Playwright discard the worker, which is
+ * the whole subject. Registering their config would put five end-to-end
+ * declarations into the ratio, one of them red by design, for files whose only
+ * reader is a Vitest suite.
  */
 export const EXPECTED_EMPTY: readonly string[] = [
   'pact/pipeline/matrix.broker.test.ts',
@@ -119,6 +129,9 @@ export const EXPECTED_EMPTY: readonly string[] = [
   'visual/fixture/cell.spec.ts',
   'trace/evidence.spec.ts',
   'trace/attempts/attempts.spec.ts',
+  'authstate/fixture/specs/alpha.spec.ts',
+  'authstate/fixture/specs/beta.spec.ts',
+  'authstate/fixture/specs/restart.spec.ts',
 ]
 
 const toPosix = (path: string): string => path.split('\\').join('/')
@@ -345,6 +358,7 @@ export function collectCensus(): Census {
       collectPlaywright(outputDir, 'matrix/playwright-matrix.config.ts'),
       collectPlaywright(outputDir, 'a11y/playwright-a11y.config.ts'),
       collectPlaywright(outputDir, 'visual/playwright-visual.config.ts'),
+      collectPlaywright(outputDir, 'authstate/playwright-authstate.config.ts'),
     ]
 
     const counts: Record<string, number> = {}

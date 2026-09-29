@@ -137,6 +137,17 @@ export const REGISTRY: readonly RegistryEntry[] = [
   },
 
   // -------------------------------------------------------------------------
+  // authstate/ — the one timer behind a rendezvous
+  // -------------------------------------------------------------------------
+  {
+    file: 'authstate/server.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'inert',
+    why: 'The deadline on a request parked at `/api/barrier`. The barrier itself is a rendezvous with no time in it — two workers are released when the second arrives — which is what lets the isolation runs order eviction against a read with no sleep anywhere. This timer never fires in a run that works; it exists so that a barrier which will *never* fill, because a worker died or because the run used a different worker count than the barrier was written for, becomes a 504 naming the barrier rather than a hang somewhere else. Registered `inert` rather than `measured` on exactly that ground: no cell in `authstate/isolation.ts` depends on when — or whether — it fires, and `inert` is the disposition whose note says the right thing about it, that "never asserted on" is a property of today\'s assertions. If a run ever does hit it, a cell will not silently change; a 504 naming the barrier will fail the run.',
+  },
+
+  // -------------------------------------------------------------------------
   // Everything else
   // -------------------------------------------------------------------------
   {

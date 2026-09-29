@@ -78,6 +78,23 @@ export default defineConfig({
       // computation and stay here, so `pnpm test` keeps covering them on a
       // machine with no browser at all.
       'trace/**/*.spec.ts',
+      // The two kinds of spec in `authstate/`. `capture.spec.ts` drives a real
+      // Chromium against the fixture session server `authstate/server.ts`
+      // starts, and belongs to `pnpm test:authstate` and its own CI job;
+      // `fixture/specs/*.spec.ts` are the *subject* of the isolation
+      // measurement, spawned ten times over by `runs.test.ts` through the
+      // Playwright CLI with a different auth strategy each time, and one of
+      // them fails on its first attempt on purpose — running them here would
+      // make `pnpm test` red by design.
+      //
+      // Only the specs. The session server's routes, the wirings, the probes,
+      // both tables, the ledger derivation, every finding, the README audit —
+      // and the ten real runs, which need no browser because the fixture builds
+      // `APIRequestContext`s — are ordinary Node and stay here. That is the
+      // larger half: `restart-inheritance` is a fact about Playwright's worker
+      // scheduler, and paying for a browser to establish it would be paying for
+      // the wrong instrument.
+      'authstate/**/*.spec.ts',
       // Suites that need a container runtime are `*.container.test.ts`
       // wherever they live — `containers/` and `dbisolation/` today. They take
       // minutes and belong to `pnpm test:containers` and its own CI job.

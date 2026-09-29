@@ -309,15 +309,29 @@ disagreement is a bug in something:
 - **Double-counted** — two runners claim the same file.
 - **Stale exception** — a file in `EXPECTED_EMPTY` that now collects tests.
 
-Eight files are legitimately empty, and for two different reasons.
-`pact/pipeline/matrix.broker.test.ts` declares its suite as
+Fourteen files are legitimately empty, for two different reasons.
+`pact/pipeline/matrix.broker.test.ts` is the only one of the first kind: it
+declares its suite as
 `describe.skipIf(!process.env['PACT_BROKER_BASE_URL'])`, and `vitest list` omits
-skipped tests. The seven `matrix/fixture/specs/*.spec.ts` files are not tests at
-all: they are the subject of the sharding measurement in `matrix/`, 24 empty
-declarations that exist to be partitioned by `playwright test --list --shard`,
-and registering their config here would put them in the pyramid as end-to-end
-tests. Each is an entry in `EXPECTED_EMPTY` with a reason attached, so the next
-one has to be argued for in writing too.
+skipped tests. The other thirteen are not tests at all — they are the *subjects*
+of measurements, driven by a Vitest suite through the Playwright CLI and run by
+no configured runner:
+
+- the seven `matrix/fixture/specs/*.spec.ts`, 24 empty declarations that exist
+  to be partitioned by `playwright test --list --shard`;
+- `visual/fixture/cell.spec.ts`, one assertion run fifteen times under
+  different settings of `--update-snapshots`;
+- `trace/evidence.spec.ts` and `trace/attempts/attempts.spec.ts`, eleven
+  declarations of which eight fail on purpose, so `pnpm trace:check` has real
+  trace archives to parse;
+- the three `authstate/fixture/specs/*.spec.ts`, five declarations run ten
+  times over under five auth strategies, one of them failing on its first
+  attempt because that failure is what discards the worker being measured.
+
+Registering any of their configs here would put those declarations in the
+pyramid as end-to-end tests — forty-one of them today, nine of which are written
+to fail. Each is an entry in `EXPECTED_EMPTY` with a reason attached, so the
+next one has to be argued for in writing too.
 
 `promisify` from `node:util` is classified alongside the built-ins for a
 related reason — it wraps a function rather than reaching anything, and what it
