@@ -1,9 +1,30 @@
 {
+  // The k6 scripts, typechecked against the k6 runtime instead of the browser
+  // and Node globals the root config supplies.
+  //
+  // Two reasons it is a separate config rather than a corner of the root one:
+  // `k6/http` and `k6/metrics` only exist inside the k6 binary, and a script
+  // that reaches for `window` or `process` must not compile — k6 has neither.
+  // The module settings mirror the root config because k6 v1 loads ES modules
+  // and TypeScript natively; the `CommonJS`/`Node` pair this file used to carry
+  // predated that and no longer describes how these files are loaded.
+  //
+  // `pnpm typecheck` runs this config as well as the root one. Before that it
+  // ran neither of these files, so a scenario could reference a metric that had
+  // been renamed and nothing would say so until a load test was started.
   "compilerOptions": {
-    "target": "ES2020",
-    "lib": ["ES2020"],
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    // As the root config, and for the same reason: `@types/k6@0.54.2` declares
+    // `RefinedParams.responseType` in a way that does not satisfy
+    // `exactOptionalPropertyTypes`, so its own declarations do not compile
+    // under the strictness this repository applies to its code. The version is
+    // pinned in package.json. This relaxes nothing about the files below.
+    "skipLibCheck": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
@@ -11,7 +32,10 @@
   },
   "include": [
     "load-test.ts",
+    "agreement.scenario.ts",
     "metrics.ts",
-    "config.ts"
+    "config.ts",
+    "agreement.ts",
+    "thresholds.ts"
   ]
 }

@@ -39,7 +39,11 @@
     "node_modules",
     ".stryker-tmp",
     "reports",
+    // The k6 scripts: they import `k6/http` and friends, which only resolve
+    // inside the k6 binary. `k6/tsconfig.k6.json` checks them, and `typecheck`
+    // runs it.
     "k6/load-test.ts",
+    "k6/agreement.scenario.ts",
     "k6/metrics.ts",
     "bundlesize/check.ts"
   ]
