@@ -17,13 +17,14 @@
 # Node started as a `webServer` — because what it measures is what happens
 # between a browser and a server rather than inside an application.
 #
-# There are ten jobs. `gates` runs the five gates plus the contract suites on
+# There are twelve jobs. `gates` runs the five gates plus the contract suites on
 # every supported Node major; `mutation`, `containers`, `component`,
-# `contracts`, `intercept`, `matrix`, `a11y`, `visual` and `trace` each run
-# once, in parallel, for the reason stated above each of them — a mutation score
-# is a property of the tests rather than the runtime, and the rest need a
-# browser, a port or a service that `pnpm test` must never require. All ten are
-# required: nothing here treats any of them as advisory.
+# `contracts`, `intercept`, `matrix`, `a11y`, `visual`, `trace`, `authstate` and
+# `load` each run once, in parallel, for the reason stated above each of them —
+# a mutation score is a property of the tests rather than the runtime, and the
+# rest need a browser, a port, a service or a binary that `pnpm test` must never
+# require. All twelve are required: nothing here treats any of them as
+# advisory.
 #
 # ---------------------------------------------------------------------------
 # Node support matrix
@@ -918,3 +919,58 @@ jobs:
           path: playwright-report/authstate/
           retention-days: 7
           if-no-files-found: ignore
+
+  load:
+    name: Load thresholds
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # The only job that installs a binary from outside the npm registry, and
+    # the only one whose subject is a test this repository cannot run under
+    # Vitest. `pnpm test` covers the k6 profiles as data — their stages parse,
+    # their thresholds parse, every sub-metric group has a witness — but it
+    # cannot tell whether k6 *agrees*: the summary export's threshold boolean
+    # means "breached" rather than "passed", `rate` resolves to a different key
+    # on a Counter than on a Rate, and an empty sub-metric scores zero, so a
+    # misspelt tag selector passes a latency threshold and reports green. Those
+    # are facts about the binary, and the only way to hold them is to run it.
+    #
+    # `pnpm k6:check` starts the fixture origin in `k6/server.ts`, runs the
+    # agreement scenario twice and the published smoke profile once, and
+    # asserts the first two exit 99 and the third exits 0 — a threshold gate
+    # that has only been seen to pass has not been seen to work. Three runs,
+    # about two and a half minutes. See k6/README.md.
+    #
+    # The binary is pinned and installed by curl rather than through
+    # `grafana/setup-k6-action`: the version is the one every measurement in
+    # k6/README.md was taken against, `k6/version.test.ts` fails if this line
+    # and that file disagree, and one fewer third-party action is one fewer
+    # entry in the actionPins floor table.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Install k6
+        run: |
+          curl -fsSL "https://github.com/grafana/k6/releases/download/${K6_VERSION}/k6-${K6_VERSION}-linux-amd64.tar.gz" \
+            | sudo tar xz --strip-components=1 -C /usr/local/bin "k6-${K6_VERSION}-linux-amd64/k6"
+          k6 version
+        env:
+          K6_VERSION: v1.3.0
+
+      - name: Load thresholds
+        run: pnpm k6:check
+        env:
+          NODE_OPTIONS: --throw-deprecation

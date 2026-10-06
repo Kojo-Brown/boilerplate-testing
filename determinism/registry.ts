@@ -165,6 +165,20 @@ export const REGISTRY: readonly RegistryEntry[] = [
     why: 'Think time between iterations, drawn between SLEEP_MIN and SLEEP_MAX. A virtual user that pauses for exactly the same interval every time produces a synchronised thundering herd rather than a load profile, which is the same argument the subject in `session.ts` makes for jittering a refresh.',
   },
   {
+    file: 'k6/server.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'shaping',
+    why: 'The `setTimeout` behind `/slow`, the route whose purpose is to be slow — it is how a latency threshold is made to breach without waiting for a real system to degrade. It shapes the workload the thresholds are read against and decides no assertion: nothing times the delay, because whether `setTimeout` sleeps is Node\'s contract rather than this fixture\'s. Same register as the think-time draw in `load-test.ts`.',
+  },
+  {
+    file: 'k6/check.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'inert',
+    why: 'A five-minute `setTimeout` that SIGKILLs the k6 child. Nothing asserts on it: the three runs it guards take about two and a half minutes together, so the timer only fires when a run has hung rather than been slow, and in that case the gate fails on the kill rather than on the timing. It is a watchdog on a child process, not an input to a verdict.',
+  },
+  {
     file: 'msw/db.ts',
     kind: 'wall-clock',
     count: 1,

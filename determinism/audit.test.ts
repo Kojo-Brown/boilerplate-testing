@@ -277,8 +277,19 @@ describe('the repository as it stands', () => {
     // same reason: its two workers are ordered by a rendezvous rather than by a
     // duration, so the only timer in the directory is the deadline that turns a
     // barrier nobody will ever arrive at into a message.
+    //
+    // `k6/` takes it to forty-four with two schedulers, and adds no false
+    // positive either. Both are the same shape as `authstate/`'s: a `setTimeout`
+    // that is a deadline rather than a duration — the delay behind the fixture
+    // origin's `/slow` route, which exists so a latency threshold can be made
+    // to breach, and the watchdog that kills a hung k6 child in `check.ts`.
+    // A directory whose subject is load *profiles* reads no clock to decide
+    // anything, because the profile is a table of stage durations rather than
+    // a measurement of them, and k6 keeps the elapsed time itself — the
+    // scenario asks the binary for it through `exec.instance`, so the one read
+    // that decides which phase a request is tagged with is not an ambient one.
     const outside = scanRepository().filter((site) => !site.file.startsWith('determinism/'))
 
-    expect(outside).toHaveLength(42)
+    expect(outside).toHaveLength(44)
   }, 30_000)
 })

@@ -125,6 +125,10 @@ export const GATED_SCRIPTS: readonly string[] = [
   'test:ct',
   'test:intercept',
   'test:authstate',
+  // `k6:check` spawns the k6 binary, but the process that reads its summaries,
+  // scores every threshold and decides the exit code is this repository's own
+  // Node code — so a deprecation in it is exactly what this flag is for.
+  'k6:check',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows
