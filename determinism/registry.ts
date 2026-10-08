@@ -179,6 +179,13 @@ export const REGISTRY: readonly RegistryEntry[] = [
     why: 'A five-minute `setTimeout` that SIGKILLs the k6 child. Nothing asserts on it: the three runs it guards take about two and a half minutes together, so the timer only fires when a run has hung rather than been slow, and in that case the gate fails on the kill rather than on the timing. It is a watchdog on a child process, not an input to a verdict.',
   },
   {
+    file: 'lighthouse/check.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'inert',
+    why: 'A five-minute `setTimeout` that SIGKILLs the `lhci` child, the same watchdog as the one in `k6/check.ts` and for the same reason. Nothing asserts on it: the gate collects one set of reports and asserts over them, which is a couple of minutes, so the timer fires only when a run has hung rather than been slow — and then the gate fails on the kill rather than on a timing. It guards a child process; it is not an input to a verdict.',
+  },
+  {
     file: 'msw/db.ts',
     kind: 'wall-clock',
     count: 1,

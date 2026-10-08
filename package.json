@@ -29,6 +29,8 @@
     "mutation:check": "node mutation/check.ts",
     "trace:check": "node trace/check.ts",
     "k6:check": "node k6/check.ts",
+    "lighthouse:check": "node lighthouse/check.ts",
+    "lighthouse:comment": "node lighthouse/comment-pr.ts",
     "characterise:record": "node tdd/characterisation/record.ts",
     "fuzz:record": "node fuzz/record.ts",
     "intercept:record": "node intercept/record.ts",

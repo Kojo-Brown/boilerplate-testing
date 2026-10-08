@@ -288,8 +288,15 @@ describe('the repository as it stands', () => {
     // a measurement of them, and k6 keeps the elapsed time itself — the
     // scenario asks the binary for it through `exec.instance`, so the one read
     // that decides which phase a request is tagged with is not an ambient one.
+    //
+    // `lighthouse/` takes it to forty-five with one, and adds no false positive
+    // for the third time running: the one read is the watchdog that kills a
+    // hung `lhci` child, the same shape as `k6/check.ts`'s. A directory whose
+    // subject is *timing budgets* reads no clock to decide anything either —
+    // every number it compares comes out of a Lighthouse report, so the
+    // measurement is the browser's and the budget is a constant in a JSON file.
     const outside = scanRepository().filter((site) => !site.file.startsWith('determinism/'))
 
-    expect(outside).toHaveLength(44)
+    expect(outside).toHaveLength(45)
   }, 30_000)
 })

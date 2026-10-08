@@ -1,11 +1,26 @@
-# lighthouse-ci.yml — Lighthouse CI with performance budget assertions
+# lighthouse-ci.yml — performance budgets, enforced, with the table on the PR.
 #
-# Copy to .github/workflows/lighthouse-ci.yml in your project.
-# Adjust build_command and the URL list in lighthouse/lighthouserc.cjs.
+# Copy to .github/workflows/lighthouse-ci.yml. Then point
+# lighthouse/lighthouserc.cjs at your own app: its `url` list and its
+# `startServerCommand` are the only two things that are project-specific.
 #
-# Optional secrets:
-#   LHCI_GITHUB_APP_TOKEN — posts a Lighthouse status check on the PR
-#   LHCI_TOKEN + LHCI_SERVER_URL — if using a self-hosted LHCI server
+# No secrets. The comment is posted with the built-in GITHUB_TOKEN, and the
+# `permissions:` block below is what makes that possible.
+#
+# ---------------------------------------------------------------------------
+# What this template does differently
+# ---------------------------------------------------------------------------
+# Most Lighthouse CI workflows wire budgets in one of two ways that enforce
+# nothing against Lighthouse 12 — it removed W3C performance budgets, so
+# `collect.settings.budgets` is ignored without a warning and an
+# `assert.assertions['performance-budget']` entry returns zero assertion
+# results, which is indistinguishable from zero failures. lighthouse/wiring.ts
+# has the measurement; `pnpm lighthouse:check` re-derives it every run.
+#
+# And LHCI's GitHub integration does not post a comment. LHCI_GITHUB_APP_TOKEN
+# posts a *commit status* — a row in the checks list with a 140-character
+# description — so the budget table is rendered and posted here instead, by
+# `pnpm lighthouse:comment`.
 
 name: Lighthouse CI
 
@@ -15,10 +30,25 @@ on:
   pull_request:
     branches: [main]
 
+# Scoped as tightly as the comment allows. `pull-requests: write` is only
+# needed by the comment step; nothing else in this workflow writes anything.
+#
+# A pull request from a fork gets a read-only GITHUB_TOKEN whatever this block
+# says, so the POST returns 403 there. That is handled rather than fatal: the
+# comment step reports it and prints the table to the log instead.
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: lighthouse-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lighthouse:
-    name: Lighthouse Audit
+    name: Performance budgets
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -26,33 +56,51 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Lighthouse needs a Chrome. lighthouse/chrome.ts finds this one without
+      # CHROME_PATH having to be set; drop this step if your runner already has
+      # a system Chrome.
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      # Build whatever `startServerCommand` is going to serve. For a Vite app
+      # that is `pnpm build` and `pnpm preview`; for Next.js, `pnpm build` and
+      # `pnpm start`. Delete this step if you audit a deployed URL instead.
       - name: Build
         run: pnpm build
         env:
           NODE_ENV: production
 
-      - name: Run Lighthouse CI
+      # Optional, and worth keeping: checks that the budgets in budgets.json
+      # are still wired in the one way that fails a build. Seconds of work
+      # against the two wirings that silently do nothing.
+      - name: Budget wiring
+        run: pnpm lighthouse:check
+
+      # The gate. Fails the job when a budget is breached.
+      - name: Lighthouse budgets
         run: pnpm lighthouse:ci
+
+      # The reporter. `always()` so a red run gets its table too — that is the
+      # run where the table is the point.
+      - name: Comment the budget table
+        if: always()
+        run: pnpm lighthouse:comment
         env:
-          # Posts a Lighthouse status check directly on the PR.
-          # Install the LHCI GitHub App and add the token as a repo secret.
-          # https://github.com/apps/lighthouse-ci
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
-          # Uncomment for self-hosted LHCI server:
-          # LHCI_TOKEN: ${{ secrets.LHCI_TOKEN }}
-          # LHCI_SERVER_URL: ${{ vars.LHCI_SERVER_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Not derivable from a variable: GITHUB_REF_NAME is "42/merge" on a
+          # pull request. Empty on a push build, which the reporter reads as
+          # "no pull request" and skips.
+          LH_PR_NUMBER: ${{ github.event.pull_request.number }}
 
       - name: Upload Lighthouse reports
         if: always()
@@ -61,3 +109,4 @@ jobs:
           name: lighthouse-reports-${{ github.run_number }}
           path: .lighthouseci/
           retention-days: 14
+          if-no-files-found: ignore

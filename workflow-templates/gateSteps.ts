@@ -129,6 +129,13 @@ export const GATED_SCRIPTS: readonly string[] = [
   // scores every threshold and decides the exit code is this repository's own
   // Node code — so a deprecation in it is exactly what this flag is for.
   'k6:check',
+  // `lighthouse:check` spawns the LHCI binary — three times over one set of
+  // reports — but the process that reads `assertion-results.json`, joins it
+  // against the budget file and decides the exit code is this repository's own
+  // Node code, which is what the flag is for. It runs in a job of its own for
+  // the same reason as `test:ct`: it needs a browser, and `pnpm test` must
+  // never require one.
+  'lighthouse:check',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows

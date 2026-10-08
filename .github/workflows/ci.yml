@@ -974,3 +974,101 @@ jobs:
         run: pnpm k6:check
         env:
           NODE_OPTIONS: --throw-deprecation
+
+  # ---------------------------------------------------------------------------
+  # Performance budgets
+  # ---------------------------------------------------------------------------
+  # Its own job because it needs a browser, which `pnpm test` must never
+  # require, and because it drives Lighthouse four times — about three minutes.
+  #
+  # `pnpm test` covers the budget model, the conversion, the join and the
+  # comment as computation, and `wiring.test.ts` audits `lighthouserc.cjs`
+  # against `budgets.json` line by line. What none of that can establish is
+  # whether Lighthouse CI *agrees*, and the specific way it disagrees is to
+  # report green: Lighthouse 12 removed W3C performance budgets, so
+  # `collect.settings.budgets` is ignored without a warning and an
+  # `assert.assertions['performance-budget']` entry yields zero assertion
+  # results — which is indistinguishable from zero failures. Those are facts
+  # about two packages, and the only way to hold them is to run them.
+  #
+  # `pnpm lighthouse:check` collects `/heavy` once and asserts the same reports
+  # under each wiring, then runs the published config against `/lean`. See
+  # lighthouse/README.md.
+  #
+  # The audit and the comment are separate steps on purpose. `pnpm
+  # lighthouse:ci` is the gate and fails this job when a budget is breached;
+  # `pnpm lighthouse:comment` is a reporter and runs `if: always()` so the table
+  # is posted on exactly the runs where it is worth reading.
+  lighthouse:
+    name: Performance budgets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Scoped to this job rather than the workflow: nothing else here writes to
+    # the pull request, and `pull-requests: write` at the top level would hand
+    # it to every job including the ones that run third-party tooling.
+    #
+    # On a pull request from a fork GITHUB_TOKEN is read-only regardless, so the
+    # POST comes back 403. That is expected and handled — `post.ts` reports it
+    # rather than throwing, and the table is printed to the log instead.
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      # Lighthouse needs a Chrome. This is the same line every other browser
+      # job here uses, and `lighthouse/chrome.ts` finds the result without a
+      # CHROME_PATH needing to be plumbed through.
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Budget wiring
+        run: pnpm lighthouse:check
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # The gate. Audits the fixture origin through the published config and
+      # exits non-zero if any budget is breached.
+      - name: Lighthouse budgets
+        run: pnpm lighthouse:ci
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # The reporter. `always()` so a red run gets its table too — that is the
+      # run where the table is the point. It cannot fail the job for anything
+      # the page did; see lighthouse/comment-pr.ts.
+      - name: Comment the budget table
+        if: always()
+        run: pnpm lighthouse:comment
+        env:
+          NODE_OPTIONS: --throw-deprecation
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Not derivable from a variable: GITHUB_REF_NAME is "42/merge" on a
+          # pull request and something else entirely on push, so the number
+          # comes from the event payload. Empty on a push build, which
+          # `targetFromEnv` reads as "no pull request".
+          LH_PR_NUMBER: ${{ github.event.pull_request.number }}
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse-reports-${{ github.run_number }}
+          path: .lighthouseci/
+          retention-days: 14
+          if-no-files-found: ignore
