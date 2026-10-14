@@ -102,6 +102,12 @@ export const THROW_DEPRECATION = '--throw-deprecation'
  * other half of that directory needs neither and rides `pnpm test`, so it is
  * covered by the `test` entry above rather than by one of its own.
  *
+ * `flake:check` joined it with the quarantine gate. It is also the only gate
+ * on the list whose verdict depends on the date — an entry past its
+ * `expiresOn` fails it — which is the reason it is a gate rather than a test:
+ * `pnpm test` going red one morning with no commit behind it is a worse way to
+ * find out than a gate whose output names the entry and says what to do.
+ *
  * `mutation:check` joined it with the mutation-score gate, and it was the first
  * entry to live in a different job from the rest — the mutation run is a
  * property of the tests rather than of the runtime, so it runs once instead of
@@ -136,6 +142,13 @@ export const GATED_SCRIPTS: readonly string[] = [
   // the same reason as `test:ct`: it needs a browser, and `pnpm test` must
   // never require one.
   'lighthouse:check',
+  // `flake:check` is the quarantine gate. It is the cheapest entry on this
+  // list — pure Node over a JSON registry and a directory of attempt records,
+  // with no browser, no service and no binary — and it earns the flag for the
+  // ordinary reason: it is this repository's own code deciding an exit code.
+  // It runs inside `gates` rather than in a job of its own because there is
+  // nothing to isolate it from.
+  'flake:check',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows

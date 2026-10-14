@@ -343,6 +343,21 @@ export const REGISTRY: readonly RegistryEntry[] = [
     disposition: 'inert',
     why: '`RUN_ID` makes a suite\'s schema, database and topic names differ between two runs that share a reused container. Nothing asserts on its value — only that two runs do not collide — and `suite.test.ts` pins its shape rather than its content.',
   },
+
+  {
+    file: 'flake/check.ts',
+    kind: 'wall-clock',
+    count: 1,
+    disposition: 'seam-default',
+    why: 'Today\'s date, for deciding whether a quarantine entry has expired. Everything that decides anything about an entry — `decide`, `audit` — takes `today` as a parameter precisely so `quarantine.test.ts` can put fixed dates in front of them, and this is the one call site that supplies the real one.',
+  },
+  {
+    file: 'flake/reporter.ts',
+    kind: 'wall-clock',
+    count: 1,
+    disposition: 'inert',
+    why: 'The fallback name for a run when `FLAKE_RUN` is unset — a timestamp, so that a directory of attempt files from unnamed runs still sorts chronologically. Nothing asserts on it: every measurement in `flake/` names its runs, and the analytics only ever compare run identifiers for equality.',
+  },
 ]
 
 /** The key a site and a row agree on. */

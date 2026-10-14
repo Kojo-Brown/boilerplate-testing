@@ -190,6 +190,16 @@ describe('the empty-file exception list', () => {
     // reading of the documentation. One of them fails on its first attempt on
     // purpose, because that failure is what makes Playwright discard the worker
     // and start the replacement the measurement is about.
+    //
+    // `flake/fixture/*` are the last three, and they are the same kind for the
+    // third time — with one difference worth the line: those files have no
+    // fixed test count at all. The two `subject` files register whatever cases
+    // a plan names and fail on the attempt numbers it gives them, so what they
+    // declare depends on which of the thirteen runs `flake/runs.test.ts` is
+    // making; `quarantined.test.ts` is run three times with the quarantine
+    // registry present, absent, and present with `QUARANTINE=1`. A file whose
+    // declarations are an argument to the measurement cannot be a row in a
+    // pyramid ratio.
     expect(EXPECTED_EMPTY).toEqual([
       'pact/pipeline/matrix.broker.test.ts',
       'matrix/fixture/specs/hooked.spec.ts',
@@ -205,6 +215,9 @@ describe('the empty-file exception list', () => {
       'authstate/fixture/specs/alpha.spec.ts',
       'authstate/fixture/specs/beta.spec.ts',
       'authstate/fixture/specs/restart.spec.ts',
+      'flake/fixture/subject.test.ts',
+      'flake/fixture/subject.spec.ts',
+      'flake/fixture/quarantined.test.ts',
     ])
   })
 

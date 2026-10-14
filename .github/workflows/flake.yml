@@ -1,0 +1,125 @@
+# Flake detection — the nightly quarantine run and the flakiness dashboard.
+#
+# This is the promoted, repo-specific counterpart to the reusable template in
+# `workflow-templates/flaky-quarantine.yml`. The template stays generic (it
+# demonstrates a Vitest quarantine job and a Playwright one for consumers to
+# copy); this file runs what *this* repository can actually satisfy.
+#
+# ---------------------------------------------------------------------------
+# What it does
+# ---------------------------------------------------------------------------
+# `pnpm test:quarantine` runs the whole unit suite with `QUARANTINE=1`, which
+# makes the tests listed in `flake/quarantine.json` run — with retries —
+# instead of being skipped. The run carries `flake/reporter.ts`, so it leaves
+# one line per attempt in `.flake/quarantine-attempts.jsonl`; `pnpm
+# flake:check` then reads that, renders the dashboard into the job summary, and
+# audits the registry.
+#
+# ---------------------------------------------------------------------------
+# Deliberately not included
+# ---------------------------------------------------------------------------
+# The template's Playwright quarantine job. The specs in `playwright/` navigate
+# to a running application at PLAYWRIGHT_BASE_URL and this repository ships no
+# such app — the same reason `ci.yml` leaves out the template's e2e matrix —
+# and `playwright test --project=quarantine` with no `@flaky` tests to select
+# exits non-zero for having found nothing. Both would be red for reasons that
+# have nothing to do with flakiness.
+#
+# And a pull-request trigger. While the registry is empty — the healthy state,
+# and this repository's — the quarantine suite is the main suite run a second
+# time, which is two and a half minutes to discover that nothing is
+# quarantined. The part of this that belongs on every pull request is the
+# registry audit, and that runs in `ci.yml`'s `gates` job as `pnpm
+# flake:check`. Add a `pull_request:` trigger here on the day the registry has
+# an entry in it.
+#
+# Required secrets: none.
+# Required branch protection: do NOT add this job to required checks.
+
+name: Flake detection
+
+on:
+  # Nightly. The minute is not on the hour: a schedule at `0` queues behind
+  # everybody else's.
+  schedule:
+    - cron: '17 3 * * *'
+
+  # For debugging a specific quarantined test, or for generating a dashboard on
+  # demand.
+  workflow_dispatch:
+
+concurrency:
+  group: flake-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quarantine:
+    name: Quarantine suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      # Informational by design: a quarantined test that fails here must not
+      # fail the workflow, which is the whole point of having quarantined it.
+      # The dashboard step below reports what happened either way.
+      - name: Quarantine suite
+        run: pnpm test:quarantine
+        continue-on-error: true
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # Reads `.flake/quarantine-attempts.jsonl`, which the step above wrote,
+      # and prints the dashboard into the job summary. This is the one place
+      # where the dashboard is rendered from a real run of the whole suite
+      # rather than from one directory's fixtures.
+      #
+      # Not `continue-on-error`: an entry past its expiry, or one naming a test
+      # that no longer exists, is this workflow's own finding to report.
+      - name: Flakiness dashboard
+        run: pnpm flake:check
+        env:
+          NODE_OPTIONS: --throw-deprecation
+          FLAKE_HISTORY: .flake
+
+      # Both artifacts, because they answer different questions. The attempt
+      # records are the history a later run's dashboard is computed from — in a
+      # project keeping a window, this is what gets downloaded into one
+      # directory — and `quarantine-results/results.json` is the Vitest report,
+      # which is what a reader wants when a specific test has gone red.
+      - name: Upload attempt records
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: flake-attempts-${{ github.run_number }}
+          path: .flake/
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Upload quarantine report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: quarantine-results-${{ github.run_number }}
+          path: quarantine-results/
+          retention-days: 30
+          if-no-files-found: error

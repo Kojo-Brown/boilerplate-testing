@@ -202,6 +202,24 @@ jobs:
         env:
           NODE_OPTIONS: --throw-deprecation
 
+      # The quarantine gate. Reads `flake/quarantine.json`, the attempt history
+      # in `.flake/` when there is one, and — only for the files an entry
+      # actually names — the collected test names from both runners, then
+      # prints the flakiness dashboard into the job summary and fails on an
+      # entry that is past its expiry, names a test that no longer exists, or
+      # names a test the history says is fixed or permanently broken.
+      #
+      # In `gates` rather than in a job of its own because there is nothing to
+      # isolate it from: no browser, no service, no binary. It is cheap while
+      # the registry is empty, which is the healthy state — the listing is
+      # skipped entirely when there is nothing to check a name against. The
+      # history it reads here is whatever the nightly quarantine run left in
+      # the artifact; see `.github/workflows/flake.yml` and flake/README.md.
+      - name: Quarantine registry
+        run: pnpm flake:check
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
       - name: Build
         run: pnpm build
         env:
