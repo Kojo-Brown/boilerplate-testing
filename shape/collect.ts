@@ -116,6 +116,18 @@ export interface CollectorResult {
  * the whole subject. Registering their config would put five end-to-end
  * declarations into the ratio, one of them red by design, for files whose only
  * reader is a Vitest suite.
+ *
+ * `flake/fixture/*` are the last three, and they are the same kind for the
+ * third time. The two `subject` files register whatever cases a plan names and
+ * fail on the attempt numbers it gives them, so they have no fixed test count
+ * at all: `flake/runs.test.ts` runs them thirteen times over, once per rerun
+ * wiring, with a different plan and a fresh attempt ledger each time, and the
+ * answer to "what did this reporter record about a retry" is what comes back.
+ * `quarantined.test.ts` is the third, and its three runs are the quarantine
+ * mechanism's own measurement — unlisted, listed, and listed with
+ * `QUARANTINE=1`. Registering their configs would be the same mistake twice:
+ * a handful of declarations in the ratio for files that are red by design half
+ * the time, and whose only reader is a Vitest suite.
  */
 export const EXPECTED_EMPTY: readonly string[] = [
   'pact/pipeline/matrix.broker.test.ts',
@@ -132,6 +144,9 @@ export const EXPECTED_EMPTY: readonly string[] = [
   'authstate/fixture/specs/alpha.spec.ts',
   'authstate/fixture/specs/beta.spec.ts',
   'authstate/fixture/specs/restart.spec.ts',
+  'flake/fixture/subject.test.ts',
+  'flake/fixture/subject.spec.ts',
+  'flake/fixture/quarantined.test.ts',
 ]
 
 const toPosix = (path: string): string => path.split('\\').join('/')

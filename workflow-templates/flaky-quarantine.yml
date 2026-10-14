@@ -11,16 +11,44 @@
 #
 # VITEST QUARANTINE
 # -----------------
-# Tests wrapped with `quarantine()` from vitest/flaky.ts are skipped
-# in the main run.  Here they run with QUARANTINE=1 set, which causes
-# the helper to register them as live tests with automatic retry.
+# Which tests are quarantined is a file — `flake/quarantine.json` — rather
+# than a marker at each call site.  A test file registers its cases through
+# `createQuarantine(import.meta.url)` from vitest/flaky.ts and reads the
+# same whether anything in it is quarantined or not; with QUARANTINE=1 set,
+# the listed tests run with retries instead of being skipped.
+#
+# The reason the list is data: a quarantined test keeps its name.  Renaming
+# it — which is what a `[quarantined]` prefix or an `@flaky` title does —
+# discards the history a dashboard needs in order to decide whether the test
+# may come back, at both of the moments that decision is being made.  See
+# flake/README.md, which measures it.
 #
 # PLAYWRIGHT QUARANTINE
 # ---------------------
-# Tests whose title contains @flaky are excluded from the main browser
-# projects via `grepInvert: /@flaky/`.  The "quarantine" project in
-# playwright.config.ts uses `grep: /@flaky/` to run only those tests
-# with elevated retries and full trace/video capture.
+# Tests tagged `@flaky` are excluded from the main browser projects via
+# `grepInvert: /@flaky/`, and the "quarantine" project in
+# playwright.config.ts uses `grep: /@flaky/` to run only those with
+# elevated retries and full trace/video capture.
+#
+# Use the tag *option*, not the title:
+#
+#     test('loads the user list', { tag: '@flaky' }, async ({ page }) => { … })
+#
+# Both forms are selected by grep and both appear as `tags: ['flaky']` in the
+# JSON report.  The title form additionally changes the test's title and its
+# id — Playwright's id is a hash of the two — which are the only keys a
+# report offers to join a history on.
+#
+# THE ARTEFACTS
+# -------------
+# Retrying a test and recording that you retried it are unrelated features.
+# A Vitest JSON report of a retried test says `status: "passed"` with no
+# attempt count; its JUnit report — the format test-analytics services
+# ingest — writes a `<testcase>` identical to one that passed first time.
+# So both jobs below carry `flake/reporter.ts`, which writes one line per
+# attempt, and `pnpm flake:check` renders the dashboard from those lines.
+# Playwright needs no reporter: its JSON report already has one `results`
+# entry per attempt and a `flaky` status.
 #
 # Required secrets: none.
 # Required branch protection: do NOT add these jobs to required checks.
@@ -88,14 +116,32 @@ jobs:
         run: QUARANTINE=1 pnpm test:quarantine
         continue-on-error: true
 
+      - name: Flakiness dashboard
+        # Renders the attempt records the run above wrote into the job summary,
+        # and fails on a registry entry that has expired, names a test that no
+        # longer exists, or names a test the history says is fixed or
+        # permanently broken.
+        run: pnpm flake:check
+        env:
+          FLAKE_HISTORY: .flake
+
       - name: Upload quarantine results
         if: always()
         uses: actions/upload-artifact@v7
         with:
+          # `.flake/` holds one line per attempt and is the history a later
+          # run's dashboard is computed from; `quarantine-results/` is the
+          # Vitest report. `if-no-files-found: error` rather than `ignore`:
+          # the first version of this template uploaded a directory that was
+          # never created, because the config it ran set `outputFile` on a
+          # reporter that writes no file — and `ignore` is why nobody noticed
+          # for weeks.
           name: vitest-quarantine-${{ github.run_number }}
-          path: quarantine-results/
-          retention-days: 30
-          if-no-files-found: ignore
+          path: |
+            quarantine-results/
+            .flake/
+          retention-days: 90
+          if-no-files-found: error
 
   # -------------------------------------------------------------------------
   # Playwright quarantine — runs tests tagged @flaky in their title.
@@ -132,9 +178,14 @@ jobs:
       - name: Run quarantine E2E tests
         run: |
           GREP="${{ github.event.inputs.grep || '@flaky' }}"
-          pnpm test:e2e --project=quarantine --grep "$GREP"
+          pnpm test:e2e --project=quarantine --grep "$GREP" --reporter=json
         env:
           CI: 'true'
+          # Playwright's own JSON report is already an attempt record, so this
+          # is the file the dashboard reads for the browser half. Name it after
+          # the run: the report carries no run identifier, and two runs read as
+          # one test with twice the attempts if they share a name.
+          PLAYWRIGHT_JSON_OUTPUT_NAME: .flake/playwright-${{ github.run_number }}.json
         continue-on-error: true
 
       - name: Upload Playwright quarantine report
@@ -176,4 +227,4 @@ jobs:
           echo "| Playwright quarantine | $PW |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Quarantine failures are informational and do not block CI." >> "$GITHUB_STEP_SUMMARY"
-          echo "Review artifacts and un-quarantine tests that pass consistently." >> "$GITHUB_STEP_SUMMARY"
+          echo "Un-quarantining a test is deleting its entry from flake/quarantine.json — no test file changes, so nothing is renamed. \`pnpm flake:check\` says which entries the history has already decided." >> "$GITHUB_STEP_SUMMARY"

@@ -248,7 +248,7 @@ describe('the repository as it stands', () => {
     expect(reconcile(scanRepository()).map(describeProblem)).toEqual([])
   }, 30_000)
 
-  it('finds fewer reads than a pattern match would, because five of them are prose', () => {
+  it('finds fewer reads than a pattern match would, because seven of them are prose', () => {
     // A regular expression over the repository matches forty-six lines outside
     // `determinism/`; five are a call named in a comment, in two string
     // literals, in a test title, and in the paragraph of
@@ -295,8 +295,23 @@ describe('the repository as it stands', () => {
     // subject is *timing budgets* reads no clock to decide anything either —
     // every number it compares comes out of a Lighthouse report, so the
     // measurement is the browser's and the budget is a constant in a JSON file.
+    //
+    // `flake/` takes it to forty-seven with two, and is the first directory in
+    // four to move the gap: it adds two prose lines, so five becomes seven.
+    // Both are one sentence of `fixture/plan.ts` saying what the flaky subject
+    // deliberately is *not* — "a `setTimeout` race or a `Math.random()` coin
+    // would make the matrix unreproducible" — which is the same shape of false
+    // positive as `concurrency/strategies.ts`'s and arrives for the same
+    // reason: a directory whose subject is nondeterminism has to explain in
+    // words which nondeterminism it refused. The two real reads are today's
+    // date in `check.ts`, behind the `today` parameter every decision in
+    // `quarantine.ts` takes, and the timestamp `reporter.ts` falls back to for
+    // naming a run. A directory about flaky tests reads no clock to decide
+    // anything, because its subject is attempt *counts*: the subject fails on
+    // the attempt numbers a plan names, and a retry is a fact about the
+    // runner rather than about elapsed time.
     const outside = scanRepository().filter((site) => !site.file.startsWith('determinism/'))
 
-    expect(outside).toHaveLength(45)
+    expect(outside).toHaveLength(47)
   }, 30_000)
 })

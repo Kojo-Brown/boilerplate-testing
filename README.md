@@ -27,6 +27,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | OpenAPI conformance: six wirings scored against eleven ways a service leaves its spec | `openapi/` |
 | Component testing in a real browser, paired with the same component in jsdom | `ct/` |
 | Visual regression: 13 changes × 9 wirings, plus what `--update-snapshots` does to a baseline | `visual/` |
+| Flake detection: what 11 rerun wirings record, a quarantine registry with an expiry gate, and a dashboard | `flake/` |
 
 ## Quick Start
 
