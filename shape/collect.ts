@@ -128,6 +128,17 @@ export interface CollectorResult {
  * `QUARANTINE=1`. Registering their configs would be the same mistake twice:
  * a handful of declarations in the ratio for files that are red by design half
  * the time, and whose only reader is a Vitest suite.
+ *
+ * `impact/fixture/src/*.test.ts` are the last six, and they are the same kind a
+ * fourth time with one difference worth stating: they are green, and they are
+ * still not tests of this repository. They are the *subject* of the
+ * test-selection measurement — `impact/runs.ts` copies the six of them fourteen
+ * times over, applies one of eight faults to one file, and reads which suites
+ * the run reports as failed, which is the ground truth every selection strategy
+ * is scored against. Registering their config would put six declarations into
+ * the ratio for files whose only reader is a Vitest suite, and whose published
+ * value is how they behave once something is broken in them. They are excluded
+ * from `pnpm test` in `vitest.config.ts` for the matching reason.
  */
 export const EXPECTED_EMPTY: readonly string[] = [
   'pact/pipeline/matrix.broker.test.ts',
@@ -147,6 +158,12 @@ export const EXPECTED_EMPTY: readonly string[] = [
   'flake/fixture/subject.test.ts',
   'flake/fixture/subject.spec.ts',
   'flake/fixture/quarantined.test.ts',
+  'impact/fixture/src/cart.test.ts',
+  'impact/fixture/src/label.test.ts',
+  'impact/fixture/src/money.test.ts',
+  'impact/fixture/src/pricing.test.ts',
+  'impact/fixture/src/rates.test.ts',
+  'impact/fixture/src/rules/registry.test.ts',
 ]
 
 const toPosix = (path: string): string => path.split('\\').join('/')

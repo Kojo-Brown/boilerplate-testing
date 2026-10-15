@@ -200,6 +200,16 @@ describe('the empty-file exception list', () => {
     // registry present, absent, and present with `QUARANTINE=1`. A file whose
     // declarations are an argument to the measurement cannot be a row in a
     // pyramid ratio.
+    //
+    // `impact/fixture/src/*.test.ts` are the last six, and they are the one
+    // group here that is green and still not test material: 19 passing
+    // assertions whose published value is what happens to them once something
+    // is broken. `impact/runs.ts` copies the six fourteen times over, applies
+    // one of eight faults to one file, and reads back which suites the run
+    // reported as failed — the ground truth every selection strategy in
+    // `impact/matrix.ts` is scored against. Registering their config would put
+    // six declarations in the ratio for files whose only reader is a Vitest
+    // suite, and would make the pyramid count a subject as coverage.
     expect(EXPECTED_EMPTY).toEqual([
       'pact/pipeline/matrix.broker.test.ts',
       'matrix/fixture/specs/hooked.spec.ts',
@@ -218,6 +228,12 @@ describe('the empty-file exception list', () => {
       'flake/fixture/subject.test.ts',
       'flake/fixture/subject.spec.ts',
       'flake/fixture/quarantined.test.ts',
+      'impact/fixture/src/cart.test.ts',
+      'impact/fixture/src/label.test.ts',
+      'impact/fixture/src/money.test.ts',
+      'impact/fixture/src/pricing.test.ts',
+      'impact/fixture/src/rates.test.ts',
+      'impact/fixture/src/rules/registry.test.ts',
     ])
   })
 
