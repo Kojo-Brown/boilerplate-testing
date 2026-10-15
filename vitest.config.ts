@@ -128,6 +128,19 @@ export const UNIT_TEST_CONFIG = {
     // Node and stays here, including the real runs, which need no browser
     // because the Playwright half of the subject requests no fixture.
     'flake/fixture/**',
+    // The test-impact subject and the faulted copies of it. The six suites
+    // under `impact/fixture/` are the *subject* of the selection measurement
+    // rather than tests of anything: they are collected by `impact/runs.ts`
+    // through a config of their own, fourteen times over, and they depend on a
+    // custom matcher that only that config loads — collected here they would
+    // fail on the first assertion. `.runs/` is where a fault is applied, and
+    // one of the faults adds a test file that fails on purpose.
+    //
+    // Only the fixture. Everything else in `impact/` — the diff parser, the
+    // import graph, the trigger and edge rules, the selector, the scorer, the
+    // real runs and the README audit — is ordinary Node and stays here.
+    'impact/fixture/**',
+    'impact/.runs/**',
     // Suites that need a container runtime are `*.container.test.ts`
     // wherever they live — `containers/` and `dbisolation/` today. They take
     // minutes and belong to `pnpm test:containers` and its own CI job.
@@ -193,6 +206,15 @@ export const UNIT_TEST_CONFIG = {
       'trace/**/*.spec.ts',
       'trace/server.ts',
       'trace/check.ts',
+      // And once more for `impact/`: the fixture is copied, faulted and run by
+      // fourteen subprocesses, so nothing in this run executes a line of it,
+      // and `check.ts` reads a git diff and the filesystem. What is left — the
+      // diff parser, the graph, the triggers, the edges, the selector and the
+      // scorer — is covered here.
+      'impact/fixture/**',
+      'impact/.runs/**',
+      'impact/check.ts',
+      'impact/run.ts',
     ],
   },
 } satisfies ViteUserConfig['test']

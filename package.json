@@ -32,6 +32,8 @@
     "lighthouse:check": "node lighthouse/check.ts",
     "lighthouse:comment": "node lighthouse/comment-pr.ts",
     "flake:check": "node flake/check.ts",
+    "impact:check": "node impact/check.ts",
+    "impact:run": "node impact/run.ts",
     "characterise:record": "node tdd/characterisation/record.ts",
     "fuzz:record": "node fuzz/record.ts",
     "intercept:record": "node intercept/record.ts",

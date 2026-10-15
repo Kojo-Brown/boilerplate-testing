@@ -28,6 +28,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | Component testing in a real browser, paired with the same component in jsdom | `ct/` |
 | Visual regression: 13 changes × 9 wirings, plus what `--update-snapshots` does to a baseline | `visual/` |
 | Flake detection: what 11 rerun wirings record, a quarantine registry with an expiry gate, and a dashboard | `flake/` |
+| Test-impact analysis: 8 selection strategies scored against 8 ways a diff breaks a suite, with a CI job that runs the selection | `impact/` |
 
 ## Quick Start
 
@@ -41,6 +42,8 @@ pnpm test:ct         # run the component suite (bundles and drives a browser)
 pnpm test:visual     # run the visual comparator matrix (needs a browser)
 pnpm test:containers # run the container suites (needs a container runtime)
 pnpm containers:prune # remove containers a reused run left behind
+pnpm impact:check    # the suites the current diff affects, and the audit of the rules that decided
+pnpm impact:run      # run exactly that selection
 ```
 
 ## Patched dependencies

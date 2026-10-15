@@ -39,6 +39,11 @@
     "node_modules",
     ".stryker-tmp",
     "reports",
+    // Copies of `impact/fixture` with a fault applied, left behind by a
+    // measured run. Same argument as `.stryker-tmp`: the copy is a full
+    // duplicate of a directory that is already checked, and one of the faults
+    // is a test file that fails on purpose.
+    "impact/.runs",
     // The k6 scripts: they import `k6/http` and friends, which only resolve
     // inside the k6 binary. `k6/tsconfig.k6.json` checks them, and `typecheck`
     // runs it.

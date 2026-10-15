@@ -102,6 +102,12 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
   // Test runners and assertion libraries
   // -------------------------------------------------------------------------
   vitest: pure('The runner itself. Importing it says nothing about what a test reaches.'),
+  'vitest/config#defineConfig': pure(
+    'An identity function that returns the object it was given, for the types. ' +
+      'Reachable from a test because `impact/repo.ts` imports the root ' +
+      '`vitest.config.ts` for its exclusion list — one list, two readers — ' +
+      'rather than keeping a second copy of those globs.',
+  ),
   '@playwright/test': boundary(
     'e2e',
     'browser + running application',
@@ -254,6 +260,12 @@ export const MODULES: Readonly<Record<string, ModuleClass>> = {
     'Turning source text into an AST is computation. The parser reads no file ' +
       'itself — `shape/classify.ts` hands it a string it has already read, and ' +
       'the `filePath` option only tells it which dialect to parse.',
+  ),
+  typescript: pure(
+    'The compiler API. `impact/graph.ts` uses one function of it — ' +
+      '`ts.preProcessFile`, the scanner `tsc` runs before it has a program — ' +
+      'which takes source text and returns the specifiers in it. No program, no ' +
+      'host, no disk: the caller reads the file.',
   ),
 
   // -------------------------------------------------------------------------

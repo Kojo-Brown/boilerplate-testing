@@ -17,14 +17,17 @@
 # Node started as a `webServer` — because what it measures is what happens
 # between a browser and a server rather than inside an application.
 #
-# There are twelve jobs. `gates` runs the five gates plus the contract suites on
-# every supported Node major; `mutation`, `containers`, `component`,
-# `contracts`, `intercept`, `matrix`, `a11y`, `visual`, `trace`, `authstate` and
-# `load` each run once, in parallel, for the reason stated above each of them —
-# a mutation score is a property of the tests rather than the runtime, and the
-# rest need a browser, a port, a service or a binary that `pnpm test` must never
-# require. All twelve are required: nothing here treats any of them as
-# advisory.
+# There are fourteen jobs. `gates` runs the five gates plus the contract suites
+# on every supported Node major; `mutation`, `containers`, `component`,
+# `contracts`, `intercept`, `matrix`, `a11y`, `visual`, `trace`, `authstate`,
+# `load`, `lighthouse` and `impact` each run once, in parallel, for the reason
+# stated above each of them — a mutation score is a property of the tests rather
+# than the runtime, a selection is a property of the import graph, and the rest
+# need a browser, a port, a service or a binary that `pnpm test` must never
+# require. All fourteen are required: nothing here treats any of them as
+# advisory. `impact` is the one that is required without being sufficient —
+# it runs a *subset* of the suite, which is why `gates` still runs all of it;
+# see the comment above that job.
 #
 # ---------------------------------------------------------------------------
 # Node support matrix
@@ -1090,3 +1093,73 @@ jobs:
           path: .lighthouseci/
           retention-days: 14
           if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # Test impact
+  # ---------------------------------------------------------------------------
+  # Fast feedback, and deliberately not a substitute for the full run.
+  #
+  # `pnpm impact:check` reads the diff against the merge base, builds the import
+  # graph over the tracked files, folds in the derived snapshot edges and the
+  # declared data-file edges, prints the selection into the job summary, and
+  # exits non-zero on a stale trigger, a stale declared edge, or a selected file
+  # `vitest list` says the runner would not collect. `pnpm impact:run` then runs
+  # exactly that selection.
+  #
+  # It does not replace `gates`, and the reason is measured rather than
+  # cautious: `impact/README.md` scores eight selection strategies against eight
+  # faults, and the safety of the one used here rests on a hand-written list of
+  # data-file edges being complete — which nothing can check, because the
+  # failure is an edge nobody thought of. A missed suite in a selection is not a
+  # red build; it is a green one. So the whole suite still runs on every
+  # supported Node major in `gates`, and this job exists to tell a contributor
+  # within a minute what their change touches.
+  #
+  # `fetch-depth: 0` is required: a merge base cannot be computed from a shallow
+  # clone, and a selector that cannot see the base branch has no diff to select
+  # from.
+  #
+  # One Node major, because a selection is a property of the repository's import
+  # graph rather than of the runtime. 24 is the current LTS and the middle of the
+  # supported range.
+  impact:
+    name: Test impact
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      - name: Select the affected suites
+        run: pnpm impact:check
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      - name: Run the affected suites
+        run: pnpm impact:run
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      - name: Upload the selection
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: impact-selection-${{ github.run_number }}
+          path: impact/selection.txt
+          retention-days: 7
+          if-no-files-found: error

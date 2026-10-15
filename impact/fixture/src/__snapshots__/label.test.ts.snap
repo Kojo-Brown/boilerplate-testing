@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the receipt > lists every line above the total 1`] = `
+"SKU-1 x3 @ $2.50
+SKU-2 x3 @ $2.50
+TOTAL $15.00"
+`;

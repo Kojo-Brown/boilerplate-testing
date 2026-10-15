@@ -149,6 +149,16 @@ export const GATED_SCRIPTS: readonly string[] = [
   // It runs inside `gates` rather than in a job of its own because there is
   // nothing to isolate it from.
   'flake:check',
+  // `impact:check` and `impact:run` are the test-impact pair, and they are on
+  // this list for two different halves of the same reason. `impact:check` is
+  // this repository's own code deciding an exit code — it audits the trigger
+  // patterns and the declared edges and fails on a stale one. `impact:run`
+  // spawns Vitest over the selected files, so the flag it carries is the one
+  // the selected suites then run under: without it, the fast-feedback job would
+  // police deprecations less strictly than `gates` does, and a contributor
+  // would see green here for something red there.
+  'impact:check',
+  'impact:run',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows

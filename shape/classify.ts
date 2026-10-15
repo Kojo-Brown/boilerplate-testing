@@ -66,6 +66,14 @@ const SKIP_DIRS = new Set([
   // has the same imports, leave the ratio looking unchanged while every count
   // in the report is wrong.
   '.stryker-tmp',
+  // `impact/runs.ts` copies `impact/fixture/` into `impact/.runs/<fault>/`
+  // once per fault and once per coverage reading, applies one change to one
+  // file, and runs Vitest over the copy. The copies are deliberately left on
+  // disk — a crashed measurement is easier to read than a deleted one — so the
+  // same argument as `.stryker-tmp` applies, and harder: fourteen copies of six
+  // suites is 84 test files that no runner collects, each of which the census
+  // would report as an uncollected file for as long as they sit there.
+  '.runs',
   'reports',
 ])
 
