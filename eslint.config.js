@@ -43,6 +43,10 @@ export default tseslint.config(
       // a failure whose message names neither Stryker nor the copy.
       '.stryker-tmp/**',
       'reports/**',
+      // Copies of `impact/fixture` that a measured run faults and runs. The
+      // same argument as `.stryker-tmp/**` one line up: transient duplicates
+      // of files that are already linted where they live.
+      'impact/.runs/**',
     ],
   },
 

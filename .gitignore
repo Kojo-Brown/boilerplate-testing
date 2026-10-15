@@ -48,3 +48,9 @@ quarantine-results/
 # `playwright test` run from a shell will, and the directory then sits in
 # `git status` looking like a source change.
 test-results/
+
+# Copies of impact/fixture that a measured run applies a fault to. See impact/README.md.
+impact/.runs/
+
+# The selection `pnpm impact:check` writes for `pnpm impact:run`. Derived from a diff.
+impact/selection.txt

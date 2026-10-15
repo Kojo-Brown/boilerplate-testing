@@ -44,7 +44,26 @@ const SKIP_DIRECTORIES = new Set([
   'playwright-report',
   'playwright-results',
   'reports',
+  // Faulted copies of `impact/fixture`, left behind by a measured run. The
+  // same argument as `.stryker-tmp`: a sandbox copy would put a second,
+  // transient row in the inventory for a snapshot that is already governed
+  // where it lives — and whether it is there at all would depend on whether
+  // anybody had run the measurement.
+  '.runs',
 ])
+
+/**
+ * Directories skipped by repository-relative path rather than by name.
+ *
+ * One entry, and it is a subject rather than a snapshot: `impact/fixture/` is
+ * the six-suite project `impact/` applies faults to, and one of those faults
+ * rewrites its snapshot baseline on purpose. It is excluded here for the same
+ * reason `vitest.config.ts` excludes it from the unit run — it is not test
+ * material of this repository, it is the thing being measured — and by path
+ * rather than by the name `fixture`, which half a dozen directories use for
+ * material that *is* governed.
+ */
+const SKIP_PATHS = new Set(['impact/fixture'])
 
 export type SnapshotKind = 'file' | 'inline'
 
@@ -82,7 +101,7 @@ export function walk(root: string, predicate: (path: string) => boolean): string
       const path = join(directory, entry)
 
       if (statSync(path).isDirectory()) {
-        if (!SKIP_DIRECTORIES.has(entry)) {
+        if (!SKIP_DIRECTORIES.has(entry) && !SKIP_PATHS.has(toPosix(relative(root, path)))) {
           recurse(path)
         }
       } else if (predicate(path)) {
