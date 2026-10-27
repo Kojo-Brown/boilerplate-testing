@@ -358,6 +358,55 @@ export const REGISTRY: readonly RegistryEntry[] = [
     disposition: 'inert',
     why: 'The fallback name for a run when `FLAKE_RUN` is unset — a timestamp, so that a directory of attempt files from unnamed runs still sorts chronologically. Nothing asserts on it: every measurement in `flake/` names its runs, and the analytics only ever compare run identifiers for equality.',
   },
+
+  // -------------------------------------------------------------------------
+  // chaos/ — the injected faults, the wirings' own budgets, and one clock
+  // -------------------------------------------------------------------------
+  // Six reads across four files, and they divide cleanly in two. Three of them
+  // are *the subject*: a fault that is a delay has to delay, and a wiring whose
+  // claim is "it gives up after 100ms" has to have the timer it gives up on.
+  // None of those three decides a verdict, which is the distinction `shaping`
+  // draws and the reason they are not `measured` — the word in a cell comes
+  // from `chaos/outcomes.ts`, keyed on the *name* of the error a wiring threw,
+  // and a classifier that reads no clock cannot be wrong about one.
+  //
+  // The other two are in `runs.ts`, which is the one file here that turns an
+  // interval into something published, and they are `measured` for that reason.
+  {
+    file: 'chaos/origin.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'shaping',
+    why: 'The single `after()` helper behind `slow-headers`, `slow-body` and the delay before `reset-mid-body` destroys its socket. Same register as `k6/server.ts`\'s `/slow` route: it is how a dependency is made to be slow without waiting for a real one to degrade, it shapes the fault the wirings are scored against, and nothing times it — whether `setTimeout` sleeps is Node\'s contract rather than this fixture\'s. Funnelled through one helper on purpose, so that three faults are one row to argue about rather than three.',
+  },
+  {
+    file: 'chaos/layers.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'shaping',
+    why: 'The same helper one layer up: the hand-written `fetch` stub\'s delay for `slow-headers`, and for the chunk it enqueues before erroring `reset-mid-body`\'s body stream. It exists so the cheap injection layer can be compared against the real one on the faults made of waiting, which is the directory\'s second table — and, like the origin\'s, it decides nothing. The twelve cells where the two layers disagree are decided by whether the stub honours an `AbortSignal`, not by how long it waits.',
+  },
+  {
+    file: 'chaos/policies.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'shaping',
+    why: 'The losing horse in `race-timeout`\'s `Promise.race` — the one wiring of six that owns a timer rather than handing a signal to the transport, which is precisely the bug the directory is about. It is the subject rather than an observation of it: the cell that results reads `aborted` because `outcomes.ts` recognised a `TimeoutError` by name, so no published value depends on when this timer fired. Returned with its canceller, because an uncancelled rejection outlives the race and surfaces as an unhandled rejection in whichever test is running when it lands.',
+  },
+  {
+    file: 'chaos/runs.ts',
+    kind: 'monotonic-clock',
+    count: 2,
+    disposition: 'measured',
+    why: 'The interval `timed()` puts around one call, and the only place in `chaos/` where a duration becomes a published value. It is the `band` column, and that column carries the directory\'s headline finding on its own: `race-timeout` against `slow-body` reads a cheerful `ok` in the outcome column and `waited-out` here, because the wiring returned successfully nine times its own budget late. Delete the clock and the outcome column alone reports that wiring as working. `performance.now()` rather than `Date.now()` because an interval read off a wall clock that steps — NTP, a suspended laptop — can come out negative.',
+  },
+  {
+    file: 'chaos/runs.ts',
+    kind: 'scheduler',
+    count: 1,
+    disposition: 'measured',
+    why: 'The harness\'s deadline, and the one read here that looks like the `inert` watchdogs in `k6/check.ts` and `lighthouse/check.ts` and is not one. Those fire only when a run has hung, and then the gate fails on the kill rather than on a timing; this one fires in four published cells — every `hung` cell in both tables is a wiring that never settled — so a verdict depends on it by design rather than in the event of trouble. It is also what keeps a wiring with no working timeout from turning the suite into a hang instead of a row: `bare` against `black-hole` has no other way to produce a cell.',
+  },
 ]
 
 /** The key a site and a row agree on. */
