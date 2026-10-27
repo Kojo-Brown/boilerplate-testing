@@ -29,6 +29,7 @@ Copy-paste testing patterns for TypeScript full-stack apps.
 | Visual regression: 13 changes × 9 wirings, plus what `--update-snapshots` does to a baseline | `visual/` |
 | Flake detection: what 11 rerun wirings record, a quarantine registry with an expiry gate, and a dashboard | `flake/` |
 | Test-impact analysis: 8 selection strategies scored against 8 ways a diff breaks a suite, with a CI job that runs the selection | `impact/` |
+| Chaos testing: 9 injected faults × 6 resilience wirings, measured against a real socket and against the hand-written `fetch` stub that gets the latency ones backwards | `chaos/` |
 
 ## Quick Start
 

@@ -211,10 +211,22 @@ describe('the registry', () => {
     // an uncontrolled read is a seam default, an inert value or a bug — which
     // is what this list is for.
     //
-    // The list grows slowly and that is the property worth protecting: three of
-    // the four are directories that start a real server, and the admission test
+    // `chaos/` is the fifth, and it was admitted on exactly that test rather
+    // than on starting a server — though it does that too. Its subject is what
+    // a resilience policy does to an injected fault, and one of its two
+    // published columns is a band of elapsed time, because the headline finding
+    // is not legible anywhere else: `race-timeout` against `slow-body` reads
+    // `ok` in the outcome column and `waited-out` in the band, which is a
+    // wiring reporting success nine times its own budget late. Remove the clock
+    // and the table says that wiring works. Note what is *not* admitted with
+    // it: the three timers that inject the faults and arm the one wiring that
+    // owns a timeout are registered `shaping`, because the word in a cell comes
+    // from the name of the error a wiring threw rather than from any duration.
+    //
+    // The list grows slowly and that is the property worth protecting: four of
+    // the five are directories that start a real server, and the admission test
     // is not "this code waits for something" but "the waiting is the result".
-    const measuring = ['determinism/', 'concurrency/', 'containers/', 'dbisolation/']
+    const measuring = ['determinism/', 'concurrency/', 'containers/', 'dbisolation/', 'chaos/']
 
     for (const entry of REGISTRY.filter((row) => row.disposition === 'measured')) {
       expect({
@@ -312,6 +324,17 @@ describe('the repository as it stands', () => {
     // runner rather than about elapsed time.
     const outside = scanRepository().filter((site) => !site.file.startsWith('determinism/'))
 
-    expect(outside).toHaveLength(47)
+    //
+    // `chaos/` takes it to fifty-three with six, the largest single addition
+    // since `containers/`, and it adds no prose false positive: five of the six
+    // live in four one-line helpers (`after` in `origin.ts` and `layers.ts`,
+    // `rejectAfter` in `policies.ts`, the deadline in `runs.ts`) and the sixth
+    // is the pair of `performance.now()` reads inside `timed`. That shape is
+    // deliberate rather than lucky — a directory injecting three latency faults
+    // across two layers could easily have had a timer per fault, and funnelling
+    // each file's delays through one helper is what keeps six reads at five
+    // rows. Only the two in `runs.ts` decide anything: they are the `band`
+    // column, which is where this directory's headline cell lives.
+    expect(outside).toHaveLength(53)
   }, 30_000)
 })
