@@ -10,7 +10,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { baselineFrom } from './baseline.ts'
-import { BUDGET, coverage, evaluate, type Budget } from './budget.ts'
+import { BUDGET, coverage, diagnose, evaluate, type Budget } from './budget.ts'
 import { FILE_DELTA_MS, FILE_TOLERANCE, TOTAL_TOLERANCE } from './gates.ts'
 
 describe('the shipped budget', () => {
@@ -30,12 +30,43 @@ describe('the shipped budget', () => {
     expect(BUDGET.thresholds.totalTolerance).toBeGreaterThan(BUDGET.calibration.totalNoiseFloor)
   })
 
-  it('keeps the file delta above the worst absolute disagreement a policed file showed', () => {
-    // The worst absolute mover in the calibration is above the floor, so the
-    // delta clause is what has to carry it — together with the percentage
-    // clause, which that file does not trip.
-    expect(BUDGET.thresholds.fileDeltaMs).toBeGreaterThan(0)
-    expect(BUDGET.calibration.worstFileAbsoluteMs).toBeGreaterThan(BUDGET.thresholds.fileDeltaMs)
+  // The per-file clause is not enforced, and this is the measurement that
+  // says why: its thresholds sit *below* the range the suite's own files show
+  // between two runs of unchanged code. Were it enforced, this assertion
+  // would be the one failing instead of a pull request.
+  it('records a per-file range the shipped thresholds do not clear', () => {
+    expect(BUDGET.calibration.worstFileRangeAbsoluteMs).toBeGreaterThan(
+      BUDGET.thresholds.fileDeltaMs,
+    )
+    expect(BUDGET.calibration.worstFileRangeRelative).toBeGreaterThan(
+      BUDGET.thresholds.fileTolerance,
+    )
+  })
+
+  it('does not enforce a clause whose thresholds the calibration cannot support', () => {
+    expect(BUDGET.enforce).not.toContain('file')
+  })
+
+  it('enforces something, because a gate that fails on nothing is not a gate', () => {
+    expect(BUDGET.enforce).toEqual(['total'])
+  })
+
+  // The evidence that took the clause out of `enforce`: a SPEC.md-only pull
+  // request, on a GitHub runner, where the total came in faster and one file
+  // moved 63%.
+  it('records what the gate did on a real runner, and that the total was fine', () => {
+    const { runnerEvidence: evidence } = BUDGET
+
+    expect(evidence.perFileFalseAlarms).toBeGreaterThan(0)
+    expect(evidence.totalMovedBy).toBeLessThan(BUDGET.thresholds.totalTolerance)
+    expect(evidence.worstFileToMs).toBeGreaterThan(evidence.worstFileFromMs)
+    expect(evidence.where).not.toBe('')
+  })
+
+  it('keeps the total tolerance clear of what the runner actually moved by', () => {
+    expect(Math.abs(BUDGET.runnerEvidence.totalMovedBy)).toBeLessThan(
+      BUDGET.thresholds.totalTolerance,
+    )
   })
 
   it('is strictly looser than the thresholds the fixture matrix was scored with', () => {
@@ -56,10 +87,28 @@ describe('the gate the budget produces', () => {
     expect(evaluate(baseline, { 'small.test.ts': 90, 'big.test.ts': 4_000 })).toEqual([])
   })
 
-  it('fires on a policed file that doubled', () => {
+  // Reported, not enforced. `diagnose` sees it; `evaluate` does not fail on
+  // it; and the total clause catches it here anyway, which is the point —
+  // a file that doubles and matters moves the total too.
+  it('notes a policed file that doubled without failing on the file itself', () => {
+    const run = { 'small.test.ts': 50, 'big.test.ts': 8_000 }
+
+    expect(diagnose(baseline, run).map((alarm) => alarm.scope)).toContain('big.test.ts')
+    expect(evaluate(baseline, run).map((alarm) => alarm.scope)).not.toContain('big.test.ts')
+  })
+
+  it('fails on a file that doubled by way of the total it moved', () => {
     const alarms = evaluate(baseline, { 'small.test.ts': 50, 'big.test.ts': 8_000 })
 
-    expect(alarms.map((alarm) => alarm.scope)).toContain('big.test.ts')
+    expect(alarms.map((alarm) => alarm.scope)).toEqual(['TOTAL'])
+  })
+
+  // The regression that took the per-file clause out of `enforce`: one
+  // volatile file swinging while the suite as a whole got faster.
+  it('stays quiet when one file swings and the total does not', () => {
+    const quiet = baselineFrom([{ 'volatile.test.ts': 17_807, 'rest.test.ts': 120_000 }])
+
+    expect(evaluate(quiet, { 'volatile.test.ts': 29_126, 'rest.test.ts': 100_000 })).toEqual([])
   })
 
   it('stays quiet on a new test file that costs little, which a branch adds all the time', () => {
@@ -72,7 +121,7 @@ describe('the gate the budget produces', () => {
     expect(alarms).toEqual([])
   })
 
-  it('fires on a new test file expensive enough to breach the total', () => {
+  it('fails on a new test file expensive enough to breach the total', () => {
     const alarms = evaluate(baseline, {
       'small.test.ts': 50,
       'big.test.ts': 4_000,
