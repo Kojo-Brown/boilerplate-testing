@@ -407,6 +407,31 @@ export const REGISTRY: readonly RegistryEntry[] = [
     disposition: 'measured',
     why: 'The harness\'s deadline, and the one read here that looks like the `inert` watchdogs in `k6/check.ts` and `lighthouse/check.ts` and is not one. Those fire only when a run has hung, and then the gate fails on the kill rather than on a timing; this one fires in four published cells — every `hung` cell in both tables is a wiring that never settled — so a verdict depends on it by design rather than in the event of trouble. It is also what keeps a wiring with no working timeout from turning the suite into a hang instead of a row: `bare` against `black-hole` has no other way to produce a cell.',
   },
+
+  // -------------------------------------------------------------------------
+  // timing/ — one helper, and the one clock a timing directory does not read
+  // -------------------------------------------------------------------------
+  // Two reads in one file, and the surprise is that there are only two. A
+  // directory whose entire subject is how long test files take could plausibly
+  // have had a clock in the recorder, the scorer, the baseline and the gate;
+  // it has none in any of them, because every duration it reasons about is
+  // read out of a Vitest JSON report's `startTime`/`endTime`. The measurement
+  // is the runner's, so the gate inherits it rather than taking it — which is
+  // also why the whole matrix can be re-derived from a committed corpus.
+  {
+    file: 'timing/fixture/work.ts',
+    kind: 'monotonic-clock',
+    count: 2,
+    disposition: 'shaping',
+    why: 'The two reads bounding `spin`, the fixture\'s only source of duration: it burns arithmetic until the clock says the requested number of milliseconds has passed. Same register as `chaos/origin.ts`\'s delay — it is how a test file is made to take 242ms without waiting on a real one, and nothing asserts on it. Deliberately not a fixed iteration count, which would take a different number of milliseconds on every machine and make `corpus.json` incomparable the moment it was recorded elsewhere; and deliberately not `setTimeout`, because a suite that sleeps measures the event loop\'s punctuality rather than contending for a core the way a real suite does. `performance.now()` rather than `Date.now()` for the reason `chaos/runs.ts` gives: an interval read off a wall clock that steps can come out negative, and this one controls a loop.',
+  },
+  {
+    file: 'timing/work.test.ts',
+    kind: 'monotonic-clock',
+    count: 2,
+    disposition: 'measured',
+    why: 'The pair inside `measure`, the only clock read in the suite that covers `spin`. `measured` rather than `shaping` because here the interval *is* the assertion: `spin` has one contract — it burns the wall clock it was asked for — and there is no way to establish that without reading a clock. Funnelled through one helper on purpose, which is what keeps six timing assertions at one row of two reads. The assertions are one-sided (at least 19ms for a 20ms request, under 50ms for a 0ms one) because an upper bound on a busy loop is a claim about the scheduler rather than about the loop, and that is the shape of timing assertion this repository keeps finding in other people\'s suites.',
+  },
 ]
 
 /** The key a site and a row agree on. */

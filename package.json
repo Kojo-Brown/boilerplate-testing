@@ -46,7 +46,10 @@
     "storybook:build": "storybook build",
     "storybook:test": "test-storybook",
     "lighthouse:ci": "lhci autorun --config=lighthouse/lighthouserc.cjs",
-    "bundlesize:check": "node bundlesize/check.js"
+    "bundlesize:check": "node bundlesize/check.js",
+    "timing:check": "node timing/check.ts",
+    "timing:record": "node timing/record.ts",
+    "timing:calibrate": "node timing/calibrate.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^9.8.0"

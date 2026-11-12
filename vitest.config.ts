@@ -141,6 +141,23 @@ export const UNIT_TEST_CONFIG = {
     // real runs and the README audit — is ordinary Node and stays here.
     'impact/fixture/**',
     'impact/.runs/**',
+    // The timing subject. The five suites under `timing/fixture/` exist to
+    // take a known number of milliseconds, and `timing/record.ts` spawns them
+    // sixteen times through a config of their own to record `corpus.json`.
+    // They are the *subject* of the test-time measurement rather than tests of
+    // anything, and collecting them here would put the instrument inside the
+    // thing it measures: `pnpm test`'s own wall clock would include the
+    // fixture, so the suite whose duration the budget polices would grow every
+    // time the fixture did.
+    //
+    // Only the fixture. Everything else in `timing/` — the report parser, the
+    // baseline, the noise model, the gate designs, the scorer, the calibration
+    // and the README audit — is ordinary computation and stays here, including
+    // the re-derivation of all 49 published cells, which needs no runner
+    // because the runs it scores are a committed file. `spin` itself is
+    // covered by `timing/work.test.ts`, which lives outside the excluded
+    // directory for exactly that reason.
+    'timing/fixture/**',
     // Suites that need a container runtime are `*.container.test.ts`
     // wherever they live — `containers/` and `dbisolation/` today. They take
     // minutes and belong to `pnpm test:containers` and its own CI job.
@@ -215,6 +232,14 @@ export const UNIT_TEST_CONFIG = {
       'impact/.runs/**',
       'impact/check.ts',
       'impact/run.ts',
+      // And once more for `timing/`: `record.ts` spawns Vitest sixteen times,
+      // `calibrate.ts` and `check.ts` read reports off disk and are driven by
+      // CI, and the fixture is run by a different config in another process.
+      // What is left — the parser, the baseline, the noise model, the gates,
+      // the scorer, the budget and the renderers — is covered here.
+      'timing/fixture/**',
+      'timing/record.ts',
+      'timing/check.ts',
     ],
   },
 } satisfies ViteUserConfig['test']

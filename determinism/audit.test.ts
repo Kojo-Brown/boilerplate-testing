@@ -226,7 +226,26 @@ describe('the registry', () => {
     // The list grows slowly and that is the property worth protecting: four of
     // the five are directories that start a real server, and the admission test
     // is not "this code waits for something" but "the waiting is the result".
-    const measuring = ['determinism/', 'concurrency/', 'containers/', 'dbisolation/', 'chaos/']
+    //
+    // `timing/` is the sixth, and the first that is not a directory starting a
+    // server. It is admitted on the stated test rather than in spite of it:
+    // `spin` has exactly one contract — it burns the wall clock it was asked
+    // for — and the interval inside `measure` is the assertion of it, so the
+    // waiting is the result. Note how little is admitted with it. The
+    // directory publishes a 49-cell matrix, sixteen recorded runs and a
+    // calibrated budget, and not one of those numbers comes from a clock of
+    // its own: every duration is read out of a Vitest JSON report's
+    // `startTime`/`endTime`, so the gate, the scorer, the baseline and the
+    // recorder contain no read at all. A directory whose subject *is* elapsed
+    // time earns one row here, for the helper that makes a test file slow.
+    const measuring = [
+      'determinism/',
+      'concurrency/',
+      'containers/',
+      'dbisolation/',
+      'chaos/',
+      'timing/',
+    ]
 
     for (const entry of REGISTRY.filter((row) => row.disposition === 'measured')) {
       expect({
@@ -335,6 +354,21 @@ describe('the repository as it stands', () => {
     // each file's delays through one helper is what keeps six reads at five
     // rows. Only the two in `runs.ts` decide anything: they are the `band`
     // column, which is where this directory's headline cell lives.
-    expect(outside).toHaveLength(53)
+    //
+    // `timing/` takes it to fifty-five with two, and adds no prose false
+    // positive — the third time running that a directory whose subject *is*
+    // elapsed time has added none. Both reads are the pair bounding `spin` in
+    // its fixture, the helper that makes a test file take a given number of
+    // milliseconds, and neither decides anything: every duration the directory
+    // publishes is read out of a Vitest JSON report, so the gate, the scorer,
+    // the baseline and the recorder contain no clock at all. That is the same
+    // shape as `lighthouse/`'s — a budget directory comparing numbers somebody
+    // else measured — and it is what lets the matrix be re-derived from a
+    // committed corpus on every run.
+    //
+    // The two rows become three reads and then seven: `timing/work.test.ts`
+    // adds two of its own, both inside the one `measure` helper that every
+    // timing assertion in it goes through.
+    expect(outside).toHaveLength(57)
   }, 30_000)
 })
