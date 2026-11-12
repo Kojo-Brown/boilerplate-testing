@@ -159,6 +159,20 @@ export const GATED_SCRIPTS: readonly string[] = [
   // would see green here for something red there.
   'impact:check',
   'impact:run',
+  // `timing:check` is the test-time budget. Pure Node over two Vitest JSON
+  // reports — no browser, no service, no binary — and it earns the flag for
+  // the ordinary reason: it is this repository's own code deciding an exit
+  // code. It runs in a job of its own because that job measures the suite
+  // twice, on two commits, which is wall clock no other gate needs.
+  //
+  // The two measurement steps beside it in that job are deliberately *not*
+  // here. They run `npx vitest run` rather than a pnpm script, because the
+  // merge base is checked out before it is measured and a script the pull
+  // request adds does not exist there; and they run the same command twice,
+  // which this list cannot express — the audit compares the scripts it finds
+  // against this array exactly, so an entry invoked twice fails it. Both
+  // steps carry the flag regardless.
+  'timing:check',
 ]
 
 // A step begins with a `- ` at the start of a list item; the key that follows

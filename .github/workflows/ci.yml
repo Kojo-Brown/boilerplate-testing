@@ -17,17 +17,18 @@
 # Node started as a `webServer` — because what it measures is what happens
 # between a browser and a server rather than inside an application.
 #
-# There are fourteen jobs. `gates` runs the five gates plus the contract suites
+# There are fifteen jobs. `gates` runs the five gates plus the contract suites
 # on every supported Node major; `mutation`, `containers`, `component`,
 # `contracts`, `intercept`, `matrix`, `a11y`, `visual`, `trace`, `authstate`,
-# `load`, `lighthouse` and `impact` each run once, in parallel, for the reason
-# stated above each of them — a mutation score is a property of the tests rather
-# than the runtime, a selection is a property of the import graph, and the rest
-# need a browser, a port, a service or a binary that `pnpm test` must never
-# require. All fourteen are required: nothing here treats any of them as
-# advisory. `impact` is the one that is required without being sufficient —
+# `load`, `lighthouse`, `impact` and `timing` each run once, in parallel, for
+# the reason stated above each of them — a mutation score is a property of the
+# tests rather than the runtime, a selection is a property of the import graph,
+# and the rest need a browser, a port, a service or a binary that `pnpm test`
+# must never require. All fifteen are required: nothing here treats any of them
+# as advisory. `impact` is the one that is required without being sufficient —
 # it runs a *subset* of the suite, which is why `gates` still runs all of it;
-# see the comment above that job.
+# see the comment above that job. `timing` is the only one that runs on pull
+# requests alone, because what it compares is two commits rather than one.
 #
 # ---------------------------------------------------------------------------
 # Node support matrix
@@ -1163,3 +1164,113 @@ jobs:
           path: impact/selection.txt
           retention-days: 7
           if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Test-time budget
+  # ---------------------------------------------------------------------------
+  # Its own job, on one Node major, and it is the only job here that runs the
+  # suite twice on purpose.
+  #
+  # A timing gate needs something to compare against, and the obvious baseline
+  # — a committed file of per-file durations — does not work. Wall clock is a
+  # property of the machine, so a baseline recorded on one runner is wrong on
+  # the next one by more than any regression it is meant to catch. It is worse
+  # than that, and `timing/` has the measurement: six runs of this repository's
+  # unchanged suite on one machine, and two batches of three taken minutes
+  # apart disagreed on the total by 6% while each batch internally disagreed by
+  # 3.6% and 1.9%. A number committed to the repository cannot survive that.
+  #
+  # So the merge base and the head commit are both measured here, back to back,
+  # on the same runner, and `timing/check.ts` compares the two reports. Twice
+  # the suite's wall clock, in one job, off the critical path — which is the
+  # price of a timing number that means anything.
+  #
+  # One Node major because what this measures is a difference between two
+  # commits, not between two runtimes; `gates` is where a runtime disagreement
+  # belongs. 24 is the current LTS and the middle of the supported range.
+  #
+  # `needs:` is deliberately absent, for the reason the mutation job gives: a
+  # duration measured while a test is failing means little, but waiting for
+  # `gates` to say so costs fifteen minutes, and both jobs must be green for
+  # the pull request to merge either way.
+  #
+  # Pull requests only. On a push to main there is no second commit to compare
+  # against that is not main itself.
+  #
+  # The measurements use `npx vitest run` rather than a pnpm script, and that
+  # is not a style choice: the merge base is checked out before it is measured,
+  # and a script added by the pull request under review does not exist there.
+  # A job that invoked `pnpm timing:measure` would fail on the very pull
+  # request that introduced it. `npx vitest run` is a command every commit in
+  # this repository's history answers to.
+  #
+  # The base is measured first and the head second, so the head run gets the
+  # warmer filesystem cache. That bias is real and it is in the safe direction:
+  # it makes the head look faster, so it costs sensitivity rather than
+  # producing false alarms, and a timing gate that cries wolf is a timing gate
+  # somebody disables.
+  timing:
+    name: Test-time budget
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event_name == 'pull_request'
+
+    steps:
+      # Full history: the merge base has to be checked out, not just read.
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # Reports go to RUNNER_TEMP rather than the working tree, so that
+      # checking out the other commit cannot disturb them and neither can
+      # `.gitignore`.
+      - name: Measure the merge base
+        run: |
+          git checkout --detach "$BASE_SHA"
+          pnpm install --frozen-lockfile --strict-peer-dependencies
+          npx vitest run --reporter=json --outputFile="$RUNNER_TEMP/base.json"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          NODE_OPTIONS: --throw-deprecation
+
+      - name: Measure the head commit
+        run: |
+          git checkout --detach "$HEAD_SHA"
+          pnpm install --frozen-lockfile --strict-peer-dependencies
+          npx vitest run --reporter=json --outputFile="$RUNNER_TEMP/head.json"
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          NODE_OPTIONS: --throw-deprecation
+
+      - name: Test-time budget
+        run: pnpm timing:check --base "$RUNNER_TEMP/base.json" --head "$RUNNER_TEMP/head.json"
+        env:
+          NODE_OPTIONS: --throw-deprecation
+
+      # The two reports, whether or not the gate passed — especially when it
+      # did not. The log prints the comparison, but the reports are what
+      # somebody arguing about a threshold wants, and they are what
+      # `timing/calibrate.ts` reads.
+      - name: Upload the timing reports
+        if: always()
+        run: cp "$RUNNER_TEMP/base.json" "$RUNNER_TEMP/head.json" .
+      - name: Upload
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: timing-reports-${{ github.run_number }}
+          path: |
+            base.json
+            head.json
+          retention-days: 7
+          if-no-files-found: ignore

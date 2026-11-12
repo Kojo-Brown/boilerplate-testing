@@ -1,0 +1,21 @@
+{
+  "thresholds": {
+    "fileTolerance": 0.5,
+    "fileDeltaMs": 250,
+    "fileFloorMs": 100,
+    "totalTolerance": 0.15
+  },
+  "calibration": {
+    "command": "pnpm test",
+    "runs": 6,
+    "files": 228,
+    "medianTotalMs": 138824,
+    "totalNoiseFloor": 0.06,
+    "worstFileRelative": 3.62,
+    "worstFileAbsoluteMs": 2834,
+    "machine": "linux x64, 4-way parallelism, Node v22.23.4",
+    "recordedAt": "2026-11-12",
+    "policedFiles": 21,
+    "policedShareOfWallClock": 0.965
+  }
+}

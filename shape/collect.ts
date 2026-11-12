@@ -139,6 +139,19 @@ export interface CollectorResult {
  * the ratio for files whose only reader is a Vitest suite, and whose published
  * value is how they behave once something is broken in them. They are excluded
  * from `pnpm test` in `vitest.config.ts` for the matching reason.
+ *
+ * `timing/fixture/*.test.ts` are the last five, and they are the same kind a
+ * fifth time with a difference of their own: what they are the subject of is
+ * their own duration. Each spends a known number of milliseconds and asserts
+ * nothing anybody cares about — `timing/record.ts` runs the five of them
+ * sixteen times through a config of their own and records how long each took,
+ * which is `timing/corpus.json` and the instrument every gate design in that
+ * directory is scored against. Registering their config would put eleven
+ * declarations into the ratio for files whose published value is a wall-clock
+ * measurement rather than a result, and would also put the instrument inside
+ * the thing it measures: `pnpm test`'s own duration is what the budget
+ * polices, so the fixture must not be part of it. Excluded from `pnpm test` in
+ * `vitest.config.ts` for that reason.
  */
 export const EXPECTED_EMPTY: readonly string[] = [
   'pact/pipeline/matrix.broker.test.ts',
@@ -164,6 +177,11 @@ export const EXPECTED_EMPTY: readonly string[] = [
   'impact/fixture/src/pricing.test.ts',
   'impact/fixture/src/rates.test.ts',
   'impact/fixture/src/rules/registry.test.ts',
+  'timing/fixture/large.test.ts',
+  'timing/fixture/medium.test.ts',
+  'timing/fixture/small.test.ts',
+  'timing/fixture/tiny.test.ts',
+  'timing/fixture/uneven.test.ts',
 ]
 
 const toPosix = (path: string): string => path.split('\\').join('/')
