@@ -31,8 +31,27 @@ export interface FileNoise {
   readonly file: string
   readonly medianMs: number
   readonly worstMs: number
+  readonly bestMs: number
+  /** Worst run against the median. */
   readonly relative: number
+  /** Worst run against the median, in ms. */
   readonly absolute: number
+  /**
+   * Worst run against the *best* run — the file's full range.
+   *
+   * This is the number that matters and the first version of this file did not
+   * have it, which is how a gate shipped that failed a documentation-only pull
+   * request. CI compares one base run against one head run, so what the gate
+   * is exposed to is the distance between any two draws, not the distance from
+   * a draw to the middle. `flake/identity.test.ts` reads +9% by the median
+   * metric over six runs and +41% by this one, because it is slow in about
+   * half of them; on a GitHub runner the same file moved +63% between the two
+   * runs of one job and tripped a 50% threshold that the median metric had
+   * declared safe with room to spare.
+   */
+  readonly rangeRelative: number
+  /** The same quantity in ms. */
+  readonly rangeAbsoluteMs: number
 }
 
 export interface Calibration {
@@ -47,6 +66,10 @@ export interface Calibration {
   readonly worstRelative: number
   /** Worst absolute disagreement any file showed, in ms. */
   readonly worstAbsoluteMs: number
+  /** Worst full range any file above the floor showed, as a ratio. */
+  readonly worstRangeRelative: number
+  /** Worst full range any file showed, in ms. */
+  readonly worstRangeAbsoluteMs: number
 }
 
 /**
@@ -68,12 +91,17 @@ export function calibrate(runs: readonly Run[], floorMs: number): Calibration {
     const mid = median(values)
     const worst = Math.max(...values)
 
+    const best = Math.min(...values)
+
     return {
       file,
       medianMs: mid,
       worstMs: worst,
+      bestMs: best,
       relative: mid > 0 ? worst / mid - 1 : 0,
       absolute: worst - mid,
+      rangeRelative: best > 0 ? worst / best - 1 : 0,
+      rangeAbsoluteMs: worst - best,
     }
   })
 
@@ -96,10 +124,22 @@ export function calibrate(runs: readonly Run[], floorMs: number): Calibration {
     noisiest: [...noise].sort((a, b) => b.absolute - a.absolute),
     worstRelative: Math.max(0, ...aboveFloor.map((entry) => entry.relative)),
     worstAbsoluteMs: Math.max(0, ...noise.map((entry) => entry.absolute)),
+    worstRangeRelative: Math.max(0, ...aboveFloor.map((entry) => entry.rangeRelative)),
+    worstRangeAbsoluteMs: Math.max(0, ...noise.map((entry) => entry.rangeAbsoluteMs)),
   }
 }
 
-/** How many files a candidate pair of thresholds would false-alarm on. */
+/**
+ * The files a candidate pair of thresholds would wrongly accuse.
+ *
+ * Scored against each file's full range rather than against its median, for
+ * the reason `FileNoise.rangeRelative` gives: CI holds one base run against
+ * one head run, so the gate is exposed to the distance between two draws. The
+ * first version of this function compared the worst run to the median, found
+ * no false alarm at 50% and 250ms, and was wrong — `snapshot/check.test.ts`
+ * ranges 6440ms to 10009ms over six runs of unchanged code, which is +55% and
+ * +3569ms, and trips both clauses on its own.
+ */
 export function falseAlarms(
   calibration: Calibration,
   tolerance: number,
@@ -109,7 +149,7 @@ export function falseAlarms(
   return calibration.noisiest.filter(
     (entry) =>
       entry.medianMs >= floorMs &&
-      entry.worstMs > entry.medianMs * (1 + tolerance) &&
-      entry.worstMs > entry.medianMs + deltaMs,
+      entry.worstMs > entry.bestMs * (1 + tolerance) &&
+      entry.worstMs > entry.bestMs + deltaMs,
   )
 }

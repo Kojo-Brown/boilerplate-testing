@@ -38,7 +38,7 @@ import { appendFileSync, readFileSync } from 'node:fs'
 import process from 'node:process'
 
 import { baselineFrom, expected, type Baseline } from './baseline.ts'
-import { BUDGET, evaluate } from './budget.ts'
+import { BUDGET, diagnose, evaluate } from './budget.ts'
 import { entries, parseReport, total, type Run } from './durations.ts'
 
 interface Options {
@@ -119,7 +119,7 @@ function renderComparison(baseline: Baseline, head: Run): string {
     const over =
       was >= fileFloorMs && now > was * (1 + fileTolerance) && now > was + fileDeltaMs
 
-    return `  ${over ? '✗' : '✓'}  ${file}  ${ms(was)} → ${ms(now)}  (${signed(delta)}, ${pct(ratio)})`
+    return `  ${over ? '!' : '✓'}  ${file}  ${ms(was)} → ${ms(now)}  (${signed(delta)}, ${pct(ratio)})`
   })
 
   return lines.join('\n')
@@ -148,6 +148,11 @@ function run(): void {
   }
 
   const alarms = evaluate(baseline, head)
+  // Everything both clauses noticed, including the one that does not fail a
+  // build on this suite. A per-file regression still has to be visible: the
+  // clause is off because its thresholds cannot be calibrated on a shared
+  // runner, not because the information is unwanted.
+  const noted = diagnose(baseline, head).filter((alarm) => !alarms.includes(alarm))
   const comparison = renderComparison(baseline, head)
   const headTotal = total(head)
 
@@ -164,6 +169,14 @@ function run(): void {
     alarms.length === 0
       ? '✓ Within budget.'
       : `✗ ${String(alarms.length)} budget failure(s):\n\n${alarms.map((a) => `- \`${a.scope}\` — ${a.reason}`).join('\n')}`,
+    ...(noted.length === 0
+      ? []
+      : [
+          '',
+          `Noted, not enforced (${BUDGET.enforce.join(', ')} only — see timing/budget.ts):`,
+          '',
+          ...noted.map((a) => `- \`${a.scope}\` — ${a.reason}`),
+        ]),
   ].join('\n')
 
   console.log(comparison)
@@ -179,6 +192,15 @@ function run(): void {
     appendFileSync(stepSummary, `${summary}\n`, 'utf8')
   }
 
+  for (const note of noted) console.log(`!  ${note.scope}: ${note.reason}`)
+
+  if (noted.length > 0) {
+    console.log(
+      `   (noted, not enforced — this budget enforces ${BUDGET.enforce.join(' and ')}; see timing/budget.ts)`,
+    )
+    console.log()
+  }
+
   if (alarms.length === 0) {
     console.log('✓ Test-time budget satisfied.')
     return
@@ -188,7 +210,7 @@ function run(): void {
 
   console.error()
   console.error(
-    `✗ Test-time budget exceeded. Thresholds: a file at or above ${String(BUDGET.thresholds.fileFloorMs)}ms over its baseline by both ${pct(BUDGET.thresholds.fileTolerance)} and ${String(BUDGET.thresholds.fileDeltaMs)}ms, or the suite total over by ${pct(BUDGET.thresholds.totalTolerance)}. Files marked \`?\` have no baseline entry and are reported, not failed. See timing/README.md.`,
+    `✗ Test-time budget exceeded. This budget enforces ${BUDGET.enforce.join(' and ')}: the suite total over its baseline by ${pct(BUDGET.thresholds.totalTolerance)}. Files marked \`?\` have no baseline entry and files marked \`!\` tripped the unenforced per-file clause; neither fails a build. See timing/README.md.`,
   )
   process.exit(1)
 }

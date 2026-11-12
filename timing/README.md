@@ -239,6 +239,52 @@ single most encouraging fact here: test time is concentrated, so the
 calibration that looks like a retreat by file count is close to complete by
 the measure a budget exists to defend.
 
+## The measurement that overruled the first two
+
+The matrix picks a rule shape. The calibration sets thresholds. Both were done
+before this gate had ever run on the machine it was written for, and the first
+thing it did there was **fail a pull request that changed one line of
+`SPEC.md`**.
+
+Nothing could have slowed anything. The suite total came in **7.8% faster** and
+nearly every file with it. One file did not: `flake/identity.test.ts` went
+**17807ms → 29126ms, +63.6%**, between two runs of identical code on one
+GitHub runner inside one job.
+
+The local calibration had declared that safe, and the mistake was in the metric
+rather than the data. It measured each file's worst run against its **median**,
+which reads +9% for that file over six runs. CI holds one base run against one
+head run, so what the clause is exposed to is the distance between *any two
+draws* — the full range — which is **+41%** for the same file in the same six
+runs. `noise.ts` now reports both, and on the corrected metric
+`snapshot/check.test.ts` (6440ms → 10009ms, +55% and +3569ms) trips the shipped
+thresholds on its own, locally, with nothing changed. The gate was never safe;
+the calibration just could not see it.
+
+Thresholds that do clear that floor are about +100% and +12s, which polices
+nothing worth policing. And the shape of the problem is now clear: a per-file
+wall-clock clause is unreliable at **both** ends — short files have enormous
+relative range (+443% on a 3ms file), and the files with enormous absolute
+range are the suites that spawn Vitest or Playwright as subprocesses, which are
+also the large ones. The band where a per-file budget works is too narrow to be
+worth a red build.
+
+The total survived both machines: ±6% across local batches, −7.8% on the
+runner, against a 15% tolerance. So `budget.json` has an `enforce` list, and it
+holds `total` alone. The per-file comparison is still computed and still
+printed — ranked by what each file cost, marked `!` where it crosses the
+unenforced thresholds — because that table is what somebody reading a slow
+build actually wants. It just does not decide the exit code.
+
+To enforce the per-file clause, calibrate it on the runner it will run on,
+raise the thresholds above the **range** `calibrate.ts` reports there, and add
+`"file"` to `enforce`. Not before.
+
+This is the directory's own thesis arriving uninvited. The whole point of the
+matrix is that a timing gate's interesting failure is the build it fails for
+nothing, and the gate built to demonstrate that did it once, in public, on the
+second pull request it saw.
+
 ## How CI runs it
 
 The `timing` job in `.github/workflows/ci.yml` checks out the merge base,
@@ -255,8 +301,9 @@ that means anything. It is a required check like every other job there.
   requires every finding above to still hold.
 - `findings.test.ts` hands each finding a copy of the measurement with one cell
   moved and requires it to notice.
-- `budget.test.ts` holds every threshold above the measured noise floor, so
-  lowering one to turn a red build green fails the suite.
+- `budget.test.ts` holds the enforced threshold clear of the measured floor and
+  pins the reason the per-file clause is not enforced, so quietly switching it
+  back on without calibrating fails the suite.
 
 Re-record `corpus.json` when the fixture changes; re-run `calibrate.ts` and
 raise `budget.json` when the suite or the runner changes. Do not lower a

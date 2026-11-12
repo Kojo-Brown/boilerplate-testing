@@ -1,4 +1,7 @@
 {
+  "enforce": [
+    "total"
+  ],
   "thresholds": {
     "fileTolerance": 0.5,
     "fileDeltaMs": 250,
@@ -13,9 +16,20 @@
     "totalNoiseFloor": 0.06,
     "worstFileRelative": 3.62,
     "worstFileAbsoluteMs": 2834,
+    "worstFileRangeRelative": 4.43,
+    "worstFileRangeAbsoluteMs": 4012,
     "machine": "linux x64, 4-way parallelism, Node v22.23.4",
     "recordedAt": "2026-11-12",
     "policedFiles": 21,
     "policedShareOfWallClock": 0.965
+  },
+  "runnerEvidence": {
+    "where": "ubuntu-latest, GitHub-hosted, PR #59 (a SPEC.md-only change)",
+    "totalMovedBy": -0.078,
+    "perFileFalseAlarms": 1,
+    "worstFile": "flake/identity.test.ts",
+    "worstFileFromMs": 17807,
+    "worstFileToMs": 29126,
+    "recordedAt": "2026-11-12"
   }
 }
