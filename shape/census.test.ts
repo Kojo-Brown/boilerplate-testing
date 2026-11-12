@@ -210,6 +210,19 @@ describe('the empty-file exception list', () => {
     // `impact/matrix.ts` is scored against. Registering their config would put
     // six declarations in the ratio for files whose only reader is a Vitest
     // suite, and would make the pyramid count a subject as coverage.
+    //
+    // `timing/fixture/*.test.ts` are the last five, and they are the subject of
+    // a measurement of *themselves*: eleven declarations that spend a known
+    // number of milliseconds and assert nothing worth asserting, run sixteen
+    // times over by `timing/record.ts` so that how long a test file takes —
+    // and how much that number moves when nothing changes — is measured rather
+    // than assumed. They are the reason `timing/` can say that a 1ms file's
+    // worst run is more than twice its median while a 242ms file's is within
+    // half a per cent, which is the finding every threshold in that directory
+    // rests on. Registering their config would do the usual damage to the
+    // ratio and one thing worse: `pnpm test`'s own wall clock is what the
+    // budget polices, so a fixture collected here would put the instrument
+    // inside the thing it measures.
     expect(EXPECTED_EMPTY).toEqual([
       'pact/pipeline/matrix.broker.test.ts',
       'matrix/fixture/specs/hooked.spec.ts',
@@ -234,6 +247,11 @@ describe('the empty-file exception list', () => {
       'impact/fixture/src/pricing.test.ts',
       'impact/fixture/src/rates.test.ts',
       'impact/fixture/src/rules/registry.test.ts',
+      'timing/fixture/large.test.ts',
+      'timing/fixture/medium.test.ts',
+      'timing/fixture/small.test.ts',
+      'timing/fixture/tiny.test.ts',
+      'timing/fixture/uneven.test.ts',
     ])
   })
 
