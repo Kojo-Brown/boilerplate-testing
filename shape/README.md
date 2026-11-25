@@ -122,8 +122,9 @@ bare `eslint` deliberately unclassified: a namespace import reaches both halves
 and has no honest single answer, so it fails rather than being guessed at.
 
 **Reading the repository off disk counts as integration.** This is the call
-that decides this repository's shape. `actionPins`, `gateSteps`, `patchedDeps`,
-`katas`, `taxonomy` and the characterisation corpus all open real files. It is
+that decides this repository's shape. `actionPins`, `gateSteps`, `pnpmSetup`,
+`patchedDeps`, `katas`, `taxonomy` and the characterisation corpus all open real
+files. It is
 the classic line — Fowler's "a unit test does not touch the filesystem" — and it
 is defensible, but it is a call: those tests are fast, hermetic and
 deterministic, which are the properties the pyramid actually cares about.

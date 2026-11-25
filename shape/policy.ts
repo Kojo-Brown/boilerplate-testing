@@ -145,8 +145,8 @@ export interface Policy {
  *      application with 30% integration tests might be over-invested at the
  *      seams; here it is the subject matter.
  *   2. Its audit suites read the repository off disk. `actionPins`,
- *      `gateSteps`, `patchedDeps`, `katas`, `taxonomy`, the characterisation
- *      corpus and three README audits all open real files, which
+ *      `gateSteps`, `pnpmSetup`, `patchedDeps`, `katas`, `taxonomy`, the
+ *      characterisation corpus and three README audits all open real files, which
  *      `boundaries.ts` classifies as integration on the classic Fowler line.
  *      That is one judgement call moving a large share of the middle band, and
  *      README.md says exactly what happens if you make it differently.

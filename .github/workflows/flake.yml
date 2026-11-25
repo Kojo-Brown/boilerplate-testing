@@ -65,10 +65,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # No `version:` input — the action reads the pinned `packageManager`
+      # field from package.json, so CI and local installs cannot disagree.
+      # Passing both is a hard error under action-setup v6, which is what kept
+      # every run of this workflow red; `ci.yml` has always done it this way.
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v7
